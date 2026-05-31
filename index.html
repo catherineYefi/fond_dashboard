@@ -3,301 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Фонд-Акселератор МД — Дашборд</title>
+<title>Фонд-Акселератор МД</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.8.0/Recharts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-  :root {
-    --navy:    #0A1628;
-    --navy2:   #0F1E35;
-    --navy3:   #162840;
-    --cyan:    #00D4FF;
-    --magenta: #FF2D78;
-    --gold:    #FFB547;
-    --green:   #00E5A0;
-    --white:   #F0F4FF;
-    --muted:   #5A7299;
-    --glass:   rgba(255,255,255,0.04);
-    --glass-b: rgba(0,212,255,0.08);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { font-size: 16px; }
-  body {
-    background: var(--navy);
-    color: var(--white);
-    font-family: 'Inter', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-  /* Noise texture overlay */
-  body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events: none; z-index: 0;
-  }
-  #root { position: relative; z-index: 1; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0A1628;--navy2:#0F1E35;--navy3:#162840;
+  --cyan:#00D4FF;--mag:#FF2D78;--gold:#FFB547;--green:#00E5A0;
+  --white:#F0F4FF;--muted:#4A6080;--glass:rgba(255,255,255,0.04);
+}
+body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh;padding:24px 20px 60px}
+.wrap{max-width:1400px;margin:0 auto}
 
-  .app { max-width: 1400px; margin: 0 auto; padding: 24px 20px 48px; }
+/* Header */
+.hdr{display:flex;align-items:center;justify-content:space-between;
+     padding-bottom:20px;margin-bottom:28px;
+     border-bottom:1px solid rgba(0,212,255,0.1)}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.logo{width:42px;height:42px;border-radius:11px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--cyan),var(--mag));
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Syne',sans-serif;font-weight:800;font-size:17px;color:var(--navy)}
+.hdr-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);
+       background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);
+       padding:5px 11px;border-radius:18px}
+.badge.demo{color:var(--gold);background:rgba(255,181,71,0.08);border-color:rgba(255,181,71,0.2)}
+.btn-refresh{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);
+             color:var(--cyan);padding:5px 13px;border-radius:18px;
+             font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s}
+.btn-refresh:hover{background:rgba(0,212,255,0.16)}
 
-  /* Header */
-  .header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 32px; padding-bottom: 20px;
-    border-bottom: 1px solid rgba(0,212,255,0.12);
-  }
-  .header-left { display: flex; align-items: center; gap: 16px; }
-  .logo-mark {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--cyan), var(--magenta));
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-weight: 800;
-    font-size: 18px; color: var(--navy); flex-shrink: 0;
-  }
-  .header-title { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; }
-  .header-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
-  .header-right { display: flex; align-items: center; gap: 16px; }
-  .updated-badge {
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    color: var(--cyan); background: rgba(0,212,255,0.08);
-    border: 1px solid rgba(0,212,255,0.2);
-    padding: 6px 12px; border-radius: 20px;
-  }
-  .refresh-btn {
-    background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.2);
-    color: var(--cyan); padding: 6px 14px; border-radius: 20px;
-    font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif;
-    transition: all 0.2s;
-  }
-  .refresh-btn:hover { background: rgba(0,212,255,0.16); }
+/* Section label */
+.sec-lbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;
+         text-transform:uppercase;color:var(--muted);margin-bottom:12px;
+         display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.05)}
 
-  /* Section title */
-  .section-label {
-    font-family: 'DM Mono', monospace; font-size: 10px;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 12px;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-label::after {
-    content: ''; flex: 1; height: 1px;
-    background: rgba(255,255,255,0.06);
-  }
+/* Status pills */
+.pills{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:22px;font-size:12px;font-weight:500;border:1px solid}
+.pill.g{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.22);color:var(--green)}
+.pill.y{background:rgba(255,181,71,.07);border-color:rgba(255,181,71,.22);color:var(--gold)}
+.pill.r{background:rgba(255,45,120,.07);border-color:rgba(255,45,120,.22);color:var(--mag)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
-  /* Status bar */
-  .status-bar {
-    display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap;
-  }
-  .status-pill {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 16px; border-radius: 24px;
-    font-size: 13px; font-weight: 500;
-    border: 1px solid;
-  }
-  .status-pill.green  { background: rgba(0,229,160,0.08); border-color: rgba(0,229,160,0.25); color: var(--green); }
-  .status-pill.yellow { background: rgba(255,181,71,0.08); border-color: rgba(255,181,71,0.25); color: var(--gold); }
-  .status-pill.red    { background: rgba(255,45,120,0.08); border-color: rgba(255,45,120,0.25); color: var(--magenta); }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+/* KPI Grid */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-bottom:28px}
+.kpi{background:var(--glass);border:1px solid rgba(255,255,255,0.07);border-radius:14px;
+     padding:18px 20px;position:relative;overflow:hidden;transition:.2s}
+.kpi:hover{border-color:rgba(0,212,255,.2);transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;
+             background:linear-gradient(90deg,transparent,var(--top-glow,rgba(0,212,255,.4)),transparent)}
+.kpi.c{--top-glow:rgba(0,212,255,.6)}.kpi.m{--top-glow:rgba(255,45,120,.6)}
+.kpi.g2{--top-glow:rgba(0,229,160,.6)}.kpi.go{--top-glow:rgba(255,181,71,.6)}
+.kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:500}
+.kpi-val{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1}
+.kpi-val.cyan{color:var(--cyan)}.kpi-val.mag{color:var(--mag)}
+.kpi-val.green{color:var(--green)}.kpi-val.gold{color:var(--gold)}.kpi-val.white{color:var(--white)}
+.kpi-sub{font-size:10px;color:var(--muted);margin-top:7px}
 
-  /* KPI Grid */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px; margin-bottom: 32px;
-  }
-  .kpi-card {
-    background: var(--glass);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px; padding: 20px;
-    position: relative; overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
-  }
-  .kpi-card:hover { border-color: rgba(0,212,255,0.2); transform: translateY(-2px); }
-  .kpi-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, var(--glow, rgba(0,212,255,0.4)), transparent);
-  }
-  .kpi-card.accent-cyan  { --glow: rgba(0,212,255,0.6); }
-  .kpi-card.accent-mag   { --glow: rgba(255,45,120,0.6); }
-  .kpi-card.accent-green { --glow: rgba(0,229,160,0.6); }
-  .kpi-card.accent-gold  { --glow: rgba(255,181,71,0.6); }
+/* YTD row */
+.ytd-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px}
 
-  .kpi-label { font-size: 11px; color: var(--muted); margin-bottom: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; }
-  .kpi-value { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 500; line-height: 1; }
-  .kpi-value.cyan    { color: var(--cyan); }
-  .kpi-value.magenta { color: var(--magenta); }
-  .kpi-value.green   { color: var(--green); }
-  .kpi-value.gold    { color: var(--gold); }
-  .kpi-value.white   { color: var(--white); }
-  .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; }
+/* Charts */
+.charts-grid{display:grid;grid-template-columns:3fr 2fr;gap:14px;margin-bottom:28px}
+@media(max-width:860px){.charts-grid,.ytd-grid{grid-template-columns:1fr}}
+.card{background:var(--glass);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px}
+.card-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:18px}
 
-  /* Charts grid */
-  .charts-grid {
-    display: grid; grid-template-columns: 3fr 2fr;
-    gap: 16px; margin-bottom: 32px;
-  }
-  @media (max-width: 900px) { .charts-grid { grid-template-columns: 1fr; } }
+/* Bottom */
+.bot-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.bot-grid{grid-template-columns:1fr}}
 
-  .chart-card {
-    background: var(--glass);
-    border: 1px solid rgba(255,255,255,0.07);
-    border-radius: 16px; padding: 24px;
-  }
-  .chart-title {
-    font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700;
-    margin-bottom: 20px; color: var(--white);
-  }
+/* Funnel */
+.fun-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.fun-row:last-child{border-bottom:none}
+.fun-stage{font-size:11px;color:var(--muted);width:120px;flex-shrink:0}
+.fun-bar-bg{flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.fun-bar{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width 1s ease}
+.fun-n{font-family:'DM Mono',monospace;font-size:12px;color:var(--white);width:30px;text-align:right}
+.fun-pct{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);width:38px;text-align:right}
 
-  /* Bottom grid */
-  .bottom-grid {
-    display: grid; grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  @media (max-width: 900px) { .bottom-grid { grid-template-columns: 1fr; } }
+/* Clients */
+.cl-row{display:flex;align-items:center;justify-content:space-between;
+        padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.cl-row:last-child{border-bottom:none}
+.cl-name{font-size:12px;font-weight:500}
+.cl-tag{font-size:10px;padding:3px 9px;border-radius:9px;font-weight:500}
+.cl-tag.active{background:rgba(0,229,160,.1);color:var(--green)}
+.cl-tag.warn{background:rgba(255,181,71,.1);color:var(--gold)}
+.cl-tag.option{background:rgba(0,212,255,.1);color:var(--cyan)}
 
-  /* Funnel */
-  .funnel-row {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .funnel-row:last-child { border-bottom: none; }
-  .funnel-stage { font-size: 12px; color: var(--muted); width: 140px; flex-shrink: 0; }
-  .funnel-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-  .funnel-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--cyan), var(--magenta)); transition: width 1s ease; }
-  .funnel-num { font-family: 'DM Mono', monospace; font-size: 13px; color: var(--white); width: 40px; text-align: right; }
-  .funnel-pct { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--muted); width: 44px; text-align: right; }
+/* RNP */
+.rnp-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;
+          border-bottom:1px solid rgba(255,255,255,0.04)}
+.rnp-item:last-child{border-bottom:none}
+.rnp-ico{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;
+         justify-content:center;font-size:12px;flex-shrink:0;margin-top:1px}
+.rnp-ico.g{background:rgba(0,229,160,.12)}.rnp-ico.y{background:rgba(255,181,71,.12)}
+.rnp-ico.r{background:rgba(255,45,120,.12)}
+.rnp-text{font-size:12px;line-height:1.55}
+.rnp-text b{color:var(--white);font-weight:600}
+.rnp-text span{color:var(--muted)}
 
-  /* Portfolio list */
-  .client-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .client-row:last-child { border-bottom: none; }
-  .client-name { font-size: 13px; font-weight: 500; }
-  .client-status { font-size: 11px; padding: 3px 10px; border-radius: 10px; }
-  .client-status.active   { background: rgba(0,229,160,0.1); color: var(--green); }
-  .client-status.warn     { background: rgba(255,181,71,0.1); color: var(--gold); }
-  .client-status.option   { background: rgba(0,212,255,0.1); color: var(--cyan); }
+/* Error banner */
+.err{background:rgba(255,45,120,.08);border:1px solid rgba(255,45,120,.2);
+     border-radius:10px;padding:14px 16px;margin-bottom:20px;font-size:12px;color:var(--mag)}
 
-  /* RNP block */
-  .rnp-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .rnp-item:last-child { border-bottom: none; }
-  .rnp-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 1px; }
-  .rnp-icon.green  { background: rgba(0,229,160,0.12); }
-  .rnp-icon.yellow { background: rgba(255,181,71,0.12); }
-  .rnp-icon.red    { background: rgba(255,45,120,0.12); }
-  .rnp-text { font-size: 13px; line-height: 1.5; }
-  .rnp-text strong { color: var(--white); font-weight: 600; }
-  .rnp-text span   { color: var(--muted); }
+/* Footer */
+.ftr{margin-top:40px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.05);
+     display:flex;justify-content:space-between;align-items:center;
+     font-size:11px;color:var(--muted);flex-wrap:wrap;gap:8px}
+.ftr a{color:var(--cyan);text-decoration:none}
+.ftr a:hover{text-decoration:underline}
 
-  /* Loading */
-  .loading {
-    display: flex; align-items: center; justify-content: center;
-    height: 60vh; flex-direction: column; gap: 16px;
-  }
-  .spinner {
-    width: 36px; height: 36px; border-radius: 50%;
-    border: 2px solid rgba(0,212,255,0.2);
-    border-top-color: var(--cyan);
-    animation: spin 0.8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Error */
-  .error-box {
-    background: rgba(255,45,120,0.08); border: 1px solid rgba(255,45,120,0.2);
-    border-radius: 12px; padding: 20px; margin: 20px 0;
-    font-size: 13px; color: var(--magenta);
-  }
-  .error-box code { font-family: 'DM Mono', monospace; font-size: 11px; }
-
-  /* Tooltip */
-  .recharts-tooltip-wrapper .custom-tooltip {
-    background: var(--navy2); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; padding: 10px 14px; font-size: 12px;
-  }
+/* Loader */
+#loader{display:flex;align-items:center;justify-content:center;
+        height:60vh;flex-direction:column;gap:14px}
+.spinner{width:34px;height:34px;border-radius:50%;
+         border:2px solid rgba(0,212,255,.2);border-top-color:var(--cyan);
+         animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-<div id="root"></div>
+<div class="wrap">
+  <div id="loader"><div class="spinner"></div><span style="color:var(--muted);font-size:13px">Загрузка...</span></div>
+  <div id="app" style="display:none"></div>
+</div>
 
-<script type="text/babel">
-const { useState, useEffect, useCallback } = React;
-const { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, 
-        Tooltip, ResponsiveContainer, Legend, Cell } = Recharts;
-
-// ─── НАСТРОЙКИ ───────────────────────────────────────────────────────────────
-// Замени SHEET_ID на ID своей Google Таблицы (из URL)
-// Замени GID на gid листа "KPI" (виден в URL при открытии листа)
+<script>
+// ═══════════════════════════════════════════════════
+// НАСТРОЙКИ — замени на свои
 const SHEET_ID = '1izDsZ7aOc_1v064vGr2cU3xtYlSA2atvZrg6tyo2oNw';
-const KPI_GID  = '901148838';  // gid листа KPI
-const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${KPI_GID}`;
+const KPI_GID  = '901148838';
+// ═══════════════════════════════════════════════════
 
-// Fallback данные — используются пока не настроен Google Sheets
-const DEMO_DATA = {
-  gross_revenue:   88666911,
-  net_revenue:     72677796,
-  ebitda:          15709584,
-  net_profit:      11482267,
-  ebitda_margin:   0.216,
-  np_margin:       0.158,
-  cf_ytd:          14843757,
-  ebitda_ytd:       5817563,
-  np_ytd:           4628369,
-  clients_active:  10,
-  clients_confirm:  6,
-  tbu_mm:          13,
-  tbu_aks:          7,
-  next_mm:         'август 2026',
-  opex_month:    1415250,
-  deferred:       2542991,
-  min_cash:       3975008,
-  month_label:    'июнь 2026',
-  updated:        'апрель–май 2026 (факт)',
-  // Воронка апрель
-  leads:          108,
-  scored:          16,
-  approved:        11,
-  guests:           5,
-  signed:           2,
-  // Квартальная выручка
-  q1_sub:   9000000, q1_mm:          0, q1_str:  284154,
-  q2_sub:   9500000, q2_mm:  13000000, q2_str: 2282000,
-  q3_sub:  12000000, q3_mm:   7000000, q3_str: 3243278,
-  q4_sub:  13500000, q4_mm:  11500000, q4_str: 2382992,
-  // Помесячный EBITDA (апр–мар)
-  ebitda_apr: -447408, ebitda_may: -447408, ebitda_jun: -286398,
-  ebitda_jul:  136827, ebitda_aug: 4326318, ebitda_sep:  508787,
-  ebitda_oct: 1476140, ebitda_nov: 1394616, ebitda_dec:  972715,
-  ebitda_jan: 4481129, ebitda_feb: 1389364, ebitda_mar: 1705497,
+const DEMO = {
+  gross_revenue:88666911, net_revenue:72677796,
+  ebitda:15709584, net_profit:11482267,
+  ebitda_margin:0.216, np_margin:0.158,
+  cf_ytd:14843757, ebitda_ytd:5817563, np_ytd:4628369,
+  clients_active:10, clients_confirm:6,
+  tbu_mm:13, tbu_aks:7,
+  next_mm:'август 2026', opex_month:1415250,
+  deferred:2542991, min_cash:3975008,
+  month_label:'июнь 2026', updated:'апрель–май 2026 (факт)',
+  leads:108, scored:16, approved:11, guests:5, signed:2,
+  q1_sub:9000000,  q1_mm:0,          q1_str:284154,
+  q2_sub:9500000,  q2_mm:13000000,   q2_str:2282000,
+  q3_sub:12000000, q3_mm:7000000,    q3_str:3243278,
+  q4_sub:13500000, q4_mm:11500000,   q4_str:2382992,
+  ebitda_apr:-447408, ebitda_may:-447408, ebitda_jun:-286398,
+  ebitda_jul:136827,  ebitda_aug:4326318, ebitda_sep:508787,
+  ebitda_oct:1476140, ebitda_nov:1394616, ebitda_dec:972715,
+  ebitda_jan:4481129, ebitda_feb:1389364, ebitda_mar:1705497,
 };
 
-// ─── Парсер CSV из Google Sheets ──────────────────────────────────────────────
-function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const data = {};
-  lines.slice(1).forEach(line => {
-    const cols = line.split(',');
-    if (cols[0] && cols[1]) {
-      const key = cols[0].trim();
-      const raw = cols[1].trim();
-      const num = parseFloat(raw);
-      data[key] = isNaN(num) ? raw : num;
-    }
-  });
-  return data;
-}
-
-// ─── Форматирование ───────────────────────────────────────────────────────────
-const fmt = (n, compact=false) => {
-  if (n === null || n === undefined) return '—';
+const fm = (n, compact=false) => {
+  if (n == null) return '—';
   if (compact) {
     if (Math.abs(n) >= 1e9) return (n/1e9).toFixed(1) + ' млрд';
     if (Math.abs(n) >= 1e6) return (n/1e6).toFixed(1) + ' млн';
@@ -307,303 +176,230 @@ const fmt = (n, compact=false) => {
 };
 const pct = n => n != null ? (n*100).toFixed(1) + '%' : '—';
 
-// ─── Компоненты ───────────────────────────────────────────────────────────────
-function KpiCard({ label, value, sub, color='cyan', accent='accent-cyan' }) {
-  return (
-    <div className={`kpi-card ${accent}`}>
-      <div className="kpi-label">{label}</div>
-      <div className={`kpi-value ${color}`}>{value}</div>
-      {sub && <div className="kpi-sub">{sub}</div>}
-    </div>
-  );
-}
-
-function CustomTooltip({ active, payload, label }) {
-  if (!active || !payload?.length) return null;
-  return (
-    <div className="custom-tooltip" style={{background:'#0F1E35',border:'1px solid rgba(255,255,255,0.1)',borderRadius:10,padding:'10px 14px',fontSize:12}}>
-      <div style={{color:'#5A7299',marginBottom:6,fontFamily:'DM Mono, monospace'}}>{label}</div>
-      {payload.map((p,i) => (
-        <div key={i} style={{color:p.color,marginTop:3}}>
-          {p.name}: <strong>{fmt(p.value, true)}</strong>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Главный компонент ────────────────────────────────────────────────────────
-function App() {
-  const [d, setD] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [lastFetch, setLastFetch] = useState(null);
-  const [usingDemo, setUsingDemo] = useState(false);
-
-  const loadData = useCallback(async () => {
-    setLoading(true); setError(null);
-    if (SHEET_ID === 'YOUR_GOOGLE_SHEET_ID') {
-      // Google Sheets не настроен — используем демо
-      setD(DEMO_DATA); setUsingDemo(true);
-      setLastFetch(new Date()); setLoading(false); return;
+function parseCSV(txt) {
+  const lines = txt.trim().split('\n');
+  const d = {};
+  lines.slice(1).forEach(l => {
+    const c = l.split(',');
+    if (c[0] && c[1]) {
+      const k = c[0].trim(), v = c[1].trim();
+      const n = parseFloat(v);
+      d[k] = isNaN(n) ? v : n;
     }
-    try {
-      const res = await fetch(CSV_URL + '&t=' + Date.now());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const text = await res.text();
-      const parsed = parseCSV(text);
-      setD({ ...DEMO_DATA, ...parsed });
-      setUsingDemo(false);
-      setLastFetch(new Date());
-    } catch (e) {
-      setError(e.message);
-      setD(DEMO_DATA); setUsingDemo(true);
-    } finally { setLoading(false); }
-  }, []);
-
-  useEffect(() => { loadData(); }, [loadData]);
-
-  if (loading) return (
-    <div className="loading">
-      <div className="spinner"/>
-      <span style={{color:'var(--muted)',fontSize:13}}>Загрузка данных...</span>
-    </div>
-  );
-
-  const q_data = [
-    { name: 'Q1\nапр–июн', sub: d.q1_sub, mm: d.q1_mm, str: d.q1_str },
-    { name: 'Q2\nиюл–сен', sub: d.q2_sub, mm: d.q2_mm, str: d.q2_str },
-    { name: 'Q3\nокт–дек', sub: d.q3_sub, mm: d.q3_mm, str: d.q3_str },
-    { name: 'Q4\nянв–мар', sub: d.q4_sub, mm: d.q4_mm, str: d.q4_str },
-  ];
-
-  const months_data = [
-    {m:'апр',e:d.ebitda_apr},{m:'май',e:d.ebitda_may},{m:'июн',e:d.ebitda_jun},
-    {m:'июл',e:d.ebitda_jul},{m:'авг',e:d.ebitda_aug},{m:'сен',e:d.ebitda_sep},
-    {m:'окт',e:d.ebitda_oct},{m:'ноя',e:d.ebitda_nov},{m:'дек',e:d.ebitda_dec},
-    {m:'янв',e:d.ebitda_jan},{m:'фев',e:d.ebitda_feb},{m:'мар',e:d.ebitda_mar},
-  ];
-
-  const funnel = [
-    {stage:'Заявки',    n:d.leads,    base:d.leads},
-    {stage:'Скоринг',   n:d.scored,   base:d.leads},
-    {stage:'Одобрено',  n:d.approved, base:d.leads},
-    {stage:'Гости ММ',  n:d.guests,   base:d.leads},
-    {stage:'Договор',   n:d.signed,   base:d.leads},
-  ];
-
-  const clients = [
-    {name:'Изосина / Oazis Estate',   status:'option',  label:'→ Опцион'},
-    {name:'Голубенко / Разум Инвест', status:'option',  label:'→ Опцион'},
-    {name:'Бражников / Лига Миров',   status:'active',  label:'Активен'},
-    {name:'ООО ВСЕЛЕННАЯ (Бобрук)',   status:'active',  label:'Активен'},
-    {name:'Иванова Наталья',          status:'active',  label:'Акселерация'},
-    {name:'Цыганов / Рыбак',          status:'warn',    label:'Уточнить'},
-  ];
-
-  const tbu_ok_mm = d.clients_active >= d.tbu_mm;
-  const ebitda_ok = d.ebitda > 0;
-
-  const rnp_items = [
-    { color: tbu_ok_mm ? 'green' : 'yellow', icon: tbu_ok_mm ? '✓' : '⚠',
-      text: tbu_ok_mm
-        ? <><strong>Портфель выше ТБУ</strong> <span>({d.clients_active} кл из {d.tbu_mm} нужных)</span></>
-        : <><strong>Ниже ТБУ по подписке</strong> <span>({d.clients_active}/{d.tbu_mm} кл — дефицит перекрывается ММ-событиями)</span></> },
-    { color: 'green', icon: '📅',
-      text: <><strong>Ближайший ММ</strong> <span>— {d.next_mm}</span></> },
-    { color: 'green', icon: '💰',
-      text: <><strong>Мин. кассовый остаток</strong> <span>{fmt(d.min_cash, true)} ₽ — необходим до августовского ММ</span></> },
-    { color: ebitda_ok ? 'green' : 'yellow', icon: ebitda_ok ? '📈' : '📊',
-      text: ebitda_ok
-        ? <><strong>EBITDA год план {fmt(d.ebitda, true)} ₽</strong> <span>· рент. {pct(d.ebitda_margin)}</span></>
-        : <><strong>Операционный убыток в июне</strong> <span>— плановый, выход с августа</span></> },
-    { color: 'yellow', icon: '🎯',
-      text: <><strong>Цель к дек.26</strong> <span>— 16 клиентов (+6 с ММ-событий)</span></> },
-  ];
-
-  return (
-    <div className="app">
-      {/* Header */}
-      <div className="header">
-        <div className="header-left">
-          <div className="logo-mark">МД</div>
-          <div>
-            <div className="header-title">Фонд-Акселератор МД</div>
-            <div className="header-sub">Управленческий дашборд · апр.2026 – мар.2027</div>
-          </div>
-        </div>
-        <div className="header-right">
-          {usingDemo && (
-            <span style={{fontSize:11,color:'var(--gold)',background:'rgba(255,181,71,0.08)',border:'1px solid rgba(255,181,71,0.2)',padding:'5px 10px',borderRadius:12}}>
-              Demo данные
-            </span>
-          )}
-          <div className="updated-badge">
-            Обновлено: {lastFetch ? lastFetch.toLocaleTimeString('ru', {hour:'2-digit',minute:'2-digit'}) : '—'}
-          </div>
-          <button className="refresh-btn" onClick={loadData}>↻ Обновить</button>
-        </div>
-      </div>
-
-      {usingDemo && SHEET_ID === 'YOUR_GOOGLE_SHEET_ID' && (
-        <div className="error-box">
-          <strong>Google Sheets не подключён.</strong> Показаны demo данные.<br/>
-          Замени <code>SHEET_ID</code> и <code>KPI_GID</code> в коде на параметры своей таблицы.<br/>
-          Инструкция: Таблица → Файл → Поделиться → Опубликовать в интернете → Выбрать лист KPI → CSV
-        </div>
-      )}
-
-      {error && (
-        <div className="error-box">
-          Ошибка загрузки: {error}. Используются последние данные.
-        </div>
-      )}
-
-      {/* Status bar */}
-      <div className="section-label">Статус · {d.month_label}</div>
-      <div className="status-bar">
-        <div className={`status-pill ${d.ebitda > 0 ? 'green' : 'yellow'}`}>
-          <div className="dot"/> EBITDA год: {fmt(d.ebitda, true)} ₽
-        </div>
-        <div className={`status-pill ${d.clients_active >= d.tbu_aks ? 'green' : 'yellow'}`}>
-          <div className="dot"/> Портфель: {d.clients_active} кл · ТБУ Акс: {d.tbu_aks}
-        </div>
-        <div className="status-pill yellow">
-          <div className="dot"/> Следующий ММ: {d.next_mm}
-        </div>
-        <div className="status-pill green">
-          <div className="dot"/> Мин. остаток: {fmt(d.min_cash, true)} ₽
-        </div>
-      </div>
-
-      {/* KPI cards */}
-      <div className="section-label">Ключевые показатели · план год</div>
-      <div className="kpi-grid">
-        <KpiCard label="Выручка gross / год" value={fmt(d.gross_revenue, true)+' ₽'} sub="апр.26–мар.27" color="cyan" accent="accent-cyan"/>
-        <KpiCard label="Выручка net / год"   value={fmt(d.net_revenue, true)+' ₽'}   sub="без НДС 22%" color="white" accent="accent-cyan"/>
-        <KpiCard label="EBITDA / год"         value={fmt(d.ebitda, true)+' ₽'}        sub={`Рент. ${pct(d.ebitda_margin)}`} color="green" accent="accent-green"/>
-        <KpiCard label="Чистая прибыль / год" value={fmt(d.net_profit, true)+' ₽'}   sub={`Рент. ${pct(d.np_margin)}`} color="green" accent="accent-green"/>
-        <KpiCard label="OPEX / месяц"         value={fmt(d.opex_month, true)+' ₽'}    sub="с 01.06.2026" color="gold" accent="accent-gold"/>
-        <KpiCard label="CF нарастающим"       value={fmt(d.cf_ytd, true)+' ₽'}        sub="факт окт.25–май.26" color="cyan" accent="accent-cyan"/>
-        <KpiCard label="Отложенная выручка"   value={fmt(d.deferred, true)+' ₽'}      sub="аванс, услуга впереди" color="gold" accent="accent-gold"/>
-        <KpiCard label="Клиентов в модели"    value={String(d.clients_active)}         sub={`подтв.: ${d.clients_confirm} · уточнить: ${d.clients_active - d.clients_confirm - 1}`} color="magenta" accent="accent-mag"/>
-      </div>
-
-      {/* YTD факт */}
-      <div className="section-label">Факт нарастающим · окт.2025 – май.2026</div>
-      <div className="kpi-grid" style={{gridTemplateColumns:'repeat(3,1fr)',marginBottom:32}}>
-        <KpiCard label="EBITDA YTD"           value={fmt(d.ebitda_ytd, true)+' ₽'} sub="операц. прибыль" color="green" accent="accent-green"/>
-        <KpiCard label="Чистая прибыль YTD"   value={fmt(d.np_ytd, true)+' ₽'}     sub="после НДС" color="green" accent="accent-green"/>
-        <KpiCard label="CF YTD"               value={fmt(d.cf_ytd, true)+' ₽'}      sub="реально на счёте" color="cyan" accent="accent-cyan"/>
-      </div>
-
-      {/* Charts */}
-      <div className="section-label">Выручка и EBITDA · план апр.26–мар.27</div>
-      <div className="charts-grid">
-        <div className="chart-card">
-          <div className="chart-title">Выручка gross по продуктам — поквартально</div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={q_data} barCategoryGap="28%">
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false}/>
-              <XAxis dataKey="name" tick={{fill:'#5A7299',fontSize:11,fontFamily:'DM Mono'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fill:'#5A7299',fontSize:10,fontFamily:'DM Mono'}} axisLine={false} tickLine={false}
-                     tickFormatter={v => fmt(v,true)} width={56}/>
-              <Tooltip content={<CustomTooltip/>}/>
-              <Legend iconType="circle" iconSize={6}
-                      wrapperStyle={{fontSize:11,color:'#5A7299',fontFamily:'DM Mono'}}/>
-              <Bar dataKey="sub" name="Подписки"   fill="#1A4A6B" stackId="a" radius={[0,0,0,0]}/>
-              <Bar dataKey="mm"  name="ММ-события" fill="#00D4FF" stackId="a" radius={[0,0,0,0]}/>
-              <Bar dataKey="str" name="Стратсессии" fill="#FF2D78" stackId="a" radius={[4,4,0,0]}/>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-
-        <div className="chart-card">
-          <div className="chart-title">EBITDA по месяцам</div>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={months_data} barCategoryGap="20%">
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false}/>
-              <XAxis dataKey="m" tick={{fill:'#5A7299',fontSize:10,fontFamily:'DM Mono'}} axisLine={false} tickLine={false}/>
-              <YAxis tick={{fill:'#5A7299',fontSize:10,fontFamily:'DM Mono'}} axisLine={false} tickLine={false}
-                     tickFormatter={v => fmt(v,true)} width={52}/>
-              <Tooltip content={<CustomTooltip/>}/>
-              <Bar dataKey="e" name="EBITDA" radius={[3,3,0,0]}>
-                {months_data.map((m,i) => (
-                  <Cell key={i} fill={m.e >= 0 ? '#00E5A0' : '#FF2D78'}/>
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Bottom: Funnel + Clients + RNP */}
-      <div className="section-label">Портфель и воронка · {d.month_label}</div>
-      <div className="bottom-grid">
-        <div className="chart-card">
-          <div className="chart-title">Воронка продаж</div>
-          {funnel.map((f,i) => (
-            <div key={i} className="funnel-row">
-              <div className="funnel-stage">{f.stage}</div>
-              <div className="funnel-bar-wrap">
-                <div className="funnel-bar" style={{width: f.base ? `${Math.round(f.n/f.base*100)}%` : '0%'}}/>
-              </div>
-              <div className="funnel-num">{f.n}</div>
-              <div className="funnel-pct">{f.base ? Math.round(f.n/f.base*100)+'%' : '—'}</div>
-            </div>
-          ))}
-          <div style={{marginTop:16,paddingTop:12,borderTop:'1px solid rgba(255,255,255,0.06)',
-                       display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--muted)'}}>
-            <span>Итоговая конверсия</span>
-            <span style={{fontFamily:'DM Mono, monospace',color:'var(--cyan)'}}>
-              {d.leads ? (d.signed/d.leads*100).toFixed(1) + '%' : '—'}
-            </span>
-          </div>
-        </div>
-
-        <div>
-          <div className="chart-card" style={{marginBottom:16}}>
-            <div className="chart-title">Портфель компаний</div>
-            {clients.map((c,i) => (
-              <div key={i} className="client-row">
-                <div className="client-name">{c.name}</div>
-                <div className={`client-status ${c.status}`}>{c.label}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="chart-card">
-            <div className="chart-title">К РНП — ключевые темы</div>
-            {rnp_items.map((item,i) => (
-              <div key={i} className="rnp-item">
-                <div className={`rnp-icon ${item.color}`}>{item.icon}</div>
-                <div className="rnp-text">{item.text}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{marginTop:40,paddingTop:20,borderTop:'1px solid rgba(255,255,255,0.05)',
-                   display:'flex',justifyContent:'space-between',alignItems:'center',
-                   fontSize:11,color:'var(--muted)'}}>
-        <span style={{fontFamily:'DM Mono, monospace'}}>
-          Фонд-Акселератор МД · ООО «Группа Развития»
-        </span>
-        <span>
-          Данные: {d.updated} · 
-          <a href="https://fond-accelerator.ru" target="_blank" rel="noreferrer"
-             style={{color:'var(--cyan)',textDecoration:'none',marginLeft:4}}>
-            fond-accelerator.ru
-          </a>
-        </span>
-      </div>
-    </div>
-  );
+  });
+  return d;
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+async function loadData() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${KPI_GID}&t=${Date.now()}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const txt = await r.text();
+    return { data: { ...DEMO, ...parseCSV(txt) }, demo: false, err: null };
+  } catch(e) {
+    return { data: DEMO, demo: true, err: e.message };
+  }
+}
+
+function kpi(label, val, sub, valClass='cyan', accent='c') {
+  return `<div class="kpi ${accent}">
+    <div class="kpi-lbl">${label}</div>
+    <div class="kpi-val ${valClass}">${val}</div>
+    ${sub ? `<div class="kpi-sub">${sub}</div>` : ''}
+  </div>`;
+}
+
+function render(d, demo, err, time) {
+  const tbu_ok = d.clients_active >= d.tbu_mm;
+  const funnel = [
+    {s:'Заявки', n:d.leads,    base:d.leads},
+    {s:'Скоринг',n:d.scored,   base:d.leads},
+    {s:'Одобрено',n:d.approved,base:d.leads},
+    {s:'Гости ММ',n:d.guests,  base:d.leads},
+    {s:'Договор', n:d.signed,  base:d.leads},
+  ];
+  const clients = [
+    {name:'Изосина / Oazis Estate',   tag:'option', label:'→ Опцион'},
+    {name:'Голубенко / Разум Инвест', tag:'option', label:'→ Опцион'},
+    {name:'Бражников / Лига Миров',   tag:'active', label:'Активен'},
+    {name:'ООО ВСЕЛЕННАЯ (Бобрук)',   tag:'active', label:'Активен'},
+    {name:'Иванова Наталья',          tag:'active', label:'Акселерация'},
+    {name:'Цыганов / Рыбак',          tag:'warn',   label:'Уточнить'},
+  ];
+  const rnp = [
+    { ic:'g', ico:tbu_ok?'✓':'⚠',
+      txt: tbu_ok
+        ? `<b>Портфель выше ТБУ Акс</b> <span>(${d.clients_active} кл · ТБУ Акс ${d.tbu_aks})</span>`
+        : `<b>Ниже ТБУ по подписке</b> <span>(${d.clients_active}/${d.tbu_mm} кл — перекрывается ММ-событиями)</span>` },
+    { ic:'g', ico:'📅', txt:`<b>Ближайший ММ</b> <span>— ${d.next_mm}</span>` },
+    { ic:'y', ico:'💰', txt:`<b>Мин. кассовый остаток</b> <span>${fm(d.min_cash,true)} ₽ — необходим до августа</span>` },
+    { ic:'g', ico:'📈', txt:`<b>EBITDA год план ${fm(d.ebitda,true)} ₽</b> <span>· рент. ${pct(d.ebitda_margin)}</span>` },
+    { ic:'y', ico:'🎯', txt:`<b>Цель к дек.26</b> <span>— 16 клиентов (+6 с ММ-событий)</span>` },
+  ];
+
+  document.getElementById('app').innerHTML = `
+    ${demo ? `<div class="err" id="demoBanner"><b>Demo данные${err ? ' · ' + err : ''}</b> — Google Sheets не подключён или не опубликован. <a href="#" onclick="location.reload()" style="color:var(--cyan)">Попробовать снова</a></div>` : ''}
+
+    <div class="hdr">
+      <div class="hdr-l">
+        <div class="logo">МД</div>
+        <div>
+          <div class="hdr-title">Фонд-Акселератор МД</div>
+          <div class="hdr-sub">Управленческий дашборд · апр.2026 – мар.2027</div>
+        </div>
+      </div>
+      <div class="hdr-r">
+        ${demo ? '<span class="badge demo">Demo</span>' : ''}
+        <span class="badge">Обновлено: ${time}</span>
+        <button class="btn-refresh" onclick="init()">↻ Обновить</button>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Статус · ${d.month_label}</div>
+    <div class="pills">
+      <div class="pill ${d.ebitda>0?'g':'y'}"><div class="dot"></div>EBITDA год: ${fm(d.ebitda,true)} ₽</div>
+      <div class="pill ${d.clients_active>=d.tbu_aks?'g':'y'}"><div class="dot"></div>Портфель: ${d.clients_active} кл · ТБУ Акс: ${d.tbu_aks}</div>
+      <div class="pill y"><div class="dot"></div>Ближайший ММ: ${d.next_mm}</div>
+      <div class="pill g"><div class="dot"></div>Мин. остаток: ${fm(d.min_cash,true)} ₽</div>
+    </div>
+
+    <div class="sec-lbl">Ключевые показатели · план год</div>
+    <div class="kpi-grid" id="kpiMain">
+      ${kpi('Выручка gross / год', fm(d.gross_revenue,true)+' ₽', 'апр.26–мар.27', 'cyan', 'c')}
+      ${kpi('Выручка net / год',   fm(d.net_revenue,true)+' ₽',   'без НДС 22%', 'white', 'c')}
+      ${kpi('EBITDA / год',         fm(d.ebitda,true)+' ₽',        'Рент. '+pct(d.ebitda_margin), 'green', 'g2')}
+      ${kpi('Чистая прибыль / год', fm(d.net_profit,true)+' ₽',   'Рент. '+pct(d.np_margin), 'green', 'g2')}
+      ${kpi('OPEX / месяц',         fm(d.opex_month,true)+' ₽',    'с 01.06.2026', 'gold', 'go')}
+      ${kpi('Клиентов в модели',    String(d.clients_active),      'подтв.: '+d.clients_confirm+' · уточнить: '+(d.clients_active-d.clients_confirm-1), 'mag', 'm')}
+      ${kpi('Отложенная выручка',   fm(d.deferred,true)+' ₽',      'аванс, услуга впереди', 'gold', 'go')}
+      ${kpi('CF нарастающим',       fm(d.cf_ytd,true)+' ₽',        'факт окт.25–май.26', 'cyan', 'c')}
+    </div>
+
+    <div class="sec-lbl">Факт нарастающим · окт.2025 – май.2026</div>
+    <div class="ytd-grid">
+      ${kpi('EBITDA YTD',         fm(d.ebitda_ytd,true)+' ₽', 'операц. прибыль', 'green', 'g2')}
+      ${kpi('Чистая прибыль YTD', fm(d.np_ytd,true)+' ₽',     'после НДС', 'green', 'g2')}
+      ${kpi('CF YTD',             fm(d.cf_ytd,true)+' ₽',      'реально на счёте', 'cyan', 'c')}
+    </div>
+
+    <div class="sec-lbl">Выручка и EBITDA · план апр.26–мар.27</div>
+    <div class="charts-grid">
+      <div class="card">
+        <div class="card-title">Выручка gross по продуктам — поквартально</div>
+        <canvas id="chartQ" height="200"></canvas>
+      </div>
+      <div class="card">
+        <div class="card-title">EBITDA по месяцам</div>
+        <canvas id="chartM" height="200"></canvas>
+      </div>
+    </div>
+
+    <div class="sec-lbl">Портфель и воронка · ${d.month_label}</div>
+    <div class="bot-grid">
+      <div class="card">
+        <div class="card-title">Воронка продаж</div>
+        ${funnel.map(f => `
+          <div class="fun-row">
+            <div class="fun-stage">${f.s}</div>
+            <div class="fun-bar-bg"><div class="fun-bar" style="width:${f.base?Math.round(f.n/f.base*100):0}%"></div></div>
+            <div class="fun-n">${f.n}</div>
+            <div class="fun-pct">${f.base?Math.round(f.n/f.base*100)+'%':'—'}</div>
+          </div>`).join('')}
+        <div style="margin-top:14px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);
+                    display:flex;justify-content:space-between;font-size:11px;color:var(--muted)">
+          <span>Итоговая конверсия</span>
+          <span style="font-family:'DM Mono',monospace;color:var(--cyan)">
+            ${d.leads ? (d.signed/d.leads*100).toFixed(1)+'%' : '—'}
+          </span>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px">
+          <div class="card-title">Портфель компаний</div>
+          ${clients.map(c => `
+            <div class="cl-row">
+              <div class="cl-name">${c.name}</div>
+              <div class="cl-tag ${c.tag}">${c.label}</div>
+            </div>`).join('')}
+        </div>
+        <div class="card">
+          <div class="card-title">К РНП — ключевые темы</div>
+          ${rnp.map(r => `
+            <div class="rnp-item">
+              <div class="rnp-ico ${r.ic}">${r.ico}</div>
+              <div class="rnp-text">${r.txt}</div>
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="ftr">
+      <span style="font-family:'DM Mono',monospace">Фонд-Акселератор МД · ООО «Группа Развития»</span>
+      <span>Данные: ${d.updated} · <a href="https://fond-accelerator.ru" target="_blank">fond-accelerator.ru</a></span>
+    </div>
+  `;
+
+  // Chart 1: stacked bar quarterly revenue
+  new Chart(document.getElementById('chartQ'), {
+    type: 'bar',
+    data: {
+      labels: ['Q1 апр–июн','Q2 июл–сен','Q3 окт–дек','Q4 янв–мар'],
+      datasets: [
+        { label:'Подписки',    data:[d.q1_sub,d.q2_sub,d.q3_sub,d.q4_sub],   backgroundColor:'#1A4A6B' },
+        { label:'ММ-события',  data:[d.q1_mm, d.q2_mm, d.q3_mm, d.q4_mm],    backgroundColor:'#00D4FF' },
+        { label:'Стратсессии', data:[d.q1_str,d.q2_str,d.q3_str,d.q4_str],   backgroundColor:'#FF2D78' },
+      ]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:'#4A6080', font:{size:11,family:"'DM Mono',monospace"} } } },
+      scales:{
+        x:{ stacked:true, grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4A6080',font:{size:10}} },
+        y:{ stacked:true, grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4A6080',font:{size:10},
+            callback:v=>v>=1e6?(v/1e6).toFixed(0)+'M':v} }
+      }
+    }
+  });
+
+  // Chart 2: EBITDA monthly bar
+  const months = ['апр','май','июн','июл','авг','сен','окт','ноя','дек','янв','фев','мар'];
+  const eVals  = [d.ebitda_apr,d.ebitda_may,d.ebitda_jun,d.ebitda_jul,d.ebitda_aug,d.ebitda_sep,
+                  d.ebitda_oct,d.ebitda_nov,d.ebitda_dec,d.ebitda_jan,d.ebitda_feb,d.ebitda_mar];
+  new Chart(document.getElementById('chartM'), {
+    type:'bar',
+    data:{
+      labels: months,
+      datasets:[{
+        label:'EBITDA',
+        data: eVals,
+        backgroundColor: eVals.map(v => v>=0 ? 'rgba(0,229,160,0.75)' : 'rgba(255,45,120,0.75)'),
+        borderRadius: 4,
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4A6080',font:{size:10}} },
+        y:{ grid:{color:'rgba(255,255,255,.04)'}, ticks:{color:'#4A6080',font:{size:10},
+            callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v} }
+      }
+    }
+  });
+}
+
+async function init() {
+  document.getElementById('loader').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  const { data, demo, err } = await loadData();
+  const time = new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('loader').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  render(data, demo, err, time);
+}
+
+init();
 </script>
 </body>
 </html>
