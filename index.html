@@ -170,7 +170,7 @@ function parseCSV(txt) {
 }
 
 async function loadData() {
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${KPI_GID}&cachebust=${Date.now()}`;
+  const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vSmAwPdi7cw0gsa6zhxbo4tAs64yIgxq3Uoua8mdkckb8fUrXF3slrnuoBv8pvnY0IScnq0ScMEuuq8/pub?gid=901148838&single=true&output=csv&cachebust=${Date.now()}`;
   try {
     const r = await fetch(url);
     if (!r.ok) throw new Error('HTTP ' + r.status);
