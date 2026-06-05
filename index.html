@@ -51,9 +51,14 @@ body{padding:24px 20px 60px}
 .kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .kpi-val{font-family:'DM Mono',monospace;font-size:23px;font-weight:500;line-height:1}
 .v-c{color:var(--cyan)}.v-m{color:var(--mag)}.v-gn{color:var(--green)}.v-go{color:var(--gold)}.v-w{color:var(--white)}
-.kpi-fact{font-size:11px;color:var(--muted);margin-top:9px;display:flex;justify-content:space-between;
-          border-top:1px solid rgba(255,255,255,.05);padding-top:8px}
-.kpi-fact b{font-family:'DM Mono',monospace;font-weight:500}
+.kpi-vlbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.kpi-rows{margin-top:10px;border-top:1px solid rgba(255,255,255,.05);padding-top:9px}
+.kr{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted);padding:2px 0}
+.kr b{font-family:'DM Mono',monospace;font-weight:500;font-size:12px;color:var(--white)}
+.kr.pct b{font-size:13px}
+.kpi-bar{height:4px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.kpi-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width 1s ease}
+.kpi-note{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.4}
 
 .opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
 @media(max-width:760px){.opt-grid{grid-template-columns:1fr}}
@@ -177,7 +182,8 @@ const DEMO = {
 
 // ── Утилиты ──
 const Nc = n => {
-  if(n==null||n==='') return '—';
+  if(n==null||n===''||(typeof n==='number'&&isNaN(n))) return '—';
+  if(typeof n!=='number'){ const x=parseFloat(String(n).replace(/\s/g,'').replace(',','.')); if(isNaN(x)) return '—'; n=x; }
   const a=Math.abs(n), s=n<0?'−':'';
   if(a>=1e9) return s+(a/1e9).toFixed(1).replace('.',',')+' млрд';
   if(a>=1e6) return s+(a/1e6).toFixed(1).replace('.',',')+' млн';
@@ -185,7 +191,7 @@ const Nc = n => {
   return s+Math.round(a);
 };
 const Nf = n => n==null?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n));
-const Pct = n => n==null?'—':(n*100).toFixed(1).replace('.',',')+'%';
+const Pct = n => (n==null||isNaN(n))?'—':(n*100).toFixed(1).replace('.',',')+'%';
 
 // ── Парсер CSV вкладки WEB (секции K / C / P / PT) ──
 function splitCSV(line){
@@ -209,7 +215,7 @@ function parseFeed(txt){
   txt.trim().split(/\r?\n/).forEach(line=>{
     const f=splitCSV(line); const tag=(f[0]||'').trim();
     if(tag==='K'){ const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
-      const nv=num(raw); k[key]=(nv!=null && /[0-9]/.test(raw))?nv:raw; }
+      if(key.endsWith('_label')){ k[key]=raw; } else { const nv=num(raw); k[key]=(nv==null?0:nv); } }
     else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4]].map(x=>(x||'').trim().replace(/"/g,''))); }
     else if(tag==='P'){ p.push([(f[1]||'').trim().replace(/"/g,''),...f.slice(2,15).map(num)]); }
     else if(tag==='PT'){ pt=[(f[1]||'').trim(),...f.slice(2,15).map(num)]; }
@@ -231,10 +237,22 @@ async function loadData(){
 }
 
 // ── Рендер ──
-function kpiCard(lbl,planVal,factLine,vc,ac){
-  return `<div class="kpi ${ac}"><div class="kpi-lbl">${lbl}</div>
-    <div class="kpi-val ${vc}">${planVal}</div>
-    <div class="kpi-fact">${factLine}</div></div>`;
+function kpiPF(label, plan, fact, vc, ac, note){
+  const pct = (plan!=null && plan!==0) ? fact/plan : null;
+  const w = pct!=null ? Math.max(0,Math.min(100,pct*100)) : 0;
+  const factCol = (fact!=null && fact<0) ? ' style="color:var(--mag)"' : '';
+  const pctCol  = (pct!=null && pct<0)   ? ' style="color:var(--mag)"' : ' style="color:var(--cyan)"';
+  return `<div class="kpi ${ac}">
+    <div class="kpi-lbl">${label}</div>
+    <div class="kpi-vlbl">план год</div>
+    <div class="kpi-val ${vc}">${Nc(plan)} ₽</div>
+    <div class="kpi-rows">
+      <div class="kr"><span>Факт YTD</span><b${factCol}>${Nc(fact)} ₽</b></div>
+      <div class="kr pct"><span>% выполнения</span><b${pctCol}>${Pct(pct)}</b></div>
+    </div>
+    <div class="kpi-bar"><div class="kpi-fill" style="width:${w}%"></div></div>
+    ${note?`<div class="kpi-note">${note}</div>`:''}
+  </div>`;
 }
 function statusClass(s){
   if(/Пауза|⏸/.test(s)) return 'muted';
@@ -263,12 +281,6 @@ function render(d,demo,err,time){
   const opexSaveYear=Math.abs(k.opex_delta)*12;
   const trkSaveMo=(k.trk_old-k.trk_new)*k.trk_to_gor;
 
-  const factLine=(fact,plan,extra)=>{
-    const pct=plan?fact/plan:null;
-    const col=fact<0?'color:var(--mag)':'';
-    return `<span>факт YTD</span><b style="${col}">${Nc(fact)}${extra?' · '+extra:(pct!=null?' · '+Pct(pct):'')}</b>`;
-  };
-
   document.getElementById('app').innerHTML = `
     ${demo?`<div class="info"><b>Демо-данные${err?' · <code>'+err+'</code>':''}.</b>
       Чтобы подключить таблицу: опубликуй вкладку <b>WEB</b> (Файл → Поделиться → Опубликовать в интернете → лист WEB → CSV),
@@ -293,16 +305,14 @@ function render(d,demo,err,time){
       <div class="pill c"><div class="dot"></div>Прогноз на конец года: ${Nc(k.cash_eoy)} ₽</div>
     </div>
 
-    <div class="sec">Ключевые показатели · план год / факт YTD</div>
+    <div class="sec">Ключевые показатели · план год · факт YTD · % выполнения</div>
     <div class="kpi-grid">
-      ${kpiCard('Выручка GROSS / год',Nc(k.gross_plan)+' ₽',factLine(k.gross_fact,k.gross_plan),'v-c','c')}
-      ${kpiCard('Выручка NET / год',Nc(k.net_plan)+' ₽',factLine(k.net_fact,k.net_plan),'v-w','c')}
-      ${kpiCard('EBITDA / год',Nc(k.ebitda_plan)+' ₽',factLine(k.ebitda_fact,k.ebitda_plan,Pct(k.ebitda_margin_fact)),'v-gn','gn')}
-      ${kpiCard('Чистая прибыль / год',Nc(k.np_plan)+' ₽',factLine(k.np_fact,k.np_plan),'v-gn','gn')}
-      ${kpiCard('Акселерация / год',Nc(k.aks_plan)+' ₽',factLine(k.aks_fact,k.aks_plan),'v-c','c')}
-      ${kpiCard('ММ-события / год',Nc(k.mm_plan)+' ₽',factLine(k.mm_fact,k.mm_plan),'v-m','m')}
-      ${kpiCard('Рент. EBITDA (план)',Pct(k.ebitda_margin_plan),`<span>факт YTD</span><b style="color:var(--mag)">${Pct(k.ebitda_margin_fact)}</b>`,'v-gn','gn')}
-      ${kpiCard('Рент. ЧП (план)',Pct(k.np_margin_plan),`<span>от выручки NET</span><b>—</b>`,'v-gn','gn')}
+      ${kpiPF('Выручка GROSS / год',k.gross_plan,k.gross_fact,'v-c','c')}
+      ${kpiPF('Выручка NET / год',k.net_plan,k.net_fact,'v-w','c')}
+      ${kpiPF('EBITDA / год',k.ebitda_plan,k.ebitda_fact,'v-gn','gn','Рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
+      ${kpiPF('Чистая прибыль / год',k.np_plan,k.np_fact,'v-gn','gn','Рентабельность ЧП (план): '+Pct(k.np_margin_plan))}
+      ${kpiPF('Акселерация / год',k.aks_plan,k.aks_fact,'v-c','c')}
+      ${kpiPF('ММ-события / год',k.mm_plan,k.mm_fact,'v-m','m','Первое событие — август 2026')}
     </div>
 
     <div class="sec">Оптимизация расходов · с 01.06.2026</div>
