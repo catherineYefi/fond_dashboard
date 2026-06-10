@@ -106,6 +106,33 @@ body{padding:24px 20px 60px}
 
 .bot-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:14px}
 @media(max-width:900px){.bot-grid{grid-template-columns:1fr}}
+.rec-card{margin-top:0}
+.rec-flow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06)}
+.rec-stat{flex:1;min-width:150px}
+.rec-stat.hl{background:rgba(255,181,71,.07);border:1px solid rgba(255,181,71,.2);border-radius:10px;padding:10px 14px;flex:0 0 auto}
+.rec-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rec-v{font-family:'DM Mono',monospace;font-size:20px;margin-top:5px}
+.rec-arrow{color:var(--cyan);font-size:18px;flex:0 0 auto}
+@media(max-width:620px){.rec-arrow{display:none}.rec-stat{min-width:100%}}
+.recr{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.recr:last-child{border-bottom:none}
+.recr-name{width:210px;flex-shrink:0;font-size:12px;font-weight:500}
+.recr-mid{flex:1;display:flex;align-items:center;gap:10px;min-width:120px}
+.recr-bar{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
+.recr-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 1s ease}
+.recr-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);width:38px;text-align:right}
+.recr-def{display:flex;flex-direction:column;align-items:flex-end;width:130px;flex-shrink:0}
+.recr-def span{font-size:9px;color:var(--muted);text-transform:uppercase}
+.recr-def b{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);font-weight:500}
+@media(max-width:620px){.recr-name{width:130px}.recr-def{width:90px}}
+.rec-tl{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
+.rec-tl-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:14px}
+.rec-bars{display:flex;align-items:flex-end;gap:10px;height:130px}
+.rec-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.rec-col-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--cyan);margin-bottom:5px;height:14px}
+.rec-col-fill{width:100%;max-width:46px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.25));min-height:2px}
+.rec-col-m{font-size:10px;color:var(--muted);margin-top:7px}
+.rec-tl-note{font-size:11px;color:var(--gold);margin-top:14px;text-align:center}
 
 .cr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .cr:last-child{border-bottom:none}
@@ -211,6 +238,15 @@ const DEMO = {
     {name:'Гости на разборы',n:8,rev:8000000,price:'8 × 1 000к',role:'Точка конверсии — разбор бизнеса на сцене'},
     {name:'Акселерация на разборы',n:8,rev:976000,price:'8 × 122к орг-взнос',role:'Действующие клиенты — углубление'},
   ],
+  rec:[
+    {name:'Изосина / Oazis Estate',cf:2500000,pl:2083333},
+    {name:'Голубенко / Разум Инвест',cf:1670000,pl:1521190},
+    {name:'Бражников / Лига Миров',cf:2500000,pl:1443453},
+    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1250000},
+    {name:'Бобрук / 144 Капитал',cf:1250000,pl:1129032},
+    {name:'Иванова / АО Напор',cf:1500000,pl:700000},
+  ],
+  recTL:[2019778,1133334,639880,0,0,0,0],
 };
 
 // Fallback на случай, если в фиде ещё нет строк EV (старая версия шита)
@@ -222,6 +258,20 @@ const EVENT_DEFAULT = {
     {name:'Гости на разборы',n:8,rev:8000000,price:'8 × 1 000к',role:'Точка конверсии — разбор бизнеса на сцене',color:'mag'},
     {name:'Акселерация на разборы',n:8,rev:976000,price:'8 × 122к орг-взнос',role:'Действующие клиенты — углубление',color:'green'},
   ]
+};
+
+// Fallback признания (если в фиде нет строк R/RT)
+const REC_DEFAULT = {
+  cf:11920000, pl:8127008, deferred:3792992, pct:0.682, asof:'на 31.05.26',
+  clients:[
+    {name:'Изосина / Oazis Estate',cf:2500000,pl:2083333},
+    {name:'Голубенко / Разум Инвест',cf:1670000,pl:1521190},
+    {name:'Бражников / Лига Миров',cf:2500000,pl:1443453},
+    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1250000},
+    {name:'Бобрук / 144 Капитал',cf:1250000,pl:1129032},
+    {name:'Иванова / АО Напор',cf:1500000,pl:700000},
+  ],
+  timeline:[2019778,1133334,639880,0,0,0,0]
 };
 
 // ── Утилиты ──
@@ -255,19 +305,21 @@ function num(v){
   const n=parseFloat(s.replace(',','.')); return isNaN(n)?null:n;
 }
 function parseFeed(txt){
-  const k={}, c=[], p=[], ev=[]; let pt=null;
+  const k={}, c=[], p=[], ev=[], rec=[]; let pt=null, recTL=[];
   txt.trim().split(/\r?\n/).forEach(line=>{
     const f=splitCSV(line); const tag=(f[0]||'').trim();
     if(tag==='K'){ const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
-      if(key.endsWith('_label')||key.endsWith('_title')||key.endsWith('_dates')||key.endsWith('_iso')||key.endsWith('_target')){ k[key]=raw; }
+      if(key.endsWith('_label')||key.endsWith('_title')||key.endsWith('_dates')||key.endsWith('_iso')||key.endsWith('_target')||key.endsWith('_asof')){ k[key]=raw; }
       else { const nv=num(raw); k[key]=(nv==null?0:nv); } }
     else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4]].map(x=>(x||'').trim().replace(/"/g,''))); }
     else if(tag==='P'){ p.push([(f[1]||'').trim().replace(/"/g,''),...f.slice(2,15).map(num)]); }
     else if(tag==='PT'){ pt=[(f[1]||'').trim(),...f.slice(2,15).map(num)]; }
     else if(tag==='EV'){ ev.push({name:(f[1]||'').trim().replace(/"/g,''),n:num(f[2])||0,rev:num(f[3])||0,
       price:(f[4]||'').trim().replace(/"/g,''),role:(f[5]||'').trim().replace(/"/g,'')}); }
+    else if(tag==='R'){ rec.push({name:(f[1]||'').trim().replace(/"/g,''),cf:num(f[2])||0,pl:num(f[3])||0}); }
+    else if(tag==='RT'){ recTL=f.slice(1,8).map(x=>num(x)||0); }
   });
-  return {k,c,p,pt,ev};
+  return {k,c,p,pt,ev,rec,recTL};
 }
 
 async function loadData(){
@@ -362,6 +414,56 @@ function buildEvent(d){
     <div class="ev-bar">${segs}</div>
     <div class="ev-streams">${cards}</div>
     <div class="ev-foot"><span class="efl">Цель события:</span><span class="ev-goal">${e.target}</span></div>
+  </div>`;
+}
+
+const REC_MONTHS=['июн','июл','авг','сен','окт','ноя','дек'];
+const REC_MONTHS_FULL=['июню','июлю','августу','сентябрю','октябрю','ноябрю','декабрю'];
+function getRec(d){
+  const k=d.k;
+  if(d.rec && d.rec.length){
+    const cf=k.rec_cf||d.rec.reduce((s,x)=>s+x.cf,0);
+    const pl=k.rec_pl||d.rec.reduce((s,x)=>s+x.pl,0);
+    return {cf, pl, deferred:k.rec_deferred||(cf-pl), pct:k.rec_pct||(pl/cf), asof:k.rec_asof||'',
+      clients:d.rec, timeline:(d.recTL&&d.recTL.length?d.recTL:REC_DEFAULT.timeline)};
+  }
+  return REC_DEFAULT;
+}
+function buildRec(d){
+  const r=getRec(d);
+  const rows=r.clients.map(c=>{
+    const def=c.cf-c.pl, pct=c.cf?c.pl/c.cf:0;
+    return `<div class="recr">
+      <div class="recr-name">${c.name}</div>
+      <div class="recr-mid">
+        <div class="recr-bar"><div class="recr-fill" style="width:${Math.round(pct*100)}%"></div></div>
+        <div class="recr-pct">${Math.round(pct*100)}%</div>
+      </div>
+      <div class="recr-def"><span>отложено</span><b>${Nc(def)} ₽</b></div>
+    </div>`;
+  }).join('');
+  const mx=Math.max(...r.timeline,1);
+  let last=-1; r.timeline.forEach((v,i)=>{if(v>0)last=i;});
+  const bars=r.timeline.map((v,i)=>`<div class="rec-col">
+    <div class="rec-col-val">${v>0?Nc(v):''}</div>
+    <div class="rec-col-fill" style="height:${Math.round(v/mx*100)}%;opacity:${v>0?1:.15}"></div>
+    <div class="rec-col-m">${REC_MONTHS[i]}</div></div>`).join('');
+  const closeTxt = last>=0?`Отложенное полностью отрабатывается к ${REC_MONTHS_FULL[last]} 2026 — при условии текущего портфеля`:'';
+  return `<div class="sec">Признание выручки · ${r.asof}</div>
+  <div class="card rec-card">
+    <div class="rec-flow">
+      <div class="rec-stat"><div class="rec-l">Поступило (деньги)</div><div class="rec-v v-c">${Nc(r.cf)} ₽</div></div>
+      <span class="rec-arrow">→</span>
+      <div class="rec-stat"><div class="rec-l">Отработано (услуга оказана)</div><div class="rec-v v-gn">${Nc(r.pl)} ₽</div></div>
+      <span class="rec-arrow">→</span>
+      <div class="rec-stat hl"><div class="rec-l">Отложено (ещё должны оказать)</div><div class="rec-v v-go">${Nc(r.deferred)} ₽</div></div>
+    </div>
+    <div class="rec-clients">${rows}</div>
+    <div class="rec-tl">
+      <div class="rec-tl-t">Отработка отложенного — когда закроется</div>
+      <div class="rec-bars">${bars}</div>
+      ${closeTxt?`<div class="rec-tl-note">${closeTxt}</div>`:''}
+    </div>
   </div>`;
 }
 
@@ -484,6 +586,8 @@ function render(d,demo,err,time){
           <span style="font-family:'DM Mono',monospace;color:var(--cyan)">${Nc(d.pt?d.pt[13]:null)} ₽</span></div>
       </div>
     </div>
+
+    ${buildRec(d)}
 
     <div class="ftr">
       <span style="font-family:'DM Mono',monospace">Фонд-Акселератор МД · ООО «Группа Развития»</span>
