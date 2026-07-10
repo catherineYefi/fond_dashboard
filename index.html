@@ -1,232 +1,303 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Фонд-Акселератор МД — Дашборд</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
-:root{
-  --paper:#FAFAF7; --card:#FFFFFF; --card2:#FCFCFA;
-  --ink:#16191B; --mut:#62665F; --mut2:#9A9C93;
-  --line:#E7E5DD; --line2:#DAD8CE;
-  --petrol:#1C4A43; --petrol-d:#143832; --sage:#4E7F70;
-  --warm:#B9794B; --alert:#9C3B2E;
-  --maxw:1180px;
-}
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{
-  background:var(--paper); color:var(--ink);
-  font-family:'Onest',-apple-system,'Segoe UI',sans-serif;
-  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+
+/* ═══════════ ТЕМЫ ═══════════ */
+[data-theme="dark"]{
+  --navy:#0A1628; --navy-rgb:10,22,40;
+  --cyan:#00D4FF; --cyan-rgb:0,212,255;
+  --mag:#FF2D78;  --mag-rgb:255,45,120;
+  --gold:#FFB547; --gold-rgb:255,181,71;
+  --green:#00E5A0;--green-rgb:0,229,160;
+  --violet:#9D7BFF;--violet-rgb:157,123,255;
+  --white:#F0F4FF; --muted:#7C93AE;
+  --glass:rgba(255,255,255,0.04);
+  --surface2:rgba(255,255,255,0.02);
+  --border:rgba(255,255,255,0.07);
+  --border-soft:rgba(255,255,255,0.05);
+  --track:rgba(255,255,255,0.07);
+  --chip-mut:rgba(255,255,255,0.05);
+  --code-bg:rgba(0,0,0,.25);
+  --on-accent:#0A1628;
+  --gold-txt:#FFB547;
+  --tip-bg:#04101F;
 }
-::selection{background:var(--petrol);color:#fff}
-.mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
-a{color:var(--petrol)}
-:focus-visible{outline:2px solid var(--petrol);outline-offset:2px;border-radius:4px}
-
-/* ── topbar ── */
-.topbar{position:sticky;top:0;z-index:60;background:rgba(250,250,247,.88);
-  backdrop-filter:saturate(140%) blur(10px);border-bottom:1px solid var(--line)}
-.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;
-  padding-top:16px;padding-bottom:16px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:14px}
-.brand .nm{font-weight:800;letter-spacing:-.03em;font-size:19px;line-height:1}
-.brand .rule{width:1px;height:16px;background:var(--line2)}
-.brand .sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--mut2)}
-.tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.chip{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.04em;
-  border:1px solid var(--line2);border-radius:999px;padding:6px 13px;color:var(--mut);background:var(--card)}
-.chip.live{color:var(--petrol);border-color:var(--petrol)}
-.chip.demo{color:var(--warm);border-color:var(--warm)}
-.chip.err{color:var(--alert);border-color:var(--alert)}
-button.chip{cursor:pointer;transition:background .18s,color .18s}
-button.chip:hover{background:var(--petrol);color:#fff;border-color:var(--petrol)}
-
-/* ── section furniture ── */
-section{padding:52px 0;border-top:1px solid var(--line)}
-section:first-of-type{border-top:0}
-.eyebrow{font-family:'JetBrains Mono',monospace;font-weight:500;font-size:11px;
-  letter-spacing:.22em;text-transform:uppercase;color:var(--petrol);
-  display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.eyebrow::before{content:"";width:24px;height:1px;background:var(--warm);flex:none}
-.eyebrow .far{margin-left:auto;color:var(--mut2);letter-spacing:.08em;text-transform:none;font-size:11px}
-h2.title{font-size:clamp(22px,3.2vw,30px);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-bottom:8px}
-.lead{color:var(--mut);font-size:15px;max-width:64ch}
-.note{color:var(--mut2);font-size:13px;line-height:1.55}
-
-/* ── SIGNATURE: ledger rule ── */
-.lr{position:relative;height:3px;background:var(--line2);border-radius:2px;overflow:hidden;margin-top:10px}
-.lr i{position:absolute;inset:0 auto 0 0;background:var(--petrol);border-radius:2px;
-  transform-origin:left;transform:scaleX(0);animation:grow .9s cubic-bezier(.2,.7,.2,1) forwards}
-.lr i.warm{background:var(--warm)} .lr i.alert{background:var(--alert)} .lr i.sage{background:var(--sage)}
-@keyframes grow{to{transform:scaleX(1)}}
-@media (prefers-reduced-motion:reduce){ .lr i{animation:none;transform:scaleX(1)} }
-
-/* ── hero: event ledger ── */
-.hero{background:var(--card);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.hero-top{display:grid;grid-template-columns:1fr;gap:0}
-@media(min-width:900px){.hero-top{grid-template-columns:1.02fr .98fr}}
-.hero-money{padding:clamp(26px,3.6vw,42px);border-bottom:1px solid var(--line)}
-@media(min-width:900px){.hero-money{border-bottom:0;border-right:1px solid var(--line)}}
-.hero-money .big{font-family:'JetBrains Mono',monospace;font-weight:600;
-  font-size:clamp(34px,5.6vw,54px);letter-spacing:-.03em;line-height:1;color:var(--ink)}
-.hero-money .of{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--mut);margin-top:10px}
-.hero-money .pctline{display:flex;align-items:baseline;justify-content:space-between;margin-top:26px}
-.hero-money .pctline b{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:600;color:var(--petrol)}
-.hero-money .pctline span{font-size:13px;color:var(--mut2)}
-
-.hero-people{padding:clamp(26px,3.6vw,42px);background:var(--card2);display:flex;flex-direction:column;gap:22px;justify-content:center}
-.prow{display:grid;grid-template-columns:1fr auto;gap:6px 14px;align-items:baseline}
-.prow .nm{font-size:15px;font-weight:500}
-.prow .vv{font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--mut)}
-.prow .vv b{color:var(--ink);font-weight:600}
-.prow .lr{grid-column:1/-1}
-
-.hero-strip{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--line)}
-@media(min-width:760px){.hero-strip{grid-template-columns:repeat(4,1fr)}}
-.hs{padding:20px clamp(20px,2.6vw,32px);border-right:1px solid var(--line)}
-.hs:last-child{border-right:0}
-.hs .k{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mut2)}
-.hs .v{font-family:'JetBrains Mono',monospace;font-size:19px;font-weight:600;margin-top:7px}
-.hs .v.warm{color:var(--warm)} .hs .v.petrol{color:var(--petrol)}
-.hs .s{font-size:12px;color:var(--mut2);margin-top:3px}
-
-/* ── kpi grid ── */
-.kgrid{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:16px;overflow:hidden}
-@media(min-width:680px){.kgrid{grid-template-columns:1fr 1fr}}
-@media(min-width:1000px){.kgrid{grid-template-columns:repeat(4,1fr)}}
-.kc{background:var(--card);padding:24px 22px 22px}
-.kc .k{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mut2)}
-.kc .fact{font-family:'JetBrains Mono',monospace;font-size:27px;font-weight:600;
-  letter-spacing:-.02em;margin-top:12px;line-height:1.1}
-.kc .fact.neg{color:var(--alert)}
-.kc .plan{font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--mut2);margin-top:6px}
-.kc .foot{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px}
-.kc .foot .p{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--petrol)}
-.kc .foot .m{font-size:12px;color:var(--mut2)}
-
-/* ── chart ── */
-.chartbox{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px 18px 12px}
-.legend{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;padding:0 4px}
-.legend div{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--mut)}
-.sw{width:16px;height:9px;border-radius:2px;flex:none}
-.sw.plan{background:var(--line2)} .sw.fact{background:var(--petrol)}
-.sw.eb{height:2px;background:var(--warm);width:18px}
-.cwrap{position:relative;height:320px}
-
-/* ── table ── */
-.tbl{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.trow{display:grid;grid-template-columns:1.5fr .8fr .9fr .8fr;gap:12px;
-  padding:15px 20px;border-top:1px solid var(--line);align-items:center;font-size:14px}
-.trow:first-child{border-top:0;background:var(--card2)}
-.trow.head{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mut2)}
-.trow.paused{opacity:.5}
-.trow .nm{font-weight:500;overflow-wrap:anywhere}
-.st{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.03em;
-  border:1px solid var(--line2);border-radius:999px;padding:4px 10px;display:inline-block;white-space:nowrap}
-.st.ok{color:var(--petrol);border-color:var(--petrol)}
-.st.warn{color:var(--warm);border-color:var(--warm)}
-.st.dd{color:var(--sage);border-color:var(--sage)}
-.st.pause{color:var(--mut2)}
-@media(max-width:720px){
-  .trow{grid-template-columns:1fr 1fr}
-  .trow.head{display:none}
-  .trow .nm{grid-column:1/-1}
+[data-theme="light"]{
+  --navy:#FAFAF7; --navy-rgb:250,250,247;
+  --cyan:#1C4A43; --cyan-rgb:28,74,67;
+  --mag:#9C3B2E;  --mag-rgb:156,59,46;
+  --gold:#B9794B; --gold-rgb:185,121,75;
+  --green:#4E7F70;--green-rgb:78,127,112;
+  --violet:#5B6B8A;--violet-rgb:91,107,138;
+  --white:#16191B; --muted:#74776E;
+  --glass:#FFFFFF;
+  --surface2:#FCFCFA;
+  --border:#E7E5DD;
+  --border-soft:#EFEDE6;
+  --track:#DAD8CE;
+  --chip-mut:#F2F1EB;
+  --code-bg:rgba(0,0,0,.06);
+  --on-accent:#FFFFFF;
+  --gold-txt:#8E5B33;
+  --tip-bg:#16191B;
 }
+html{color-scheme:dark}
+html[data-theme="light"]{color-scheme:light}
 
-/* ── payments accordion ── */
-.pay{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.pline{border-top:1px solid var(--line)}
-.pline:first-child{border-top:0}
-.phead{display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:14px 20px;cursor:pointer;background:none;border:0;width:100%;text-align:left;
-  font-family:inherit;font-size:14px;color:var(--ink);transition:background .15s}
-.phead:hover{background:var(--card2)}
-.phead .r{display:flex;align-items:center;gap:14px;flex:none}
-.phead>span:first-child{overflow-wrap:anywhere;padding-right:10px}
-.phead .sum{font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:600}
-.phead .car{width:9px;height:9px;border-right:1.5px solid var(--mut2);border-bottom:1.5px solid var(--mut2);
-  transform:rotate(45deg);transition:transform .2s;flex:none;margin-top:-4px}
-.phead[aria-expanded="true"] .car{transform:rotate(-135deg);margin-top:2px}
-.pbody{display:none;padding:4px 20px 18px}
-.pbody.open{display:block}
-.mgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-@media(min-width:760px){.mgrid{grid-template-columns:repeat(12,1fr)}}
-.mc{border:1px solid var(--line);border-radius:8px;padding:8px 4px;text-align:center;background:var(--card2)}
-.mc.paid{border-color:var(--petrol);background:rgba(28,74,67,.06)}
-.mc .mm{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--mut2);text-transform:uppercase}
-.mc .mv{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;margin-top:4px}
-.mc.paid .mv{color:var(--petrol)}
-.paused-tag{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;
-  text-transform:uppercase;color:var(--mut2);border:1px solid var(--line2);border-radius:999px;padding:2px 8px}
+html,body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh}
+body{padding:24px 20px 60px;transition:background .25s ease,color .25s ease}
+.wrap{max-width:1400px;margin:0 auto}
+:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
 
-/* ── info blocks ── */
-.cols{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);
-  border:1px solid var(--line);border-radius:16px;overflow:hidden}
-@media(min-width:820px){.cols.c3{grid-template-columns:repeat(3,1fr)} .cols.c2{grid-template-columns:1fr 1fr}}
-.col{background:var(--card);padding:24px 22px}
-.col .k{font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--mut2)}
-.col .v{font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:600;margin-top:11px;letter-spacing:-.02em}
-.col .v.warm{color:var(--warm)} .col .v.petrol{color:var(--petrol)} .col .v.alert{color:var(--alert)}
-.col .s{font-size:13px;color:var(--mut);margin-top:8px;line-height:1.5}
+.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;margin-bottom:26px;
+     border-bottom:1px solid rgba(var(--cyan-rgb),0.14);flex-wrap:wrap;gap:12px}
+.hdr-l{display:flex;align-items:center;gap:14px}
+.logo{width:42px;height:42px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,var(--cyan),var(--mag));
+      display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--on-accent)}
+.hdr-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(var(--cyan-rgb),0.08);
+       border:1px solid rgba(var(--cyan-rgb),0.2);padding:5px 11px;border-radius:18px}
+.badge.demo{color:var(--gold-txt);background:rgba(var(--gold-rgb),0.08);border-color:rgba(var(--gold-rgb),0.28)}
+.badge.err{color:var(--mag);background:rgba(var(--mag-rgb),0.08);border-color:rgba(var(--mag-rgb),0.28)}
+.btn{background:rgba(var(--cyan-rgb),0.08);border:1px solid rgba(var(--cyan-rgb),0.2);color:var(--cyan);padding:5px 13px;
+     border-radius:18px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s}
+.btn:hover{background:rgba(var(--cyan-rgb),0.18)}
 
-.callout{border-left:2px solid var(--warm);padding:2px 0 2px 16px;margin-top:22px;
-  font-size:13.5px;color:var(--mut);line-height:1.55}
-.callout b{color:var(--ink);font-weight:600}
+.sec{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
+     margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--border-soft)}
 
-footer{border-top:1px solid var(--line);padding:26px 0 48px;color:var(--mut2);font-size:12.5px;
-  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-footer .mono{color:var(--mut)}
+.pills{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:22px;font-size:12px;font-weight:500;border:1px solid}
+.pill.g{background:rgba(var(--green-rgb),.07);border-color:rgba(var(--green-rgb),.24);color:var(--green)}
+.pill.y{background:rgba(var(--gold-rgb),.07);border-color:rgba(var(--gold-rgb),.24);color:var(--gold-txt)}
+.pill.c{background:rgba(var(--cyan-rgb),.07);border-color:rgba(var(--cyan-rgb),.24);color:var(--cyan)}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pills-note{font-size:11px;color:var(--muted);margin-bottom:28px}
 
-#loader{min-height:60vh;display:flex;align-items:center;justify-content:center;
-  font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--mut2)}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:12px}
+.kpi{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:.2s}
+.kpi:hover{border-color:rgba(var(--cyan-rgb),.28);transform:translateY(-2px)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gl,rgba(var(--cyan-rgb),.5)),transparent)}
+.kpi.c{--gl:rgba(var(--cyan-rgb),.6)}.kpi.m{--gl:rgba(var(--mag-rgb),.6)}.kpi.gn{--gl:rgba(var(--green-rgb),.6)}
+.kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.kpi-val{font-family:'DM Mono',monospace;font-size:23px;font-weight:500;line-height:1}
+.v-c{color:var(--cyan)}.v-m{color:var(--mag)}.v-gn{color:var(--green)}.v-w{color:var(--white)}
+.kpi-vlbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.kpi-rows{margin-top:10px;border-top:1px solid var(--border-soft);padding-top:9px}
+.kr{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted);padding:2px 0}
+.kr b{font-family:'DM Mono',monospace;font-weight:500;font-size:12px;color:var(--white)}
+.kr.pct b{font-size:13px}
+.kpi-bar{height:4px;background:var(--track);border-radius:3px;margin-top:10px;overflow:hidden}
+.kpi-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width 1s ease}
+.kpi-note{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.4}
+.recalc{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:28px;
+        border-left:2px solid rgba(var(--gold-rgb),.6);padding-left:12px}
+.recalc b{color:var(--white)}
+
+/* ═══════════ СОБЫТИЕ: ЗАПОЛНЯЕМОСТЬ ═══════════ */
+.ev-card{background:linear-gradient(135deg,rgba(var(--cyan-rgb),.07),rgba(var(--mag-rgb),.04));
+  border:1px solid rgba(var(--cyan-rgb),.22);border-radius:16px;padding:22px 24px;margin-bottom:28px}
+.ev-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.ev-title-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;flex-wrap:wrap}
+.ev-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
+.ev-cd{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold-txt);background:rgba(var(--gold-rgb),.1);
+  border:1px solid rgba(var(--gold-rgb),.3);padding:3px 10px;border-radius:14px}
+.ev-dates{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--white);margin-bottom:6px}
+.ev-dates svg{opacity:.65}
+.ev-frame{font-size:11px;color:var(--muted)}
+.ev-metrics{display:flex;gap:26px;text-align:right;flex-wrap:wrap}
+.ev-m-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.ev-m-v{font-family:'DM Mono',monospace;font-size:19px;margin-top:4px}
+
+/* деньги события */
+.ev-money{margin-bottom:20px}
+.ev-money-row{display:flex;justify-content:space-between;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+.ev-money-big{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--cyan)}
+.ev-money-of{font-size:12px;color:var(--muted)}
+.ev-money-pct{font-family:'DM Mono',monospace;font-size:15px;color:var(--white)}
+.ev-track{height:8px;background:var(--track);border-radius:5px;overflow:hidden}
+.ev-track i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--cyan),var(--mag));
+  transform-origin:left;animation:grow 1s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes grow{from{transform:scaleX(.001)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.ev-track i{animation:none}}
+
+/* три потока: факт / план */
+.ev-streams{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:760px){.ev-streams{grid-template-columns:1fr}.ev-metrics{gap:18px}}
+.ev-stream{background:var(--glass);border:1px solid var(--border);border-top:2px solid var(--cyan);border-radius:12px;padding:15px 16px}
+.ev-s-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.ev-s-n{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1}
+.ev-s-plan{font-family:'DM Mono',monospace;font-size:14px;color:var(--muted)}
+.ev-s-name{font-size:12px;font-weight:600;margin-top:7px}
+.ev-s-price{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
+.ev-s-track{height:5px;background:var(--track);border-radius:3px;overflow:hidden;margin-top:11px}
+.ev-s-track i{display:block;height:100%;border-radius:3px}
+.ev-s-rev{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:12px;margin-top:9px}
+.ev-s-rev b{font-weight:500;color:var(--green)}
+.ev-s-rev span{color:var(--muted)}
+.ev-s-role{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.45;border-top:1px solid var(--border-soft);padding-top:8px}
+
+.ev-foot{display:flex;align-items:center;gap:10px 22px;margin-top:18px;padding-top:14px;
+  border-top:1px solid var(--border);font-size:12px;flex-wrap:wrap}
+.ev-foot .efl{color:var(--muted)}
+.ev-foot b{font-family:'DM Mono',monospace;font-weight:500}
+.ev-goal{font-weight:600;color:var(--gold-txt);background:rgba(var(--gold-rgb),.08);
+  border:1px solid rgba(var(--gold-rgb),.24);padding:3px 11px;border-radius:14px}
+.ev-debt{color:var(--mag)}
+
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+@media(max-width:760px){.opt-grid{grid-template-columns:1fr}}
+.opt{background:linear-gradient(135deg,rgba(var(--green-rgb),.06),rgba(var(--cyan-rgb),.03));
+     border:1px solid rgba(var(--green-rgb),.2);border-radius:14px;padding:20px 22px}
+.opt.warn{background:linear-gradient(135deg,rgba(var(--gold-rgb),.06),rgba(var(--mag-rgb),.03));
+     border-color:rgba(var(--gold-rgb),.24)}
+.opt-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:14px}
+.opt-flow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.opt-from,.opt-to{font-family:'DM Mono',monospace;font-size:18px}
+.opt-from{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(var(--mag-rgb),.6)}
+.opt-to{color:var(--green);font-size:21px}
+.opt-arrow{color:var(--cyan);font-size:16px}
+.opt-big{font-family:'DM Mono',monospace;font-size:26px;color:var(--gold-txt)}
+.opt-save{margin-top:12px;font-size:12px;color:var(--green);font-weight:600}
+.opt-save.neg{color:var(--gold-txt)}
+.opt-note{margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5}
+
+.charts-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:28px}
+.card{background:var(--glass);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.legend div{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted)}
+.sw{width:15px;height:9px;border-radius:2px;flex:none}
+.sw.plan{background:var(--track)} .sw.fact{background:var(--cyan)} .sw.eb{height:2px;background:var(--gold);width:17px}
+.chart-box{position:relative;height:280px;width:100%}
+.chart-fallback{display:flex;height:100%;align-items:center;justify-content:center;text-align:center;
+  color:var(--muted);font-size:12px;padding:0 20px;line-height:1.6}
+
+.bot-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:14px}
+@media(max-width:900px){.bot-grid{grid-template-columns:1fr}}
+.rec-flow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.rec-stat{flex:1;min-width:150px}
+.rec-stat.hl{background:rgba(var(--gold-rgb),.07);border:1px solid rgba(var(--gold-rgb),.24);border-radius:10px;padding:10px 14px;flex:0 0 auto}
+.rec-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.rec-v{font-family:'DM Mono',monospace;font-size:20px;margin-top:5px}
+.rec-arrow{color:var(--cyan);font-size:18px;flex:0 0 auto}
+@media(max-width:620px){.rec-arrow{display:none}.rec-stat{min-width:100%}}
+.rec-note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:4px}
+.recr{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.recr:last-child{border-bottom:none}
+.recr-name{width:210px;flex-shrink:0;font-size:12px;font-weight:500;overflow-wrap:anywhere}
+.recr-mid{flex:1;display:flex;align-items:center;gap:10px;min-width:120px}
+.recr-bar{flex:1;height:7px;background:var(--track);border-radius:4px;overflow:hidden}
+.recr-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 1s ease}
+.recr-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);width:38px;text-align:right}
+.recr-def{display:flex;flex-direction:column;align-items:flex-end;width:130px;flex-shrink:0}
+.recr-def span{font-size:9px;color:var(--muted);text-transform:uppercase}
+.recr-def b{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold-txt);font-weight:500}
+@media(max-width:620px){.recr-name{width:130px}.recr-def{width:90px}}
+
+.cr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid var(--border-soft)}
+.cr:last-child{border-bottom:none}
+.cr.paused{opacity:.48}
+.cr-l{display:flex;flex-direction:column;gap:3px}
+.cr-name{font-size:13px;font-weight:500;overflow-wrap:anywhere}
+.cr-trk{font-size:10px;color:var(--muted)}
+.cr-r{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.ct{font-size:10px;padding:3px 9px;border-radius:9px;font-weight:500;white-space:nowrap}
+.ct.green{background:rgba(var(--green-rgb),.12);color:var(--green)}
+.ct.warn{background:rgba(var(--gold-rgb),.14);color:var(--gold-txt)}
+.ct.cyan{background:rgba(var(--cyan-rgb),.12);color:var(--cyan)}
+.ct.violet{background:rgba(var(--violet-rgb),.14);color:var(--violet)}
+.ct.muted{background:var(--chip-mut);color:var(--muted)}
+.cr-next{font-size:10px;color:var(--muted)}
+
+.acc-item{border:1px solid var(--border);border-radius:11px;margin-bottom:8px;overflow:hidden;transition:.2s}
+.acc-item:hover{border-color:rgba(var(--cyan-rgb),.24)}
+.acc-item.off{opacity:.55}
+.acc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;cursor:pointer;
+  user-select:none;background:none;border:0;width:100%;text-align:left;color:var(--white);font-family:'Inter',sans-serif}
+.acc-head:hover{background:rgba(var(--cyan-rgb),.04)}
+.acc-name{font-size:12px;font-weight:500;display:flex;align-items:center;gap:9px;overflow-wrap:anywhere}
+.acc-chev{color:var(--muted);font-size:11px;transition:transform .25s;flex:none}
+.acc-head[aria-expanded="true"] .acc-chev{transform:rotate(90deg)}
+.acc-tot{font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan);flex:none}
+.acc-item.off .acc-tot{color:var(--muted)}
+.off-tag{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--muted);border:1px solid var(--track);border-radius:9px;padding:2px 7px}
+.acc-body{display:none;padding:0}
+.acc-body.open{display:block}
+.months{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:6px 16px 16px}
+@media(max-width:520px){.months{grid-template-columns:repeat(4,1fr)}}
+.mcell{border-radius:7px;padding:7px 4px;text-align:center;background:var(--surface2);border:1px solid transparent}
+.mcell.paid{background:rgba(var(--cyan-rgb),.1);border-color:rgba(var(--cyan-rgb),.24)}
+.mcell-m{font-size:9px;color:var(--muted);text-transform:uppercase}
+.mcell-v{font-family:'DM Mono',monospace;font-size:10px;margin-top:3px;color:var(--muted)}
+.mcell.paid .mcell-v{color:var(--cyan)}
+.pt-row{margin-top:12px;padding-top:10px;border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;font-size:12px;gap:10px;flex-wrap:wrap}
+.pt-row span:first-child{color:var(--muted)}
+.pt-row span:last-child{font-family:'DM Mono',monospace;color:var(--cyan)}
+
+.info{background:rgba(var(--gold-rgb),.08);border:1px solid rgba(var(--gold-rgb),.24);border-radius:10px;padding:14px 16px;
+      margin-bottom:20px;font-size:12px;color:var(--gold-txt);line-height:1.6}
+.info code{background:var(--code-bg);padding:1px 6px;border-radius:4px;font-size:11px}
+.info a{color:var(--cyan);text-decoration:none}
+
+.ftr{margin-top:40px;padding-top:18px;border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;
+     font-size:11px;color:var(--muted);flex-wrap:wrap;gap:8px}
+.ftr a{color:var(--cyan);text-decoration:none}
+
+#loader{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:14px}
+.spin{width:34px;height:34px;border-radius:50%;border:2px solid rgba(var(--cyan-rgb),.2);border-top-color:var(--cyan);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-
-<div class="topbar"><div class="wrap">
-  <div class="brand">
-    <span class="nm">Фонд-Акселератор МД</span>
-    <span class="rule"></span>
-    <span class="sub">Дашборд 2026</span>
-  </div>
-  <div class="tools" id="tools"></div>
-</div></div>
-
-<div id="loader">Загрузка данных</div>
-<main id="app" class="wrap" style="display:none"></main>
-
+<div class="wrap">
+  <div id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px">Загрузка данных...</span></div>
+  <div id="app" style="display:none"></div>
+</div>
 <script>
-/* ══════════════════════════════════════════════════════════
+/* ════════════════ КОНФИГ ════════════════
    Опубликованный CSV вкладки WEB.
-   Файл → Поделиться → Опубликовать в интернете → лист WEB → CSV.
-   Пусто → показываются демо-данные.
-   ══════════════════════════════════════════════════════════ */
+   Файл → Поделиться → Опубликовать в интернете → лист WEB → CSV.  */
 const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=247575935&single=true&output=csv';
+/* ════════════════════════════════════════ */
+
+/* ── тема: тёмная по умолчанию, светлая — опция для МД ── */
+const THEME_KEY='fond_dash_theme';
+function getTheme(){ try{const t=localStorage.getItem(THEME_KEY); if(t==='light'||t==='dark') return t;}catch(e){} return 'dark'; }
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  try{localStorage.setItem(THEME_KEY,t);}catch(e){}
+  const b=document.getElementById('themeBtn');
+  if(b){ b.textContent = t==='dark' ? '☀ Светлая' : '☾ Тёмная';
+         b.setAttribute('aria-label', t==='dark'?'Включить светлую тему':'Включить тёмную тему'); }
+  if(window.__d) requestAnimationFrame(()=>buildChart(window.__d));
+}
+function toggleTheme(){ applyTheme(document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'); }
+applyTheme(getTheme());
 
 const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 
-/* ── Демо: реальные значения v12 на 10.07.2026 ── */
+/* ── Демо: реальные значения v12 на 09.07.2026 ── */
 const DEMO = {
   k:{
     updated_label:'Факт на 09.07.2026 · план 2026', month_label:'июль 2026',
     gross_plan:80203472, gross_fact:20283472, net_plan:65740551, net_fact:16625797,
     aks_plan:46250000, aks_fact:14000000, mm_plan:33953472, mm_fact:6283472,
-    ebitda_plan:31132498, ebitda_fact:904903,
-    ebitda_margin_plan:0.4736, ebitda_margin_fact:0.0544,
+    ebitda_plan:31132498, ebitda_fact:904903, ebitda_margin_plan:0.4736, ebitda_margin_fact:0.0544,
     np_plan:23349373, np_fact:678677, np_margin_plan:0.3552,
     clients_active:6, clients_target:14,
     opex_before:1545424, opex_after:1480858, opex_delta:-64566,
@@ -237,11 +308,9 @@ const DEMO = {
     mm_guest_plan:20, mm_guest_fact:6, mm_guest_pct:0.30,
     mm_org_plan:8, mm_org_fact:6, mm_org_pct:0.75,
     mm_people_plan:36, mm_people_fact:15, mm_people_pct:0.4167,
-    mm_rev_plan:16776000, mm_rev_fact:5982000, mm_rev_pct:0.3566,
-    mm_debt:494000,
+    mm_rev_plan:16776000, mm_rev_fact:5982000, mm_rev_pct:0.3566, mm_debt:494000,
     price_razbor:1250000, price_guest:350000, price_org:122000,
-    rec_deferred_acc:4679881, rec_deferred_mm:5982000, rec_deferred_total:10661881,
-    rec_asof:'на 30.06.2026',
+    rec_deferred_acc:4679881, rec_deferred_mm:5982000, rec_deferred_total:10661881, rec_asof:'на 30.06.2026',
   },
   c:[
     ['Oazis Estate (Изосина)','✓ Активен','Дубровин 150к','конец сен.26'],
@@ -265,360 +334,394 @@ const DEMO = {
   ],
   pt:['ИТОГО',1250000,2500000,2500000,1500000,2920000,2920000,1910000,3750000,8500000,1500000,2500000,14500000,46250000],
   rv:[[1250000,1250000],[2500000,2500000],[2500000,2500000],[2499118,2499118],[2954355,2954355],
-      [3070000,3070000],[7010000,5510000],[14644000,0],[8500000,0],[1500000,0],[2500000,0],[31276000,0]],
+      [3070000,3070000],[7010000,5510000],[14644000,null],[8500000,null],[1500000,null],[2500000,null],[31276000,null]],
   eb:[[-1156834,-1156834],[-132244,-132244],[-132244,-132244],[-227547,-227547],[68823,68823],
-      [368541,-2026],[3615044,2486974],[6221421,0],[4836356,0],[-1301349,0],[-481677,0],[19454208,0]],
+      [368541,-2026],[3615044,2486974],[6221421,null],[4836356,null],[-1301349,null],[-481677,null],[19454208,null]],
   ev:[
-    ['Разборы',3,3850000,'8 × 1 250 000 ₽','Точка конверсии — разбор на сцене'],
+    ['Разборы',3,3850000,'8 × 1 250 000 ₽','Точка конверсии — разбор бизнеса на сцене'],
     ['Гости',6,1400000,'14 × 350к + 6 × 150к','Вершина воронки — прогрев к покупке'],
     ['Орг. взносы',6,732000,'8 × 122 000 ₽','Действующие клиенты — углубление'],
   ],
+  rec:[],
 };
 
 /* ── утилиты ── */
-const NBSP = /[\s\u00A0\u202F\u2009]/g;
+const SP = /[\s\u00A0\u202F\u2009]/g;
 function num(v){
   if(v==null) return null;
-  if(typeof v==='number') return v;
+  if(typeof v==='number') return isNaN(v)?null:v;
   let s=String(v).trim().replace(/^"|"$/g,'').replace(/₽/g,'');
-  if(!s || s==='—' || s==='-') return null;
-  const pct = s.endsWith('%');
-  if(pct) s=s.slice(0,-1);
-  s=s.replace(NBSP,'');
-  if(s.includes(',') && s.includes('.')) s=s.replace(/,/g,'');       // 1,250,000.50
-  else if((s.match(/,/g)||[]).length===1 && /,\d{1,2}$/.test(s)) s=s.replace(',','.'); // 0,45
+  if(!s||s==='—'||s==='-') return null;
+  const pct=s.endsWith('%'); if(pct) s=s.slice(0,-1);
+  s=s.replace(SP,'').replace('−','-');
+  if(s.includes(',')&&s.includes('.')) s=s.replace(/,/g,'');
+  else if((s.match(/,/g)||[]).length===1 && /,\d{1,2}$/.test(s)) s=s.replace(',','.');
   else s=s.replace(/,/g,'');
   const n=parseFloat(s);
   if(isNaN(n)) return null;
-  return pct ? n/100 : n;
+  return pct?n/100:n;
 }
-const Nf = n => (n==null||isNaN(n)) ? '—' : new Intl.NumberFormat('ru-RU').format(Math.round(n));
-const Nc = n => {
-  const x = num(n); if(x==null) return '—';
-  const a=Math.abs(x), s=x<0?'−':'';
-  if(a>=1e6) return s+(a/1e6).toFixed(a>=1e7?1:2).replace('.',',')+' млн';
+const Nc = v => {
+  const n=num(v); if(n==null) return '—';
+  const a=Math.abs(n), s=n<0?'−':'';
+  if(a>=1e9) return s+(a/1e9).toFixed(1).replace('.',',')+' млрд';
+  if(a>=1e6) return s+(a/1e6).toFixed(1).replace('.',',')+' млн';
   if(a>=1e3) return s+Math.round(a/1e3)+' тыс';
   return s+Math.round(a);
 };
-const Pct = n => (n==null||isNaN(n)) ? '—' : (n*100).toFixed(n*100>=10?0:1).replace('.',',')+'%';
+const Nf = v => { const n=num(v); return n==null?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n)); };
+const Pct = n => (n==null||isNaN(n))?'—':(n*100).toFixed(1).replace('.',',')+'%';
 const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 function splitCSV(line){
-  const out=[]; let cur='', q=false;
+  const out=[]; let cur='',q=false;
   for(let i=0;i<line.length;i++){
     const ch=line[i];
-    if(ch==='"'){ if(q && line[i+1]==='"'){cur+='"';i++;} else q=!q; }
-    else if(ch===',' && !q){ out.push(cur); cur=''; }
+    if(ch==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q; }
+    else if(ch===','&&!q){ out.push(cur); cur=''; }
     else cur+=ch;
   }
   out.push(cur); return out;
 }
-
-const TEXT_KEYS = new Set(['updated_label','month_label','mm_title','mm_dates','mm_venue','rec_asof']);
+const TEXT_KEYS=new Set(['updated_label','month_label','mm_title','mm_dates','mm_venue','rec_asof']);
 
 function parseFeed(txt){
-  const k={}, c=[], p=[], ev=[], rv=[], eb=[]; let pt=null;
+  const k={},c=[],p=[],ev=[],rv=[],eb=[],rec=[]; let pt=null;
   txt.trim().split(/\r?\n/).forEach(line=>{
     const f=splitCSV(line).map(x=>x.trim().replace(/^"|"$/g,''));
     const tag=(f[0]||'').trim();
-    if(tag==='K'){
-      const key=f[1]; if(!key) return;
-      k[key] = TEXT_KEYS.has(key) ? f[2] : (num(f[2]) ?? 0);
-    }
+    if(tag==='K'){ const key=f[1]; if(key) k[key]=TEXT_KEYS.has(key)?f[2]:(num(f[2])??0); }
     else if(tag==='C'){ if(f[1]) c.push([f[1],f[2],f[3],f[4]]); }
-    else if(tag==='P'){ if(f[1]) p.push([f[1], ...f.slice(2,14).map(num), num(f[14]), num(f[15])]); }
-    else if(tag==='PT'){ pt=['ИТОГО', ...f.slice(2,14).map(num), num(f[14])]; }
-    else if(tag==='RV'){ rv.push([num(f[2]), num(f[3])]); }
-    else if(tag==='EB'){ eb.push([num(f[2]), num(f[3])]); }
-    else if(tag==='EV'){ if(f[1]) ev.push([f[1], num(f[2]), num(f[3]), f[4], f[5]]); }
+    else if(tag==='P'){ if(f[1]) p.push([f[1],...f.slice(2,14).map(num),num(f[14]),num(f[15])]); }
+    else if(tag==='PT'){ pt=['ИТОГО',...f.slice(2,14).map(num),num(f[14])]; }
+    else if(tag==='RV'){ rv.push([num(f[2]),num(f[3])]); }
+    else if(tag==='EB'){ eb.push([num(f[2]),num(f[3])]); }
+    else if(tag==='EV'){ if(f[1]) ev.push([f[1],num(f[2]),num(f[3]),f[4],f[5]]); }
+    else if(tag==='R'){ if(f[1]) rec.push({name:f[1],cf:num(f[2])||0,pl:num(f[3])||0}); }
   });
-  return {k,c,p,pt,rv,eb,ev};
+  return {k,c,p,pt,rv,eb,ev,rec};
 }
 
 async function loadData(){
-  if(!PUB_CSV_URL) return {d:DEMO, demo:true, err:null};
+  if(!PUB_CSV_URL) return {d:DEMO,demo:true,err:null};
   try{
     const r=await fetch(PUB_CSV_URL+(PUB_CSV_URL.includes('?')?'&':'?')+'cb='+Date.now());
     if(!r.ok) throw new Error('HTTP '+r.status);
-    const d=parseFeed(await r.text());
-    if(!d.k.gross_plan) throw new Error('фид пустой или неверная вкладка');
-    return {d, demo:false, err:null};
-  }catch(e){ return {d:DEMO, demo:true, err:e.message}; }
+    const txt=await r.text();
+    if(txt.includes('<!DOCTYPE')||txt.includes('<html')) throw new Error('лист не опубликован');
+    const d=parseFeed(txt);
+    if(!d.k.gross_plan) throw new Error('данные не распознаны');
+    return {d,demo:false,err:null};
+  }catch(e){ return {d:DEMO,demo:true,err:e.message}; }
 }
 
-/* ── блоки ── */
-function lr(pct, cls){
-  const w=Math.max(0,Math.min(100,(pct||0)*100));
-  return `<div class="lr"><i class="${cls||''}" style="width:${w}%"></i></div>`;
+/* ── KPI ── */
+function kpiPF(label,plan,fact,vc,ac,note){
+  const pct=(plan!=null&&plan!==0)?fact/plan:null;
+  const w=pct!=null?Math.max(0,Math.min(100,pct*100)):0;
+  const factCol=(fact!=null&&fact<0)?' style="color:var(--mag)"':'';
+  const pctCol =(pct!=null&&pct<0) ?' style="color:var(--mag)"':' style="color:var(--cyan)"';
+  return `<div class="kpi ${ac}">
+    <div class="kpi-lbl">${esc(label)}</div>
+    <div class="kpi-vlbl">план год</div>
+    <div class="kpi-val ${vc}">${Nc(plan)} ₽</div>
+    <div class="kpi-rows">
+      <div class="kr"><span>Факт YTD</span><b${factCol}>${Nc(fact)} ₽</b></div>
+      <div class="kr pct"><span>% выполнения</span><b${pctCol}>${Pct(pct)}</b></div>
+    </div>
+    <div class="kpi-bar"><div class="kpi-fill" style="width:${w}%"></div></div>
+    ${note?`<div class="kpi-note">${note}</div>`:''}
+  </div>`;
 }
-
-function hero(k){
-  const rows=[
-    ['Разборы', k.mm_razbor_fact, k.mm_razbor_plan, k.mm_razbor_pct],
-    ['Гости', k.mm_guest_fact, k.mm_guest_plan, k.mm_guest_pct],
-    ['Орг. взносы действующих клиентов', k.mm_org_fact, k.mm_org_plan, k.mm_org_pct],
-  ].map(([n,f,p,pc])=>`
-    <div class="prow">
-      <div class="nm">${esc(n)}</div>
-      <div class="vv"><b>${f??'—'}</b> / ${p??'—'}</div>
-      ${lr(pc, pc<0.4?'warm':'')}
-    </div>`).join('');
-
-  const days=k.mm_days_left;
-  const urgent = days!=null && days<=60;
-  return `
-  <section>
-    <div class="eyebrow">Мастермайнд · ${esc(k.mm_dates||'')}<span class="far">${esc(k.mm_venue||'')}</span></div>
-    <div class="hero">
-      <div class="hero-top">
-        <div class="hero-money">
-          <div class="big">${Nf(k.mm_rev_fact)} ₽</div>
-          <div class="of">из ${Nf(k.mm_rev_plan)} ₽ плана события</div>
-          ${lr(k.mm_rev_pct, k.mm_rev_pct<0.4?'warm':'')}
-          <div class="pctline"><b>${Pct(k.mm_rev_pct)}</b><span>собрано к цели</span></div>
-        </div>
-        <div class="hero-people">${rows}</div>
-      </div>
-      <div class="hero-strip">
-        <div class="hs"><div class="k">До события</div>
-          <div class="v ${urgent?'warm':''}">${days??'—'}</div><div class="s">дней</div></div>
-        <div class="hs"><div class="k">Людей подтверждено</div>
-          <div class="v">${k.mm_people_fact??'—'} / ${k.mm_people_plan??'—'}</div>
-          <div class="s">${Pct(k.mm_people_pct)} от плана</div></div>
-        <div class="hs"><div class="k">Дебиторка</div>
-          <div class="v warm">${Nf(k.mm_debt)} ₽</div><div class="s">счета не выставлены или не оплачены</div></div>
-        <div class="hs"><div class="k">Прайс</div>
-          <div class="v petrol">${Nc(k.price_razbor)}</div>
-          <div class="s">разбор · гость ${Nc(k.price_guest)} · взнос ${Nc(k.price_org)}</div></div>
-      </div>
-    </div>
-    <div class="callout">
-      Чтобы закрыть план, за оставшиеся <b>${days??'—'} дней</b> нужно продать
-      <b>${Math.max(0,(k.mm_razbor_plan||0)-(k.mm_razbor_fact||0))} разборов</b> и
-      <b>${Math.max(0,(k.mm_guest_plan||0)-(k.mm_guest_fact||0))} гостей</b>.
-    </div>
-  </section>`;
-}
-
-function kpi(k){
-  const cards=[
-    ['Выручка GROSS', k.gross_fact, k.gross_plan, null],
-    ['Выручка NET', k.net_fact, k.net_plan, null],
-    ['EBITDA', k.ebitda_fact, k.ebitda_plan, `рент. ${Pct(k.ebitda_margin_fact)} · план ${Pct(k.ebitda_margin_plan)}`],
-    ['Чистая прибыль', k.np_fact, k.np_plan, null],
-  ].map(([n,f,p,extra])=>{
-    const pc = (p!=null && p!==0) ? f/p : null;
-    const neg = f!=null && f<0;
-    return `<div class="kc">
-      <div class="k">${esc(n)}</div>
-      <div class="fact ${neg?'neg':''}">${Nf(f)} ₽</div>
-      <div class="plan">план ${Nf(p)} ₽</div>
-      ${lr(pc, neg?'alert':'')}
-      <div class="foot"><span class="p">${Pct(pc)}</span><span class="m">${extra?esc(extra):'выполнение'}</span></div>
-    </div>`;
-  }).join('');
-
-  return `
-  <section>
-    <div class="eyebrow">Финансовый результат<span class="far">${esc(k.updated_label||'')}</span></div>
-    <div class="kgrid">${cards}</div>
-    <div class="cols c3" style="margin-top:22px">
-      <div class="col"><div class="k">Акселерация</div>
-        <div class="v">${Nf(k.aks_fact)} ₽</div>
-        <div class="s">план ${Nf(k.aks_plan)} ₽ · ${Pct(k.aks_plan?k.aks_fact/k.aks_plan:null)}</div></div>
-      <div class="col"><div class="k">Мастермайнд</div>
-        <div class="v">${Nf(k.mm_fact)} ₽</div>
-        <div class="s">план ${Nf(k.mm_plan)} ₽ · ${Pct(k.mm_plan?k.mm_fact/k.mm_plan:null)}</div></div>
-      <div class="col"><div class="k">Клиентов на акселерации</div>
-        <div class="v">${k.clients_active??'—'} <span style="color:var(--mut2);font-size:16px">/ ${k.clients_target??'—'}</span></div>
-        <div class="s">активных сейчас / цель на конец года</div></div>
-    </div>
-    <div class="callout">
-      <b>Пересчитано 10.07.2026.</b> В фактических расходах июня и июля был неверный знак — расходы прибавлялись
-      к прибыли. Рентабельность EBITDA показывалась как 51%, фактическая — ${Pct(k.ebitda_margin_fact)}.
-      Бизнес не менялся, изменилась только корректность модели.
-    </div>
-  </section>`;
-}
-
-function chartSec(){
-  return `
-  <section>
-    <div class="eyebrow">Выручка и EBITDA по месяцам<span class="far">факт — по июль включительно</span></div>
-    <div class="chartbox">
-      <div class="legend">
-        <div><span class="sw plan"></span>Выручка, план</div>
-        <div><span class="sw fact"></span>Выручка, факт</div>
-        <div><span class="sw eb"></span>EBITDA, факт</div>
-      </div>
-      <div class="cwrap"><canvas id="cm"></canvas></div>
-    </div>
-  </section>`;
-}
-
-function stCls(s){
+function statusClass(s){
   s=String(s||'');
-  if(s.includes('Актив')) return 'ok';
-  if(s.includes('Ожидаем')||s.includes('Счёт')) return 'warn';
-  if(s.includes('DD')) return 'dd';
-  return 'pause';
+  if(/Пауза|⏸/.test(s)) return 'muted';
+  if(/Счёт|Ожидаем|⚠/.test(s)) return 'warn';
+  if(/Нов|☆/.test(s)) return 'cyan';
+  if(/DD|⟳/.test(s)) return 'violet';
+  return 'green';
 }
-function portfolio(d){
-  const rows=d.c.map(([n,st,trk,next])=>{
-    const paused=String(st||'').includes('Пауза');
-    return `<div class="trow ${paused?'paused':''}">
-      <div class="nm">${esc(n)}</div>
-      <div><span class="st ${stCls(st)}">${esc(st)}</span></div>
-      <div class="mono" style="font-size:13px;color:var(--mut)">${esc(trk)}</div>
-      <div class="mono" style="font-size:13px">${esc(next)}</div>
+
+/* ── СОБЫТИЕ: заполняемость ── */
+const EV_DEFAULT=[
+  ['Разборы',0,0,'8 × 1 250 000 ₽','Точка конверсии — разбор бизнеса на сцене'],
+  ['Гости',0,0,'14 × 350к + 6 × 150к','Вершина воронки — прогрев к покупке'],
+  ['Орг. взносы',0,0,'8 × 122 000 ₽','Действующие клиенты — углубление'],
+];
+const STREAM_KEYS=[['mm_razbor_fact','mm_razbor_plan','mm_razbor_pct'],
+                   ['mm_guest_fact','mm_guest_plan','mm_guest_pct'],
+                   ['mm_org_fact','mm_org_plan','mm_org_pct']];
+const ACC=['var(--cyan)','var(--mag)','var(--green)'];
+
+function buildEvent(d){
+  const k=d.k, ev=(d.ev&&d.ev.length)?d.ev:EV_DEFAULT;
+  const cal='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
+  const days=k.mm_days_left;
+  const cdTxt = days==null?'' : (days>0?`через ${days} дн.`:(days>-7?'идёт сейчас':'завершён'));
+
+  const cards=ev.slice(0,3).map((s,i)=>{
+    const [fk,pk,ck]=STREAM_KEYS[i]||[];
+    const fact=k[fk]??s[1], plan=k[pk]??0, pct=k[ck]??(plan?fact/plan:0);
+    const behind=pct<0.5;
+    const col=ACC[i];
+    return `<div class="ev-stream" style="border-top-color:${col}">
+      <div class="ev-s-head">
+        <div class="ev-s-n" style="color:${col}">${fact??'—'}</div>
+        <div class="ev-s-plan">из ${plan??'—'}</div>
+      </div>
+      <div class="ev-s-name">${esc(s[0])}</div>
+      <div class="ev-s-price">${esc(s[3]||'')}</div>
+      <div class="ev-s-track"><i style="width:${Math.min(100,(pct||0)*100)}%;background:${behind?'var(--gold)':col}"></i></div>
+      <div class="ev-s-rev"><b>${Nc(s[2])} ₽</b><span>${Pct(pct)}</span></div>
+      <div class="ev-s-role">${esc(s[4]||'')}</div>
     </div>`;}).join('');
-  return `
-  <section>
-    <div class="eyebrow">Портфель акселерации<span class="far">${d.k.clients_active??'—'} активных</span></div>
-    <div class="tbl">
-      <div class="trow head"><div>Клиент</div><div>Статус</div><div>Трекер</div><div>След. платёж</div></div>
-      ${rows}
+
+  const gapR=Math.max(0,(k.mm_razbor_plan||0)-(k.mm_razbor_fact||0));
+  const gapG=Math.max(0,(k.mm_guest_plan||0)-(k.mm_guest_fact||0));
+
+  return `<div class="sec">Заполняемость события</div>
+  <div class="ev-card">
+    <div class="ev-top">
+      <div>
+        <div class="ev-title-row"><div class="ev-name">${esc(k.mm_title||'Мастермайнд Фонда')}</div>
+          ${cdTxt?`<span class="ev-cd">${cdTxt}</span>`:''}</div>
+        <div class="ev-dates">${cal}${esc(k.mm_dates||'')}</div>
+        <div class="ev-frame">${esc(k.mm_venue||'')} · ключевая точка конверсии воронки фонда</div>
+      </div>
+      <div class="ev-metrics">
+        <div><div class="ev-m-l">людей подтверждено</div>
+          <div class="ev-m-v">${k.mm_people_fact??'—'} <span style="color:var(--muted);font-size:14px">/ ${k.mm_people_plan??'—'}</span></div></div>
+        <div><div class="ev-m-l">дебиторка</div>
+          <div class="ev-m-v ev-debt">${Nf(k.mm_debt)} ₽</div></div>
+      </div>
     </div>
-  </section>`;
+
+    <div class="ev-money">
+      <div class="ev-money-row">
+        <div><span class="ev-money-big">${Nf(k.mm_rev_fact)} ₽</span>
+             <span class="ev-money-of">из ${Nf(k.mm_rev_plan)} ₽ плана события</span></div>
+        <div class="ev-money-pct">${Pct(k.mm_rev_pct)}</div>
+      </div>
+      <div class="ev-track"><i style="width:${Math.min(100,(k.mm_rev_pct||0)*100)}%"></i></div>
+    </div>
+
+    <div class="ev-streams">${cards}</div>
+
+    <div class="ev-foot">
+      <span class="efl">Осталось продать:</span>
+      <span class="ev-goal">${gapR} разборов · ${gapG} гостей за ${days??'—'} дней</span>
+      <span class="efl">Прайс: разбор <b>${Nc(k.price_razbor)}</b> · гость <b>${Nc(k.price_guest)}</b> · взнос <b>${Nc(k.price_org)}</b></span>
+    </div>
+  </div>`;
 }
 
-function payments(d){
-  const lines=d.p.map((r,i)=>{
-    const name=r[0], months=r.slice(1,13), total=r[13], flag=r[14];
-    const off = flag===0;
-    const cells=months.map((v,j)=>`<div class="mc ${v?'paid':''}">
-        <div class="mm">${MONTHS[j]}</div><div class="mv">${v?Nc(v):'·'}</div></div>`).join('');
-    return `<div class="pline">
-      <button class="phead" aria-expanded="false" data-i="${i}">
-        <span>${esc(name)} ${off?'<span class="paused-tag">не в плане</span>':''}</span>
-        <span class="r"><span class="sum" style="${off?'color:var(--mut2)':''}">${Nf(total)} ₽</span><span class="car"></span></span>
-      </button>
-      <div class="pbody" id="pb${i}"><div class="mgrid">${cells}</div></div>
-    </div>`;}).join('');
-  const pt=d.pt;
-  return `
-  <section>
-    <div class="eyebrow">График платежей акселерации<span class="far">кассовый, 2026</span></div>
-    <div class="pay">${lines}</div>
-    <div class="cols c2" style="margin-top:22px">
-      <div class="col"><div class="k">План поступлений за год</div>
-        <div class="v petrol">${Nf(pt?pt[13]:null)} ₽</div>
-        <div class="s">строки с флагом «не в плане» в сумму не входят</div></div>
-      <div class="col"><div class="k">Поступило на 09.07</div>
-        <div class="v">${Nf(d.k.aks_fact)} ₽</div>
-        <div class="s">сверено с реестром финдиректора</div></div>
-    </div>
-  </section>`;
-}
+/* ── признание выручки ── */
+function buildRec(d){
+  const k=d.k;
+  const rich = d.rec && d.rec.length;
+  const cf  = rich ? d.rec.reduce((s,x)=>s+x.cf,0) : null;
+  const pl  = rich ? d.rec.reduce((s,x)=>s+x.pl,0) : null;
+  const rows = rich ? d.rec.map(c=>{
+      const def=c.cf-c.pl, pct=c.cf?c.pl/c.cf:0;
+      return `<div class="recr">
+        <div class="recr-name">${esc(c.name)}</div>
+        <div class="recr-mid"><div class="recr-bar"><div class="recr-fill" style="width:${Math.round(pct*100)}%"></div></div>
+          <div class="recr-pct">${Math.round(pct*100)}%</div></div>
+        <div class="recr-def"><span>отложено</span><b>${Nc(def)} ₽</b></div>
+      </div>`;}).join('') : '';
 
-function deferred(k){
-  return `
-  <section>
-    <div class="eyebrow">Отложенная выручка<span class="far">${esc(k.rec_asof||'')}</span></div>
-    <div class="cols c3">
-      <div class="col"><div class="k">Акселерация</div>
-        <div class="v">${Nf(k.rec_deferred_acc)} ₽</div>
-        <div class="s">деньги получены, услуга ещё не оказана</div></div>
-      <div class="col"><div class="k">Авансы за августовский ММ</div>
-        <div class="v">${Nf(k.rec_deferred_mm)} ₽</div>
-        <div class="s">событие в августе — отработано 0%</div></div>
-      <div class="col"><div class="k">Всего обязательств</div>
-        <div class="v warm">${Nf(k.rec_deferred_total)} ₽</div>
-        <div class="s">перед клиентами по методу начисления</div></div>
+  return `<div class="sec">Признание выручки · ${esc(k.rec_asof||'')}</div>
+  <div class="card">
+    <div class="rec-flow">
+      <div class="rec-stat"><div class="rec-l">Отложено по акселерации</div>
+        <div class="rec-v v-c">${Nc(k.rec_deferred_acc)} ₽</div></div>
+      <span class="rec-arrow">+</span>
+      <div class="rec-stat"><div class="rec-l">Авансы за августовский ММ</div>
+        <div class="rec-v v-gn">${Nc(k.rec_deferred_mm)} ₽</div></div>
+      <span class="rec-arrow">=</span>
+      <div class="rec-stat hl"><div class="rec-l">Всего обязательств перед клиентами</div>
+        <div class="rec-v" style="color:var(--gold-txt)">${Nc(k.rec_deferred_total)} ₽</div></div>
     </div>
-    <div class="callout">
-      Кассовый P&amp;L показывает деньги на счету, отложенная выручка — обязательства перед клиентами.
-      Это две разные правды об одном бизнесе, и обе нужны: первая отвечает на вопрос «чем платим завтра»,
-      вторая — «сколько мы уже должны отработать».
+    ${rich?`<div class="rec-clients">${rows}</div>`:''}
+    <div class="rec-note">
+      Кассовый P&amp;L показывает деньги на счету, отложенная выручка — сколько мы ещё должны отработать.
+      Обе цифры верны: первая отвечает «чем платим завтра», вторая — «сколько уже обещано».
+      Авансы за ММ отработаются в августе, целиком.
     </div>
-  </section>`;
-}
-
-function cash(k){
-  const opexPerClient = (k.opex_after && k.clients_active) ? k.opex_after/k.clients_active : null;
-  return `
-  <section>
-    <div class="eyebrow">Денежный поток и расходы</div>
-    <div class="cols c3">
-      <div class="col"><div class="k">Остаток на 01.06</div>
-        <div class="v">${Nf(k.cash_open)} ₽</div><div class="s">факт</div></div>
-      <div class="col"><div class="k">Прогноз на 31.12</div>
-        <div class="v petrol">${Nf(k.cash_eoy)} ₽</div>
-        <div class="s">приток ${Nc(k.inflow_period)} · отток ${Nc(k.outflow_period)}</div></div>
-      <div class="col"><div class="k">OPEX на одного клиента</div>
-        <div class="v">${Nf(opexPerClient)} ₽</div>
-        <div class="s">${Nf(k.opex_after)} ₽/мес ÷ ${k.clients_active??'—'} клиентов. Единственный рычаг — количество клиентов</div></div>
-    </div>
-    <div class="callout">
-      <b>Прогноз остатка не учитывает НДС к уплате.</b> Плановый НДС с реализации за год — около 14,4 млн ₽,
-      квартальные суммы ещё не подтверждены бухгалтерией. Реальный остаток на конец года будет ниже.
-    </div>
-  </section>`;
+  </div>`;
 }
 
 /* ── график ── */
 let chart=null;
 function buildChart(d){
   const el=document.getElementById('cm'); if(!el) return;
-  if(typeof Chart==='undefined' || !d.rv.length || !d.eb.length){
-    el.closest('.cwrap').innerHTML =
-      '<div class="note" style="display:flex;height:100%;align-items:center;justify-content:center;text-align:center">'
-      + 'График недоступен: не загрузилась библиотека Chart.js или в фиде нет строк RV / EB.</div>';
+  const box=el.closest('.chart-box');
+  if(typeof Chart==='undefined'||!d.rv||!d.rv.length||!d.eb||!d.eb.length){
+    box.innerHTML='<div class="chart-fallback">График недоступен: не загрузилась Chart.js или в фиде нет строк RV / EB.</div>';
     return;
   }
-  if(chart) chart.destroy();
-  const rvP=d.rv.map(x=>x[0]??0), rvF=d.rv.map(x=>x[1]??0), ebF=d.eb.map(x=>x[1]??0);
-  const lastFact = rvF.reduce((acc,v,i)=>v>0?i:acc,-1);
-  const css=getComputedStyle(document.documentElement);
-  const petrol=css.getPropertyValue('--petrol').trim();
-  const line2=css.getPropertyValue('--line2').trim();
-  const warm=css.getPropertyValue('--warm').trim();
-  const line=css.getPropertyValue('--line').trim();
-  const mut2=css.getPropertyValue('--mut2').trim();
-  const font={family:"'JetBrains Mono',monospace",size:10};
+  if(chart){chart.destroy();chart=null;}
+  if(!box.querySelector('canvas')) box.innerHTML='<canvas id="cm"></canvas>';
+  const cv=document.getElementById('cm');
 
-  chart=new Chart(el,{
-    data:{ labels:MONTHS, datasets:[
-      {type:'bar',label:'Выручка, план',data:rvP,backgroundColor:line2,borderRadius:3,order:3,
-       barPercentage:.86,categoryPercentage:.82},
-      {type:'bar',label:'Выручка, факт',data:rvF.map((v,i)=>i<=lastFact?v:null),backgroundColor:petrol,
-       borderRadius:3,order:2,barPercentage:.5,categoryPercentage:.82},
-      {type:'line',label:'EBITDA, факт',data:ebF.map((v,i)=>i<=lastFact?v:null),borderColor:warm,
-       backgroundColor:warm,borderWidth:2,pointRadius:3,pointBackgroundColor:'#fff',tension:.25,order:1,yAxisID:'y'},
+  const css=getComputedStyle(document.documentElement);
+  const V=n=>css.getPropertyValue(n).trim();
+  const rgba=(n,a)=>`rgba(${V(n)},${a})`;
+  const cyan=V('--cyan'), gold=V('--gold'), track=V('--track'), muted=V('--muted'),
+        tipBg=V('--tip-bg'), navy=V('--navy'), fg=V('--white');
+  const font={size:10,family:"'DM Mono',monospace"};
+
+  const rvP=d.rv.map(x=>x[0]??0), rvF=d.rv.map(x=>x[1]), ebF=d.eb.map(x=>x[1]);
+
+  chart=new Chart(cv,{data:{labels:MONTHS,datasets:[
+      {type:'bar',label:'Выручка, план',data:rvP,backgroundColor:track,borderRadius:3,order:3,
+       barPercentage:.9,categoryPercentage:.8},
+      {type:'bar',label:'Выручка, факт',data:rvF,backgroundColor:cyan,borderRadius:3,order:2,
+       barPercentage:.52,categoryPercentage:.8},
+      {type:'line',label:'EBITDA, факт',data:ebF,borderColor:gold,backgroundColor:gold,borderWidth:2,
+       pointRadius:3,pointBackgroundColor:navy,pointBorderColor:gold,tension:.25,order:1,spanGaps:false},
     ]},
-    options:{
-      responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
       plugins:{legend:{display:false},
-        tooltip:{backgroundColor:'#16191B',padding:12,cornerRadius:8,titleFont:font,bodyFont:font,
-          callbacks:{label:c=>` ${c.dataset.label}: ${Nf(c.raw)} ₽`}}},
-      scales:{
-        x:{grid:{display:false},border:{color:line},ticks:{color:mut2,font}},
-        y:{grid:{color:line},border:{display:false},
-           ticks:{color:mut2,font,callback:v=>Nc(v)}}}
-    }});
+        tooltip:{backgroundColor:tipBg,titleColor:fg,bodyColor:fg,borderColor:rgba('--cyan-rgb',.3),borderWidth:1,
+          padding:12,cornerRadius:8,titleFont:font,bodyFont:font,
+          callbacks:{label:c=>c.raw==null?null:` ${c.dataset.label}: ${Nf(c.raw)} ₽`}}},
+      scales:{x:{grid:{display:false},border:{color:rgba('--cyan-rgb',.15)},ticks:{color:muted,font}},
+              y:{grid:{color:rgba('--cyan-rgb',.07)},border:{display:false},
+                 ticks:{color:muted,font,callback:v=>Nc(v)}}}}});
 }
 
 /* ── рендер ── */
 function render(d,demo,err,time){
   const k=d.k;
-  document.getElementById('tools').innerHTML = `
-    <span class="chip ${demo?'demo':'live'}">${demo?'демо-данные':'обновлено '+time}</span>
-    ${err?`<span class="chip err" title="${esc(err)}">фид недоступен</span>`:''}
-    <button class="chip" onclick="init()">↻ Обновить</button>`;
+  const opexDelta=(k.opex_after!=null&&k.opex_before!=null)?(k.opex_after-k.opex_before):(k.opex_delta||0);
+  const opexYear=Math.abs(opexDelta)*12;
+  const perClient=(k.opex_after&&k.clients_active)?k.opex_after/k.clients_active:null;
+  const grew=opexDelta>0;
 
-  document.getElementById('app').innerHTML =
-    hero(k) + kpi(k) + chartSec() + portfolio(d) + payments(d) + deferred(k) + cash(k) +
-    `<footer>
-       <span class="mono">Фонд-Акселератор МД · ООО «Группа Развития»</span>
-       <span>${esc(k.updated_label||'')} · <a href="https://fond-accelerator.ru" target="_blank" rel="noopener">fond-accelerator.ru</a></span>
-     </footer>`;
+  document.getElementById('app').innerHTML = `
+    ${demo?`<div class="info"><b>Демо-данные${err?' · <code>'+esc(err)+'</code>':''}.</b>
+      Дашборд не смог прочитать опубликованный лист <b>WEB</b>. Проверь, что вкладка опубликована как CSV
+      и ссылка в <code>PUB_CSV_URL</code> актуальна, затем нажми <a href="javascript:init()">↻ Обновить</a>.</div>`:''}
 
-  document.querySelectorAll('.phead').forEach(b=>b.addEventListener('click',()=>{
+    <div class="hdr">
+      <div class="hdr-l"><div class="logo">МД</div>
+        <div><div class="hdr-title">Фонд-Акселератор МД</div>
+        <div class="hdr-sub">Управленческий дашборд · ${esc(k.updated_label||'')}</div></div></div>
+      <div class="hdr-r">
+        ${demo?'<span class="badge demo">Demo</span>':'<span class="badge">Live ✓</span>'}
+        ${err&&!demo?`<span class="badge err">${esc(err)}</span>`:''}
+        <span class="badge">Обновлено: ${time}</span>
+        <button class="btn" id="themeBtn" onclick="toggleTheme()"></button>
+        <button class="btn" onclick="init()">↻ Обновить</button>
+      </div>
+    </div>
+
+    <div class="sec">Статус · ${esc(k.month_label||'')}</div>
+    <div class="pills">
+      <div class="pill ${k.ebitda_plan>0?'g':'y'}"><div class="dot"></div>EBITDA год план: ${Nc(k.ebitda_plan)} ₽ · ${Pct(k.ebitda_margin_plan)}</div>
+      <div class="pill c"><div class="dot"></div>Портфель: ${k.clients_active} активных · цель ${k.clients_target}</div>
+      <div class="pill g"><div class="dot"></div>Остаток на 01.06: ${Nc(k.cash_open)} ₽</div>
+      <div class="pill c"><div class="dot"></div>Прогноз на конец года: ${Nc(k.cash_eoy)} ₽</div>
+    </div>
+    <div class="pills-note">Прогноз остатка не учитывает НДС к уплате — плановый НДС с реализации ≈ 14,4 млн ₽ за год.</div>
+
+    <div class="sec">Ключевые показатели · план год · факт YTD · % выполнения</div>
+    <div class="kpi-grid">
+      ${kpiPF('Выручка GROSS / год',k.gross_plan,k.gross_fact,'v-c','c')}
+      ${kpiPF('Выручка NET / год',k.net_plan,k.net_fact,'v-w','c')}
+      ${kpiPF('EBITDA / год',k.ebitda_plan,k.ebitda_fact,'v-gn','gn','Рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
+      ${kpiPF('Чистая прибыль / год',k.np_plan,k.np_fact,'v-gn','gn','Рентабельность ЧП (план): '+Pct(k.np_margin_plan))}
+      ${kpiPF('Акселерация / год',k.aks_plan,k.aks_fact,'v-c','c')}
+      ${kpiPF('ММ-события / год',k.mm_plan,k.mm_fact,'v-m','m','Ближайшее событие — август 2026')}
+    </div>
+    <div class="recalc"><b>Пересчитано 10.07.2026.</b> В фактических расходах июня и июля был неверный знак — расходы
+      прибавлялись к прибыли. Рентабельность EBITDA показывалась как 51%, фактическая — ${Pct(k.ebitda_margin_fact)}.
+      Бизнес не менялся, изменилась корректность модели.</div>
+
+    ${buildEvent(d)}
+
+    <div class="sec">Расходы · с 01.06.2026</div>
+    <div class="opt-grid">
+      <div class="opt ${grew?'warn':''}">
+        <div class="opt-t">Фиксированный OPEX команды</div>
+        <div class="opt-flow">
+          <span class="opt-from">${Nf(k.opex_before)} ₽</span>
+          <span class="opt-arrow">→</span>
+          <span class="opt-to" ${grew?'style="color:var(--gold-txt)"':''}>${Nf(k.opex_after)} ₽</span>
+        </div>
+        <div class="opt-save ${grew?'neg':''}">${grew?'Рост':'Экономия'} ${grew?'+':'−'}${Nf(Math.abs(opexDelta))} ₽/мес · ≈ ${Nc(opexYear)} ₽/год</div>
+        <div class="opt-note">Уход Гудковой снял 425 532 ₽, но добавились Дубровин и Кэт как CEO/CPO,
+          вышла Айнабекова и вырос счёт Борониной. Чистая разница невелика.</div>
+      </div>
+      <div class="opt warn">
+        <div class="opt-t">OPEX на одного клиента</div>
+        <div class="opt-flow"><span class="opt-big">${Nf(perClient)} ₽</span>
+          <span style="font-size:11px;color:var(--muted)">в месяц</span></div>
+        <div class="opt-save neg">${Nf(k.opex_after)} ₽ ÷ ${k.clients_active} клиентов</div>
+        <div class="opt-note">Тариф 5 млн с трекером Дубровина при этой нагрузке не окупается.
+          Единственный рычаг — количество клиентов: на 15 клиентах накладные падают до ${Nf(k.opex_after/15)} ₽.</div>
+      </div>
+    </div>
+
+    <div class="sec">Выручка и EBITDA по месяцам</div>
+    <div class="charts-grid">
+      <div class="card"><div class="card-t">Помесячная динамика · факт по июль включительно</div>
+        <div class="legend">
+          <div><span class="sw plan"></span>Выручка, план</div>
+          <div><span class="sw fact"></span>Выручка, факт</div>
+          <div><span class="sw eb"></span>EBITDA, факт</div>
+        </div>
+        <div class="chart-box"><canvas id="cm"></canvas></div></div>
+    </div>
+
+    <div class="sec">Портфель и график платежей</div>
+    <div class="bot-grid">
+      <div class="card">
+        <div class="card-t">Портфель компаний · ${k.clients_active} активных</div>
+        ${d.c.map(c=>{
+          const paused=/Пауза|⏸/.test(String(c[1]||''));
+          return `<div class="cr ${paused?'paused':''}">
+            <div class="cr-l"><div class="cr-name">${esc(c[0])}</div><div class="cr-trk">${esc(c[2]||'')}</div></div>
+            <div class="cr-r"><div class="ct ${statusClass(c[1])}">${esc(c[1])}</div>
+            <div class="cr-next">след. платёж: ${esc(c[3]||'—')}</div></div></div>`;}).join('')}
+      </div>
+      <div class="card">
+        <div class="card-t">График платежей · акселерация 2026 (кассовый)</div>
+        ${d.p.map((row,idx)=>{
+          const name=row[0], months=row.slice(1,13), total=row[13], off=row[14]===0;
+          return `<div class="acc-item ${off?'off':''}">
+            <button class="acc-head" aria-expanded="false" data-i="${idx}">
+              <span class="acc-name"><span class="acc-chev">▶</span>${esc(name)}
+                ${off?'<span class="off-tag">не в плане</span>':''}</span>
+              <span class="acc-tot">${Nc(total)} ₽</span>
+            </button>
+            <div class="acc-body" id="ab${idx}"><div class="months">
+              ${months.map((m,i)=>`<div class="mcell ${m>0?'paid':''}">
+                <div class="mcell-m">${MONTHS[i]}</div>
+                <div class="mcell-v">${m>0?Nc(m):'·'}</div></div>`).join('')}
+            </div></div></div>`;}).join('')}
+        <div class="pt-row"><span>План поступлений акселерации / год</span><span>${Nc(d.pt?d.pt[13]:null)} ₽</span></div>
+        <div class="pt-row" style="border:0;padding-top:2px"><span>Поступило на отчётную дату</span><span>${Nc(k.aks_fact)} ₽</span></div>
+      </div>
+    </div>
+
+    <div style="height:28px"></div>
+    ${buildRec(d)}
+
+    <div class="ftr">
+      <span style="font-family:'DM Mono',monospace">Фонд-Акселератор МД · ООО «Группа Развития»</span>
+      <span>${esc(k.updated_label||'')} · <a href="https://fond-accelerator.ru" target="_blank" rel="noopener">fond-accelerator.ru</a></span>
+    </div>`;
+
+  document.querySelectorAll('.acc-head').forEach(b=>b.addEventListener('click',()=>{
     const open=b.getAttribute('aria-expanded')==='true';
-    b.setAttribute('aria-expanded', String(!open));
-    document.getElementById('pb'+b.dataset.i).classList.toggle('open',!open);
+    b.setAttribute('aria-expanded',String(!open));
+    document.getElementById('ab'+b.dataset.i).classList.toggle('open',!open);
   }));
 
+  window.__d=d;
+  applyTheme(document.documentElement.getAttribute('data-theme')||'dark');
   requestAnimationFrame(()=>buildChart(d));
 }
 
