@@ -507,6 +507,8 @@ function buildChart(k){
 function render(d,demo,err,time){
   const k=d.k;
   // Экономию OPEX считаем из двух конечных значений (надёжнее, чем поле opex_delta из фида)
+  const fcMargin   = (k.fc_net && k.fc_net!==0) ? k.fc_ebitda/k.fc_net : null;
+  const fcNpMargin = (k.fc_net && k.fc_net!==0) ? k.fc_np/k.fc_net : null;
   const opexDelta = (k.opex_after!=null && k.opex_before!=null) ? (k.opex_after - k.opex_before) : (k.opex_delta||0);
   const opexSaveYear = Math.abs(opexDelta)*12;
 
@@ -548,21 +550,43 @@ function render(d,demo,err,time){
 
     <div class="sec">Прогноз на конец года · факт + план августа–декабря</div>
     <div class="kpi-grid">
-      <div class="card"><div class="k-t">Выручка GROSS · прогноз 31.12</div>
-        <div class="k-v v-c">${Nc(k.fc_gross)} ₽</div>
-        <div class="k-sub">Исходный план года: ${Nc(k.gross_plan)} ₽</div>
-        <div class="k-sub">Факт январь–июль: ${Nc(k.gross_fact)} ₽ · план август–декабрь: ${Nc(k.fc_gross-k.gross_fact)} ₽</div>
+      <div class="kpi c">
+        <div class="kpi-lbl">Выручка GROSS</div>
+        <div class="kpi-vlbl">прогноз 31.12</div>
+        <div class="kpi-val v-c">${Nc(k.fc_gross)} ₽</div>
+        <div class="kpi-rows">
+          <div class="kr"><span>Факт янв–июл</span><b>${Nc(k.gross_fact)} ₽</b></div>
+          <div class="kr"><span>План авг–дек</span><b>${Nc(k.fc_gross-k.gross_fact)} ₽</b></div>
+          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.gross_plan)} ₽</b></div>
+        </div>
       </div>
-      <div class="card"><div class="k-t">EBITDA · прогноз 31.12</div>
-        <div class="k-v v-gn">${Nc(k.fc_ebitda)} ₽</div>
-        <div class="k-sub">Рентабельность: ${Pct(k.fc_margin)}</div>
+      <div class="kpi gn">
+        <div class="kpi-lbl">EBITDA</div>
+        <div class="kpi-vlbl">прогноз 31.12</div>
+        <div class="kpi-val v-gn">${Nc(k.fc_ebitda)} ₽</div>
+        <div class="kpi-rows">
+          <div class="kr"><span>Рентабельность</span><b style="color:var(--cyan)">${Pct(fcMargin)}</b></div>
+          <div class="kr"><span>Выручка NET</span><b>${Nc(k.fc_net)} ₽</b></div>
+          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.ebitda_plan)} ₽</b></div>
+        </div>
       </div>
-      <div class="card"><div class="k-t">Чистая прибыль · прогноз 31.12</div>
-        <div class="k-v v-gn">${Nc(k.fc_np)} ₽</div>
+      <div class="kpi gn">
+        <div class="kpi-lbl">Чистая прибыль</div>
+        <div class="kpi-vlbl">прогноз 31.12</div>
+        <div class="kpi-val v-gn">${Nc(k.fc_np)} ₽</div>
+        <div class="kpi-rows">
+          <div class="kr"><span>Рентабельность</span><b style="color:var(--cyan)">${Pct(fcNpMargin)}</b></div>
+          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.np_plan)} ₽</b></div>
+        </div>
       </div>
-      <div class="card"><div class="k-t">Остаток на счёте 31.12</div>
-        <div class="k-v v-c">${Nc(k.fc_cash)} ₽</div>
-        <div class="k-sub">НДС к уплате за год: ${Nc(k.vat_payable_year)} ₽</div>
+      <div class="kpi c">
+        <div class="kpi-lbl">Остаток на счёте</div>
+        <div class="kpi-vlbl">прогноз 31.12</div>
+        <div class="kpi-val v-c">${Nc(k.fc_cash)} ₽</div>
+        <div class="kpi-rows">
+          <div class="kr"><span>НДС к уплате за год</span><b style="color:var(--mag)">${Nc(k.vat_payable_year)} ₽</b></div>
+          <div class="kr pct"><span>Отложенная выручка</span><b style="color:var(--muted)">${Nc(k.fc_deferred)} ₽</b></div>
+        </div>
       </div>
     </div>
 
