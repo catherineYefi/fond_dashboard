@@ -124,6 +124,10 @@ body{padding:24px 20px 60px}
 .recr-def{display:flex;flex-direction:column;align-items:flex-end;width:130px;flex-shrink:0}
 .recr-def span{font-size:9px;color:var(--muted);text-transform:uppercase}
 .recr-def b{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);font-weight:500}
+.recr-def.debt span{color:var(--mag)}.recr-def.debt b{color:var(--mag)}
+.recr-fill.debt{background:linear-gradient(90deg,var(--mag),#ff6b9d)}
+.recr-pct.debt{color:var(--mag)}
+.rec-note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
 @media(max-width:620px){.recr-name{width:130px}.recr-def{width:90px}}
 .rec-tl{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
 .rec-tl-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:14px}
@@ -262,7 +266,7 @@ const EVENT_DEFAULT = {
 
 // Fallback признания (если в фиде нет строк R/RT)
 const REC_DEFAULT = {
-  cf:11920000, pl:8127008, deferred:3792992, pct:0.682, asof:'на 31.05.26',
+  cf:11920000, pl:8127008, deferred:3792992, pct:0.682, asof:'на 30.06.26',
   clients:[
     {name:'Изосина / Oazis Estate',cf:2500000,pl:2083333},
     {name:'Голубенко / Разум Инвест',cf:1670000,pl:1521190},
@@ -336,7 +340,7 @@ function parseFeed(txt){
     else if(tag==='PT'){ pt=[(f[1]||'').trim(),...f.slice(2,15).map(num)]; }
     else if(tag==='EV'){ ev.push({name:(f[1]||'').trim().replace(/"/g,''),n:num(f[2])||0,rev:num(f[3])||0,
       price:(f[4]||'').trim().replace(/"/g,''),role:(f[5]||'').trim().replace(/"/g,'')}); }
-    else if(tag==='R'){ rec.push({name:(f[1]||'').trim().replace(/"/g,''),cf:num(f[2])||0,pl:num(f[3])||0}); }
+    else if(tag==='R' || tag==='RC'){ rec.push({name:(f[1]||'').trim().replace(/"/g,''),cf:num(f[2])||0,pl:num(f[3])||0,def:num(f[4]),pct:num(f[5])}); }
     else if(tag==='RT'){ recTL=f.slice(1,8).map(x=>num(x)||0); }
     else if(tag==='EB'){ const key=(f[1]||'').trim(); eb[key]=num(f[2]); }
     else if(tag==='RV'){ const key=(f[1]||'').trim(); rv[key]={plan:num(f[2]),fact:num(f[3])}; }
@@ -447,7 +451,7 @@ function getRec(d){
   if(d.rec && d.rec.length){
     const cf=k.rec_cf||d.rec.reduce((s,x)=>s+x.cf,0);
     const pl=k.rec_pl||d.rec.reduce((s,x)=>s+x.pl,0);
-    return {cf, pl, deferred:k.rec_deferred||(cf-pl), pct:k.rec_pct||(pl/cf), asof:k.rec_asof||'',
+    return {cf, pl, deferred:k.rec_deferred||(cf-pl), pct:k.rec_pct||(pl/cf), asof:'на 30.06.2026',
       clients:d.rec, timeline:(d.recTL&&d.recTL.length?d.recTL:REC_DEFAULT.timeline)};
   }
   return REC_DEFAULT;
@@ -455,24 +459,23 @@ function getRec(d){
 function buildRec(d){
   const r=getRec(d);
   const rows=r.clients.map(c=>{
-    const def=c.cf-c.pl, pct=c.cf?c.pl/c.cf:0;
+    const def=(c.def!=null && !isNaN(c.def)) ? c.def : (c.cf-c.pl);
+    const pct=(c.pct!=null && !isNaN(c.pct)) ? c.pct : (c.cf?c.pl/c.cf:0);
+    const debt = def < 0;                       // отрицательное отложенное = клиент должен денег
+    const w = Math.min(100, Math.round(pct*100));
+    const right = debt
+      ? `<div class="recr-def debt"><span>долг</span><b>${Nc(Math.abs(def))} ₽</b></div>`
+      : `<div class="recr-def"><span>отложено</span><b>${Nc(def)} ₽</b></div>`;
     return `<div class="recr">
       <div class="recr-name">${c.name}</div>
       <div class="recr-mid">
-        <div class="recr-bar"><div class="recr-fill" style="width:${Math.round(pct*100)}%"></div></div>
-        <div class="recr-pct">${Math.round(pct*100)}%</div>
+        <div class="recr-bar"><div class="recr-fill${debt?' debt':''}" style="width:${w}%"></div></div>
+        <div class="recr-pct${debt?' debt':''}">${Math.round(pct*100)}%</div>
       </div>
-      <div class="recr-def"><span>отложено</span><b>${Nc(def)} ₽</b></div>
+      ${right}
     </div>`;
   }).join('');
-  const mx=Math.max(...r.timeline,1);
-  let last=-1; r.timeline.forEach((v,i)=>{if(v>0)last=i;});
-  const bars=r.timeline.map((v,i)=>`<div class="rec-col">
-    <div class="rec-col-val">${v>0?Nc(v):''}</div>
-    <div class="rec-col-fill" style="height:${Math.round(v/mx*100)}%;opacity:${v>0?1:.15}"></div>
-    <div class="rec-col-m">${REC_MONTHS[i]}</div></div>`).join('');
-  const closeTxt = last>=0?`Отложенное полностью отрабатывается к ${REC_MONTHS_FULL[last]} 2026 — при условии текущего портфеля`:'';
-  return `<div class="sec">Признание выручки · ${r.asof}</div>
+  return `<div class="sec">Признание выручки · ${r.asof} · метод начисления</div>
   <div class="card rec-card">
     <div class="rec-flow">
       <div class="rec-stat"><div class="rec-l">Поступило (деньги)</div><div class="rec-v v-c">${Nc(r.cf)} ₽</div></div>
@@ -482,11 +485,7 @@ function buildRec(d){
       <div class="rec-stat hl"><div class="rec-l">Отложено (ещё должны оказать)</div><div class="rec-v v-go">${Nc(r.deferred)} ₽</div></div>
     </div>
     <div class="rec-clients">${rows}</div>
-    <div class="rec-tl">
-      <div class="rec-tl-t">Отработка отложенного — когда закроется</div>
-      <div class="rec-bars">${bars}</div>
-      ${closeTxt?`<div class="rec-tl-note">${closeTxt}</div>`:''}
-    </div>
+    <div class="rec-note">Отложенное — обязательство фонда оказать услуги на уже полученные деньги. Долг — клиенту оказали услуг больше, чем он оплатил.</div>
   </div>`;
 }
 
