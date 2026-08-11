@@ -61,7 +61,7 @@ body{padding:24px 20px 60px}
 .kpi-note{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.4}
 
 .ev-card{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(255,45,120,.04));border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:22px 24px;margin-bottom:28px}
-.ev-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:18px}
+.ev-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:14px}
 .ev-title-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
 .ev-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
 .ev-cd{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);background:rgba(255,181,71,.1);border:1px solid rgba(255,181,71,.25);padding:3px 10px;border-radius:14px}
@@ -86,18 +86,6 @@ body{padding:24px 20px 60px}
 .ev-foot{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:13px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;flex-wrap:wrap}
 .ev-foot .efl{color:var(--muted)}
 .ev-goal{font-weight:600;color:var(--gold);background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);padding:3px 11px;border-radius:14px}
-.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
-@media(max-width:760px){.opt-grid{grid-template-columns:1fr}}
-.opt{background:linear-gradient(135deg,rgba(0,229,160,.06),rgba(0,212,255,.03));
-     border:1px solid rgba(0,229,160,.18);border-radius:14px;padding:20px 22px}
-.opt-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.opt-flow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.opt-from,.opt-to{font-family:'DM Mono',monospace;font-size:18px}
-.opt-from{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(255,45,120,.5)}
-.opt-to{color:var(--green);font-size:21px}
-.opt-arrow{color:var(--cyan);font-size:16px}
-.opt-save{margin-top:12px;font-size:12px;color:var(--green);font-weight:600}
-.opt-note{margin-top:6px;font-size:11px;color:var(--muted);line-height:1.5}
 
 .charts-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:28px}
 .card{background:var(--glass);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px}
@@ -129,14 +117,6 @@ body{padding:24px 20px 60px}
 .recr-pct.debt{color:var(--mag)}
 .rec-note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
 @media(max-width:620px){.recr-name{width:130px}.recr-def{width:90px}}
-.rec-tl{margin-top:18px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06)}
-.rec-tl-t{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;margin-bottom:14px}
-.rec-bars{display:flex;align-items:flex-end;gap:10px;height:130px}
-.rec-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-.rec-col-val{font-family:'DM Mono',monospace;font-size:10px;color:var(--cyan);margin-bottom:5px;height:14px}
-.rec-col-fill{width:100%;max-width:46px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--cyan),rgba(0,212,255,.25));min-height:2px}
-.rec-col-m{font-size:10px;color:var(--muted);margin-top:7px}
-.rec-tl-note{font-size:11px;color:var(--gold);margin-top:14px;text-align:center}
 
 .cr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
 .cr:last-child{border-bottom:none}
@@ -191,91 +171,56 @@ body{padding:24px 20px 60px}
 </div>
 <script>
 /* ════════════════ КОНФИГ ════════════════
-   Вставь сюда опубликованную CSV-ссылку вкладки WEB:
-   Файл → Поделиться → Опубликовать в интернете → лист WEB → CSV → Опубликовать → копировать ссылку.
-   Пока пусто — показываются демо-данные.                                       */
-const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1391500102&single=true&output=csv';
+   Опубликованная CSV-ссылка вкладки WEB (файл v14, срез 10.08.2026).         */
+const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1081919549&single=true&output=csv';
 /* ════════════════════════════════════════ */
 
 const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 
-// ── Демо-данные (актуальные значения из v11, чтобы вид был верным до публикации) ──
+// ── Демо-данные (fallback, если фид недоступен; значения v14 на 10.08) ──
 const DEMO = {
   k:{
-    updated_label:'Факт на 01.06.2026 · план 2026', month_label:'июнь 2026',
-    gross_plan:74572001, gross_fact:10666667, net_plan:61124591, net_fact:8743170,
-    aks_plan:49500001, aks_fact:10666667, mm_plan:25072000, mm_fact:0,
-    ebitda_plan:27310285, ebitda_fact:-2163950, ebitda_margin_plan:0.4468, ebitda_margin_fact:-0.2475,
-    np_plan:20482714, np_fact:-2163950, np_margin_plan:0.3351,
-    clients_active:7, clients_target:15,
-    opex_before:1545424, opex_after:1365265, opex_delta:-180159,
-    cash_open:4030220, cash_eoy:40976699, inflow_year:71302668, outflow_year:-35683975,
-    trk_old:159000, trk_new:100000, trk_to_gor:2,
-    ev_title:'ММ Фонда', ev_dates:'25–30 августа 2026', ev_date_iso:'2026-08-25',
-    ev_people:36, ev_total_rev:12536000, ev_target:'2–4 новых клиента в акселерацию',
-    ebitda_m1:-1126834,ebitda_m2:-102244,ebitda_m3:-102244,ebitda_m4:-921916,ebitda_m5:239287,ebitda_m6:1430192,
-    ebitda_m7:-618988,ebitda_m8:6478563,ebitda_m9:6001694,ebitda_m10:-965519,ebitda_m11:-345847,ebitda_m12:17344140,
+    updated_label:'Факт на 10.08.2026 · план 2026', month_label:'август 2026',
+    gross_plan:74313000, gross_fact:34418472, net_plan:60912295, net_fact:28211863,
+    aks_plan:46245000, aks_fact:20665000, mm_plan:28068000, mm_fact:13753472,
+    ebitda_plan:23252839, ebitda_fact:12356397, ebitda_margin_plan:0.3817, ebitda_margin_fact:0.438,
+    np_plan:17439629, np_fact:9267298, np_margin_plan:0.2863,
+    clients_active:9, clients_target:14,
+    opex_before:1545424, opex_after:1791124, opex_delta:245700,
+    cash_open:4030220, cash_eoy:34073893, inflow_period:67196000, outflow_period:-37152327,
+    mm_title:'Мастермайнд Фонда', mm_dates:'25–30 августа 2026', mm_venue:'Hilton Garden Inn Moscow New Riga, Истра',
+    mm_days_left:14, mm_people_plan:36, mm_people_fact:47, mm_rev_plan:16776000, mm_rev_fact:13452000, mm_rev_pct:0.802,
+    mm_debt:6320000, rec_deferred_acc:3467517, rec_deferred_mm:13452000, rec_deferred_total:16919517,
+    rec_asof:'акселерация — на 30.06.2026 · авансы ММ — на 10.08.2026',
+    vat_payable_year:12191855, fc_gross:78899472, fc_net:64671699, fc_ebitda:29560912,
+    fc_np:22170684, fc_cash:34073893, fc_clients:14, fc_deferred:16919517,
   },
   c:[
-    ['Изосина / Oazis Estate','✓ Активен','Дубровин 150к','конец июн.26'],
-    ['Голубенко / Разум Инвест','✓ Активен','— (Боронина)','нач.июн.26'],
-    ['Бражников / Лига Мир','✓ Активен','Гор 100к','авг.26'],
-    ['144 Капитал / Бобрук','⚠ Счёт!','Гор 100к','до 10.июн.26'],
-    ['Иванова Наталья','✓ Активен','Дубровин 150к','июл.26'],
-    ['Романенкова','☆ Новый','Дубровин 150к (с июл)','сен.2026'],
-    ['Цыганов / Рыбак (ООО Вселенная)','⟳ DD','Дубровин 150к','авг.26'],
+    ['Oazis Estate (Изосина)','✓ Активен','Дубровин 150к','сен.26'],
+    ['Разумный инвестор (Голубенко)','✓ Активен','— (Боронина)','авг.26'],
+    ['Лига Миров (ООО ОКАМИ / Бражников)','✓ Активен','Гор 100к','авг.26'],
+    ['144 Капитал (Бобрук)','✓ Активен','Гор 100к','сен.26'],
+    ['АО Напор (Иванова)','✓ Активен','Дубровин 150к','авг.26'],
+    ['Рыбак Всемогущий (Цыганов)','⟳ DD','Дубровин 150к','авг.26'],
+    ['Лебедев Максим','✓ Активен','Алёшин 100к','окт.26'],
+    ['Новик-Качан Кристина','✓ Активен','Алёшин 100к','авг.26'],
+    ['Козырев (Система 10Х)','✓ Активен','трекер не назначен','ноя.26'],
   ],
-  p:[
-    ['Изосина / Oazis Estate',0,0,1250000,0,0,1250000,0,0,1250000,0,0,1250000,5000000],
-    ['Голубенко / Разум Инвест',0,1250000,0,0,416667,416667,416667,0,0,0,0,0,2500001],
-    ['Бражников / Лига Мир',0,1250000,0,0,1250000,0,0,1250000,0,0,1250000,0,5000000],
-    ['144 Капитал / Бобрук',0,0,1250000,0,0,1250000,0,0,1250000,0,0,1250000,5000000],
-    ['Иванова Наталья',0,0,0,1500000,0,0,1500000,0,0,1500000,0,0,4500000],
-    ['Романенкова',0,0,0,0,0,1500000,0,0,1500000,0,0,1500000,4500000],
-    ['Цыганов / Рыбак (ООО Вселенная)',1250000,0,0,0,1250000,0,0,1250000,0,0,1250000,0,5000000],
-    ['4 новых с авг ММ (×4)',0,0,0,0,0,0,0,0,6000000,0,0,6000000,12000000],
-    ['4 новых с дек ММ (×4)',0,0,0,0,0,0,0,0,0,0,0,6000000,6000000],
-  ],
-  pt:['ИТОГО',1250000,2500000,2500000,1500000,2916667,4416667,1916667,2500000,10000000,1500000,2500000,16000000,49500001],
+  p:[], pt:null,
   ev:[
-    {name:'Зрители',n:20,rev:3560000,price:'14×190к + 6×150к',role:'Вершина воронки — прогрев к покупке'},
-    {name:'Гости на разборы',n:8,rev:8000000,price:'8 × 1 000к',role:'Точка конверсии — разбор бизнеса на сцене'},
-    {name:'Акселерация на разборы',n:8,rev:976000,price:'8 × 122к орг-взнос',role:'Действующие клиенты — углубление'},
+    {name:'Разборы',n:7,rev:6100000,price:'8 × 1 250 000 ₽',role:'Точка конверсии — разбор на сцене'},
+    {name:'Гости',n:27,rev:5960000,price:'цель 20 · факт 27 (вкл. партнёров)',role:'Вершина воронки — прогрев к покупке'},
+    {name:'Орг. взносы',n:13,rev:1392000,price:'8 × 122 000 ₽',role:'Действующие клиенты — углубление'},
   ],
   rec:[
-    {name:'Изосина / Oazis Estate',cf:2500000,pl:2083333},
-    {name:'Голубенко / Разум Инвест',cf:1670000,pl:1521190},
-    {name:'Бражников / Лига Миров',cf:2500000,pl:1443453},
-    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1250000},
-    {name:'Бобрук / 144 Капитал',cf:1250000,pl:1129032},
-    {name:'Иванова / АО Напор',cf:1500000,pl:700000},
+    {name:'Изосина / Oazis Estate',cf:3750000,pl:2500000,def:1250000,pct:0.667},
+    {name:'Голубенко / Разум Инвест',cf:2500000,pl:1944524,def:555476,pct:0.778},
+    {name:'Бражников / Лига Миров',cf:2500000,pl:1860119,def:639881,pct:0.744},
+    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1815476,def:684524,pct:0.726},
+    {name:'Бобрук / 144 Капитал',cf:2500000,pl:1962364,def:537636,pct:0.785},
+    {name:'Иванова / АО Напор',cf:1500000,pl:1700000,def:-200000,pct:1.133},
   ],
-  recTL:[2019778,1133334,639880,0,0,0,0],
-};
-
-// Fallback на случай, если в фиде ещё нет строк EV (старая версия шита)
-const EVENT_DEFAULT = {
-  title:'ММ Фонда', dates:'25–30 августа 2026', date_iso:'2026-08-25', people:36, total_rev:12536000,
-  target:'2–4 новых клиента в акселерацию',
-  streams:[
-    {name:'Зрители',n:20,rev:3560000,price:'14×190к + 6×150к',role:'Вершина воронки — прогрев к покупке',color:'cyan'},
-    {name:'Гости на разборы',n:8,rev:8000000,price:'8 × 1 000к',role:'Точка конверсии — разбор бизнеса на сцене',color:'mag'},
-    {name:'Акселерация на разборы',n:8,rev:976000,price:'8 × 122к орг-взнос',role:'Действующие клиенты — углубление',color:'green'},
-  ]
-};
-
-// Fallback признания (если в фиде нет строк R/RT)
-const REC_DEFAULT = {
-  cf:11920000, pl:8127008, deferred:3792992, pct:0.682, asof:'на 30.06.26',
-  clients:[
-    {name:'Изосина / Oazis Estate',cf:2500000,pl:2083333},
-    {name:'Голубенко / Разум Инвест',cf:1670000,pl:1521190},
-    {name:'Бражников / Лига Миров',cf:2500000,pl:1443453},
-    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1250000},
-    {name:'Бобрук / 144 Капитал',cf:1250000,pl:1129032},
-    {name:'Иванова / АО Напор',cf:1500000,pl:700000},
-  ],
-  timeline:[2019778,1133334,639880,0,0,0,0]
+  recTL:[], eb:{}, rv:{},
 };
 
 // ── Утилиты ──
@@ -291,7 +236,7 @@ const Nc = n => {
 const Nf = n => n==null?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n));
 const Pct = n => (n==null||isNaN(n))?'—':(n*100).toFixed(1).replace('.',',')+'%';
 
-// ── Парсер CSV вкладки WEB (секции K / C / P / PT) ──
+// ── Парсер CSV вкладки WEB ──
 function splitCSV(line){
   const out=[]; let cur='', q=false;
   for(let i=0;i<line.length;i++){
@@ -304,26 +249,18 @@ function splitCSV(line){
 }
 function num(v){
   if(v==null) return null;
-  let s=String(v).trim().replace(/"/g,'').replace(/\s/g,'');
+  let s=String(v).trim().replace(/"/g,'').replace(/\s/g,'').replace(/\u00a0/g,'');
+  if(s==='') return null;
   if(s.endsWith('%')){ const n=parseFloat(s.replace('%','').replace(',','.')); return isNaN(n)?null:n/100; }
   const n=parseFloat(s.replace(',','.')); return isNaN(n)?null:n;
 }
 
-// ── Слой совместимости с листом WEB (имена ключей и теги EB/RV) ──
 function applyAliases(k, eb){
-  const alias = {
-    ev_title:'mm_title', ev_dates:'mm_dates', ev_people:'mm_people_plan',
-    ev_total_rev:'mm_rev_plan', inflow_year:'inflow_period', outflow_year:'outflow_period'
-  };
-  for(const [want, have] of Object.entries(alias)){
-    if(k[want]===undefined && k[have]!==undefined) k[want]=k[have];
-  }
-  // дата события для обратного отсчёта
   if(k.ev_date_iso===undefined) k.ev_date_iso='2026-08-25';
-  if(k.ev_target===undefined) k.ev_target='';
-  // помесячная EBITDA приходит строками EB (C = план, D = факт)
+  if(k.ev_target===undefined) k.ev_target='4 новых клиента в акселерацию';
   for(let i=1;i<=12;i++){
-    if(k['ebitda_m'+i]===undefined && eb['m'+i]!==undefined) k['ebitda_m'+i]=eb['m'+i];
+    const e=eb['m'+i];
+    if(k['ebitda_m'+i]===undefined && e!==undefined) k['ebitda_m'+i]=(e&&e.plan!=null)?e.plan:e;
   }
   return k;
 }
@@ -333,7 +270,7 @@ function parseFeed(txt){
   txt.trim().split(/\r?\n/).forEach(line=>{
     const f=splitCSV(line); const tag=(f[0]||'').trim();
     if(tag==='K'){ const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
-      if(key.endsWith('_label')||key.endsWith('_title')||key.endsWith('_dates')||key.endsWith('_iso')||key.endsWith('_target')||key.endsWith('_asof')){ k[key]=raw; }
+      if(key.endsWith('_label')||key.endsWith('_title')||key.endsWith('_dates')||key.endsWith('_iso')||key.endsWith('_target')||key.endsWith('_asof')||key.endsWith('_venue')){ k[key]=raw; }
       else { const nv=num(raw); k[key]=(nv==null?0:nv); } }
     else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4]].map(x=>(x||'').trim().replace(/"/g,''))); }
     else if(tag==='P'){ p.push([(f[1]||'').trim().replace(/"/g,''),...f.slice(2,15).map(num)]); }
@@ -342,7 +279,7 @@ function parseFeed(txt){
       price:(f[4]||'').trim().replace(/"/g,''),role:(f[5]||'').trim().replace(/"/g,'')}); }
     else if(tag==='R' || tag==='RC'){ rec.push({name:(f[1]||'').trim().replace(/"/g,''),cf:num(f[2])||0,pl:num(f[3])||0,def:num(f[4]),pct:num(f[5])}); }
     else if(tag==='RT'){ recTL=f.slice(1,8).map(x=>num(x)||0); }
-    else if(tag==='EB'){ const key=(f[1]||'').trim(); eb[key]=num(f[2]); }
+    else if(tag==='EB'){ const key=(f[1]||'').trim(); eb[key]={plan:num(f[2]),fact:num(f[3])}; }
     else if(tag==='RV'){ const key=(f[1]||'').trim(); rv[key]={plan:num(f[2]),fact:num(f[3])}; }
   });
   applyAliases(k, eb);
@@ -389,79 +326,70 @@ function statusClass(s){
 }
 
 const EV_COLORS={cyan:'#00D4FF',mag:'#FF2D78',green:'#00E5A0'};
-function getEvent(d){
-  const k=d.k;
-  if(d.ev && d.ev.length){
-    return {
-      title:k.ev_title||'ММ Фонда', dates:k.ev_dates||'', date_iso:k.ev_date_iso||'',
-      people:k.ev_people||d.ev.reduce((s,e)=>s+e.n,0),
-      total_rev:k.ev_total_rev||d.ev.reduce((s,e)=>s+e.rev,0),
-      target:k.ev_target||'',
-      streams:d.ev.map((e,i)=>({...e,color:['cyan','mag','green'][i]||'cyan'}))
-    };
-  }
-  return EVENT_DEFAULT;
-}
 function daysUntil(iso){
   if(!iso) return null;
   const t=new Date(iso+'T00:00:00'); if(isNaN(t)) return null;
   return Math.ceil((t-new Date())/86400000);
 }
 function buildEvent(d){
-  const e=getEvent(d), cd=daysUntil(e.date_iso);
+  const k=d.k;
+  const streams=(d.ev&&d.ev.length?d.ev:[]).map((e,i)=>({...e,color:['mag','cyan','green'][i]||'cyan'}));
+  const cd=(k.mm_days_left!=null && !isNaN(k.mm_days_left) && k.mm_days_left>0)?k.mm_days_left:daysUntil(k.ev_date_iso);
   const cal='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
   const cdTxt = cd==null?'' : (cd>0?`через ${cd} дн.`:(cd>-7?'идёт сейчас':''));
-  const segs=e.streams.map(s=>{
+  const segs=streams.map(s=>{
     const c=EV_COLORS[s.color]||'#00D4FF';
     return `<div class="ev-seg" style="flex:${s.n};background:linear-gradient(135deg,${c},${c}cc)">
       <div class="n">${s.n}</div><div class="t">${s.name.split(' ')[0]}</div></div>`;
   }).join('');
-  const cards=e.streams.map(s=>{
+  const cards=streams.map(s=>{
     const c=EV_COLORS[s.color]||'#00D4FF';
     return `<div class="ev-stream" style="border-top-color:${c}">
       <div class="ev-s-n" style="color:${c}">${s.n}</div>
       <div class="ev-s-name">${s.name}</div>
       <div class="ev-s-price">${s.price}</div>
-      <div class="ev-s-rev">${Nc(s.rev)} ₽</div>
+      <div class="ev-s-rev">${Nc(s.rev)} ₽ оплачено</div>
       <div class="ev-s-role">${s.role}</div></div>`;
   }).join('');
-  return `<div class="sec">Предстоящие события</div>
+  const pplPct=(k.mm_people_plan? k.mm_people_fact/k.mm_people_plan : null);
+  const revPct=(k.mm_rev_pct!=null? k.mm_rev_pct : (k.mm_rev_plan? k.mm_rev_fact/k.mm_rev_plan : null));
+  const w=revPct!=null?Math.max(0,Math.min(100,revPct*100)):0;
+  return `<div class="sec">Августовский мастермайнд · воронка события</div>
   <div class="ev-card">
     <div class="ev-top">
       <div>
-        <div class="ev-title-row"><div class="ev-name">${e.title}</div>${cdTxt?`<span class="ev-cd">${cdTxt}</span>`:''}</div>
-        <div class="ev-dates">${cal}${e.dates}</div>
-        <div class="ev-frame">Мастермайнд — ключевая точка конверсии воронки фонда</div>
+        <div class="ev-title-row"><div class="ev-name">${k.mm_title||'ММ Фонда'}</div>${cdTxt?`<span class="ev-cd">${cdTxt}</span>`:''}</div>
+        <div class="ev-dates">${cal}${k.mm_dates||''}</div>
+        <div class="ev-frame">${k.mm_venue||'Мастермайнд — ключевая точка конверсии воронки фонда'}</div>
       </div>
       <div class="ev-metrics">
-        <div><div class="ev-m-l">участников</div><div class="ev-m-v">${e.people}</div></div>
-        <div><div class="ev-m-l">выручка события</div><div class="ev-m-v" style="color:var(--cyan)">${Nc(e.total_rev)} ₽</div></div>
+        <div><div class="ev-m-l">участников · цель ${k.mm_people_plan??'—'}</div>
+          <div class="ev-m-v">${k.mm_people_fact??'—'} <span style="font-size:12px;color:${pplPct>=1?'var(--green)':'var(--gold)'}">${Pct(pplPct)}</span></div></div>
+        <div><div class="ev-m-l">собрано · цель ${Nc(k.mm_rev_plan)} ₽</div>
+          <div class="ev-m-v" style="color:var(--cyan)">${Nc(k.mm_rev_fact)} ₽ <span style="font-size:12px;color:var(--gold)">${Pct(revPct)}</span></div></div>
       </div>
     </div>
+    <div class="kpi-bar" style="margin:0 0 16px"><div class="kpi-fill" style="width:${w}%"></div></div>
     <div class="ev-bar">${segs}</div>
     <div class="ev-streams">${cards}</div>
-    <div class="ev-foot"><span class="efl">Цель события:</span><span class="ev-goal">${e.target}</span></div>
+    <div class="ev-foot">
+      <span class="efl">Цель события:</span><span class="ev-goal">${k.ev_target||''}</span>
+      <span class="efl" style="margin-left:auto">К получению (счета + предоплаты):</span>
+      <span style="font-family:'DM Mono',monospace;color:var(--gold)">${Nc(k.mm_debt)} ₽</span>
+    </div>
   </div>`;
 }
 
-const REC_MONTHS=['июн','июл','авг','сен','окт','ноя','дек'];
-const REC_MONTHS_FULL=['июню','июлю','августу','сентябрю','октябрю','ноябрю','декабрю'];
-function getRec(d){
-  const k=d.k;
-  if(d.rec && d.rec.length){
-    const cf=k.rec_cf||d.rec.reduce((s,x)=>s+x.cf,0);
-    const pl=k.rec_pl||d.rec.reduce((s,x)=>s+x.pl,0);
-    return {cf, pl, deferred:k.rec_deferred||(cf-pl), pct:k.rec_pct||(pl/cf), asof:'на 30.06.2026',
-      clients:d.rec, timeline:(d.recTL&&d.recTL.length?d.recTL:REC_DEFAULT.timeline)};
-  }
-  return REC_DEFAULT;
-}
 function buildRec(d){
-  const r=getRec(d);
-  const rows=r.clients.map(c=>{
+  const k=d.k;
+  const clients=d.rec&&d.rec.length?d.rec:[];
+  const cf=clients.reduce((s,x)=>s+x.cf,0);
+  const pl=clients.reduce((s,x)=>s+x.pl,0);
+  const mm=k.rec_deferred_mm, total=(k.rec_deferred_total!=null?k.rec_deferred_total:(cf-pl)+(mm||0));
+  const rows=clients.map(c=>{
     const def=(c.def!=null && !isNaN(c.def)) ? c.def : (c.cf-c.pl);
     const pct=(c.pct!=null && !isNaN(c.pct)) ? c.pct : (c.cf?c.pl/c.cf:0);
-    const debt = def < 0;                       // отрицательное отложенное = клиент должен денег
+    const debt = def < 0;
     const w = Math.min(100, Math.round(pct*100));
     const right = debt
       ? `<div class="recr-def debt"><span>долг</span><b>${Nc(Math.abs(def))} ₽</b></div>`
@@ -475,46 +403,65 @@ function buildRec(d){
       ${right}
     </div>`;
   }).join('');
-  return `<div class="sec">Признание выручки · ${r.asof} · метод начисления</div>
+  const mmRow = (mm!=null && mm>0)?`
+    <div class="recr" style="border-top:1px solid rgba(255,255,255,.08)">
+      <div class="recr-name" style="font-weight:600;color:var(--gold)">Авансы августовского ММ</div>
+      <div class="recr-mid">
+        <div class="recr-bar"><div class="recr-fill" style="width:0%"></div></div>
+        <div class="recr-pct" style="color:var(--muted)">0%</div>
+      </div>
+      <div class="recr-def"><span>отложено</span><b>${Nc(mm)} ₽</b></div>
+    </div>`:'';
+  return `<div class="sec">Признание выручки · метод начисления · ${k.rec_asof||''}</div>
   <div class="card rec-card">
     <div class="rec-flow">
-      <div class="rec-stat"><div class="rec-l">Поступило (деньги)</div><div class="rec-v v-c">${Nc(r.cf)} ₽</div></div>
+      <div class="rec-stat"><div class="rec-l">Поступило по акселерации</div><div class="rec-v v-c">${Nc(cf)} ₽</div></div>
       <span class="rec-arrow">→</span>
-      <div class="rec-stat"><div class="rec-l">Отработано (услуга оказана)</div><div class="rec-v v-gn">${Nc(r.pl)} ₽</div></div>
+      <div class="rec-stat"><div class="rec-l">Отработано (услуга оказана)</div><div class="rec-v v-gn">${Nc(pl)} ₽</div></div>
       <span class="rec-arrow">→</span>
-      <div class="rec-stat hl"><div class="rec-l">Отложено (ещё должны оказать)</div><div class="rec-v v-go">${Nc(r.deferred)} ₽</div></div>
+      <div class="rec-stat hl"><div class="rec-l">Отложено всего · акс + авансы ММ</div><div class="rec-v v-go">${Nc(total)} ₽</div></div>
     </div>
-    <div class="rec-clients">${rows}</div>
-    <div class="rec-note">Отложенное — обязательство фонда оказать услуги на уже полученные деньги. Долг — клиенту оказали услуг больше, чем он оплатил.</div>
+    <div class="rec-clients">${rows}${mmRow}</div>
+    <div class="rec-note">Оценка: снимок Натальи на 30.06 + фактические платежи и линейное признание по 10.08. Точный срез начисления — за Натальей (заменит оценку).
+    Авансы ММ признаются выручкой после проведения события 25–30.08. Долг — признание опередило оплату (закрывается следующим платежом).</div>
   </div>`;
 }
 
 let chartM=null;
-function buildChart(k){
+function buildChart(k, eb){
   if(chartM){chartM.destroy();chartM=null;}
   const cm=document.getElementById('cm'); if(!cm) return;
-  const vals=Array.from({length:12},(_,i)=>k['ebitda_m'+(i+1)]??0);
+  const plan=[], fact=[];
+  for(let i=1;i<=12;i++){
+    const e=eb['m'+i];
+    if(e && typeof e==='object'){ plan.push(e.plan??0); fact.push(e.fact); }
+    else { plan.push(k['ebitda_m'+i]??0); fact.push(null); }
+  }
+  let lastF=-1; fact.forEach((v,i)=>{ if(v!=null && v!==0) lastF=i; });
+  const factCut=fact.map((v,i)=> i<=lastF ? v : null);
   const grid='rgba(255,255,255,0.05)', tick={color:'#4A6080',font:{size:10,family:"'DM Mono',monospace"}};
   chartM=new Chart(cm,{type:'bar',
-    data:{labels:MONTHS,datasets:[{label:'EBITDA план',data:vals,borderRadius:3,
-      backgroundColor:vals.map(v=>v>=0?'rgba(0,229,160,0.75)':'rgba(255,45,120,0.75)')}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-      tooltip:{callbacks:{label:c=>Nc(c.raw)+' ₽'}}},
+    data:{labels:MONTHS,datasets:[
+      {label:'План',data:plan,borderRadius:3,
+       backgroundColor:plan.map(v=>v>=0?'rgba(0,229,160,0.22)':'rgba(255,45,120,0.22)')},
+      {label:'Факт',data:factCut,borderRadius:3,
+       backgroundColor:factCut.map(v=>(v??0)>=0?'rgba(0,229,160,0.9)':'rgba(255,45,120,0.9)')}
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:true,labels:{color:'#4A6080',font:{size:10},boxWidth:10}},
+      tooltip:{callbacks:{label:c=>c.dataset.label+': '+Nc(c.raw)+' ₽'}}},
       scales:{x:{grid:{color:grid},ticks:tick},y:{grid:{color:grid},ticks:{...tick,callback:v=>Nc(v)}}}}});
 }
 
 function render(d,demo,err,time){
   const k=d.k;
-  // Экономию OPEX считаем из двух конечных значений (надёжнее, чем поле opex_delta из фида)
   const fcMargin   = (k.fc_net && k.fc_net!==0) ? k.fc_ebitda/k.fc_net : null;
   const fcNpMargin = (k.fc_net && k.fc_net!==0) ? k.fc_np/k.fc_net : null;
-  const opexDelta = (k.opex_after!=null && k.opex_before!=null) ? (k.opex_after - k.opex_before) : (k.opex_delta||0);
-  const opexSaveYear = Math.abs(opexDelta)*12;
+  const npMarginFact = (k.net_fact && k.net_fact!==0) ? k.np_fact/k.net_fact : null;
 
   document.getElementById('app').innerHTML = `
     ${demo?`<div class="info"><b>Демо-данные${err?' · <code>'+err+'</code>':''}.</b>
-      Чтобы подключить таблицу: опубликуй вкладку <b>WEB</b> (Файл → Поделиться → Опубликовать в интернете → лист WEB → CSV),
-      вставь ссылку в <code>PUB_CSV_URL</code> в начале скрипта и нажми <a href="javascript:init()">↻ Обновить</a>.</div>`:''}
+      Фид WEB недоступен — показан снимок на 10.08.2026. Проверь публикацию листа WEB и нажми <a href="javascript:init()">↻ Обновить</a>.</div>`:''}
 
     <div class="hdr">
       <div class="hdr-l"><div class="logo">МД</div>
@@ -540,22 +487,22 @@ function render(d,demo,err,time){
       ${kpiPF('Выручка GROSS / год',k.gross_plan,k.gross_fact,'v-c','c')}
       ${kpiPF('Выручка NET / год',k.net_plan,k.net_fact,'v-w','c')}
       ${kpiPF('EBITDA / год',k.ebitda_plan,k.ebitda_fact,'v-gn','gn','Рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
-      ${kpiPF('Чистая прибыль / год',k.np_plan,k.np_fact,'v-gn','gn','Рентабельность ЧП (план): '+Pct(k.np_margin_plan))}
+      ${kpiPF('Чистая прибыль / год',k.np_plan,k.np_fact,'v-gn','gn','Рентабельность ЧП: план '+Pct(k.np_margin_plan)+' · факт '+Pct(npMarginFact))}
       ${kpiPF('Акселерация / год',k.aks_plan,k.aks_fact,'v-c','c')}
-      ${kpiPF('ММ-события / год',k.mm_plan,k.mm_fact,'v-m','m','Первое событие — август 2026')}
+      ${kpiPF('ММ-события / год',k.mm_plan,k.mm_fact,'v-m','m','События: август (сбор идёт) + декабрь')}
     </div>
 
     ${buildEvent(d)}
 
-    <div class="sec">Прогноз на конец года · факт + план августа–декабря</div>
+    <div class="sec">Прогноз на конец года · факт + план до 31.12</div>
     <div class="kpi-grid">
       <div class="kpi c">
         <div class="kpi-lbl">Выручка GROSS</div>
         <div class="kpi-vlbl">прогноз 31.12</div>
         <div class="kpi-val v-c">${Nc(k.fc_gross)} ₽</div>
         <div class="kpi-rows">
-          <div class="kr"><span>Факт янв–июл</span><b>${Nc(k.gross_fact)} ₽</b></div>
-          <div class="kr"><span>План авг–дек</span><b>${Nc(k.fc_gross-k.gross_fact)} ₽</b></div>
+          <div class="kr"><span>Факт YTD (на 10.08)</span><b>${Nc(k.gross_fact)} ₽</b></div>
+          <div class="kr"><span>План до 31.12</span><b>${Nc(k.fc_gross-k.gross_fact)} ₽</b></div>
           <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.gross_plan)} ₽</b></div>
         </div>
       </div>
@@ -589,9 +536,9 @@ function render(d,demo,err,time){
       </div>
     </div>
 
-    <div class="sec">EBITDA по месяцам · план 2026</div>
+    <div class="sec">EBITDA по месяцам · план / факт 2026</div>
     <div class="charts-grid">
-      <div class="card"><div class="card-t">Операционная прибыль помесячно</div>
+      <div class="card"><div class="card-t">Операционная прибыль помесячно · факт по август (на 10.08)</div>
         <div class="chart-box"><canvas id="cm"></canvas></div></div>
     </div>
 
@@ -633,7 +580,7 @@ function render(d,demo,err,time){
       <span>${k.updated_label||''} · <a href="https://fond-accelerator.ru" target="_blank">fond-accelerator.ru</a></span>
     </div>`;
 
-  requestAnimationFrame(()=>buildChart(k));
+  requestAnimationFrame(()=>buildChart(k, d.eb||{}));
 }
 
 async function init(){
