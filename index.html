@@ -3,287 +3,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Фонд-Акселератор МД — Дашборд</title>
+<title>Фонд-акселератор — управленческий дашборд</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
 <style>
+/* ── Бренд-система Integrity ─────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --navy:#0A1628;--cyan:#00D4FF;--mag:#FF2D78;--gold:#FFB547;--green:#00E5A0;--violet:#9D7BFF;
-  --white:#F0F4FF;--muted:#4A6080;--glass:rgba(255,255,255,0.04);
+  --petrol:#1C4A43; --petrol-d:#12332E; --copper:#B9794B;
+  --ink:#262624; --brown:#5E4A38; --muted:#6E6A61;
+  --ivory:#F5F2EC; --paper:#FBFAF7; --sand:#F0E6DB; --line:#D8D4C9;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --sans:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
-html,body{background:var(--navy);color:var(--white);font-family:'Inter',sans-serif;min-height:100vh}
-body{padding:24px 20px 60px}
-.wrap{max-width:1400px;margin:0 auto}
+html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
+a{color:var(--petrol)}
+button{font-family:var(--sans)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 28px 48px}
 
-.hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:20px;margin-bottom:26px;
-     border-bottom:1px solid rgba(0,212,255,0.1);flex-wrap:wrap;gap:12px}
-.hdr-l{display:flex;align-items:center;gap:14px}
-.logo{width:42px;height:42px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,var(--cyan),var(--mag));
-      display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--navy)}
-.hdr-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
-.hdr-sub{font-size:11px;color:var(--muted);margin-top:3px}
+/* кикеры и подписи — всегда моно, капсом, с трекингом */
+.kick{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
+.kick.cu{color:var(--copper)}
+.kick.iv{color:var(--ivory);opacity:.8}
+.mono{font-family:var(--mono)}
+
+/* логотип: точка А → линия → точка Б */
+.logo{display:inline-flex;align-items:center;gap:0;height:12px}
+.logo .a{width:12px;height:12px;border-radius:50%;background:var(--copper)}
+.logo .l{width:38px;height:1.5px;background:var(--copper)}
+.logo .b{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--copper)}
+.logo.sm .a,.logo.sm .b{width:8px;height:8px}
+.logo.sm .l{width:22px}
+
+/* шапка — единственный тёмный якорь */
+.hdr{background:var(--petrol-d);color:var(--ivory);margin:0 -28px;padding:26px 28px 24px}
+.hdr-in{max-width:1240px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:14px}
+.hdr .sub{font-size:12.5px;color:var(--ivory);opacity:.75;margin-top:4px}
 .hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--cyan);background:rgba(0,212,255,0.08);
-       border:1px solid rgba(0,212,255,0.18);padding:5px 11px;border-radius:18px}
-.badge.demo{color:var(--gold);background:rgba(255,181,71,0.08);border-color:rgba(255,181,71,0.2)}
-.btn{background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.18);color:var(--cyan);padding:5px 13px;
-     border-radius:18px;font-size:12px;cursor:pointer;font-family:'Inter',sans-serif;transition:.2s}
-.btn:hover{background:rgba(0,212,255,0.16)}
+.tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid rgba(245,242,236,.35);color:var(--ivory)}
+.tag.cu{border-color:var(--copper);color:var(--copper)}
+.btn{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border:1px solid var(--copper);background:transparent;color:var(--ivory);cursor:pointer}
+.btn:hover{background:var(--copper);color:var(--petrol-d)}
+.btn:focus-visible,a:focus-visible,.acc-head:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
 
-.sec{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);
-     margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.sec::after{content:'';flex:1;height:1px;background:rgba(255,255,255,0.05)}
+/* секции */
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.sec h2{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.sec .kick{text-align:right}
+@media(max-width:680px){.sec{flex-direction:column;align-items:flex-start;gap:4px}.sec .kick{text-align:left}}
 
-.pills{display:flex;gap:10px;margin-bottom:28px;flex-wrap:wrap}
-.pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:22px;font-size:12px;font-weight:500;border:1px solid}
-.pill.g{background:rgba(0,229,160,.07);border-color:rgba(0,229,160,.22);color:var(--green)}
-.pill.y{background:rgba(255,181,71,.07);border-color:rgba(255,181,71,.22);color:var(--gold)}
-.pill.c{background:rgba(0,212,255,.07);border-color:rgba(0,212,255,.22);color:var(--cyan)}
-.dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+/* карточки */
+.card{background:var(--paper);border:.75px solid var(--line);padding:18px 20px}
+.card h3{font-size:13.5px;font-weight:700;margin-bottom:12px}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.g6{grid-template-columns:repeat(6,1fr)}
+@media(max-width:1000px){.g6{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.g6,.g4,.g3,.g2{grid-template-columns:1fr}.wrap{padding:0 16px 40px}.hdr{margin:0 -16px;padding:20px 16px}}
 
-.kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;margin-bottom:28px}
-.kpi{background:var(--glass);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:.2s}
-.kpi:hover{border-color:rgba(0,212,255,.2);transform:translateY(-2px)}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gl,rgba(0,212,255,.5)),transparent)}
-.kpi.c{--gl:rgba(0,212,255,.6)}.kpi.m{--gl:rgba(255,45,120,.6)}.kpi.gn{--gl:rgba(0,229,160,.6)}.kpi.go{--gl:rgba(255,181,71,.6)}
-.kpi-lbl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
-.kpi-val{font-family:'DM Mono',monospace;font-size:23px;font-weight:500;line-height:1}
-.v-c{color:var(--cyan)}.v-m{color:var(--mag)}.v-gn{color:var(--green)}.v-go{color:var(--gold)}.v-w{color:var(--white)}
-.kpi-vlbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
-.kpi-rows{margin-top:10px;border-top:1px solid rgba(255,255,255,.05);padding-top:9px}
-.kr{display:flex;justify-content:space-between;align-items:baseline;font-size:11px;color:var(--muted);padding:2px 0}
-.kr b{font-family:'DM Mono',monospace;font-weight:500;font-size:12px;color:var(--white)}
-.kr.pct b{font-size:13px}
-.kpi-bar{height:4px;background:rgba(255,255,255,.06);border-radius:3px;margin-top:10px;overflow:hidden}
-.kpi-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--cyan),var(--mag));transition:width 1s ease}
-.kpi-note{font-size:10px;color:var(--muted);margin-top:9px;line-height:1.4}
+/* статусная полоса */
+.strip{display:flex;flex-wrap:wrap;gap:0;border:.75px solid var(--line);background:var(--paper);margin-top:22px}
+.strip>div{flex:1 1 200px;padding:14px 18px;border-right:.75px solid var(--line)}
+.strip>div:last-child{border-right:0}
+.strip b{display:block;font-family:var(--mono);font-size:15px;font-weight:500;margin-top:6px;color:var(--ink)}
 
-.ev-card{background:linear-gradient(135deg,rgba(0,212,255,.07),rgba(255,45,120,.04));border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:22px 24px;margin-bottom:28px}
-.ev-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;margin-bottom:14px}
-.ev-title-row{display:flex;align-items:center;gap:12px;margin-bottom:8px}
-.ev-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:800}
-.ev-cd{font-family:'DM Mono',monospace;font-size:11px;color:var(--gold);background:rgba(255,181,71,.1);border:1px solid rgba(255,181,71,.25);padding:3px 10px;border-radius:14px}
-.ev-dates{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--white);margin-bottom:6px}
-.ev-dates svg{opacity:.65}
-.ev-frame{font-size:11px;color:var(--muted)}
-.ev-metrics{display:flex;gap:26px;text-align:right}
-.ev-m-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-.ev-m-v{font-family:'DM Mono',monospace;font-size:19px;margin-top:4px}
-.ev-bar{display:flex;gap:3px;height:50px;margin-bottom:14px}
-.ev-seg{display:flex;flex-direction:column;align-items:center;justify-content:center;color:#0A1628;border-radius:8px;min-width:0;transition:flex .8s ease}
-.ev-seg .n{font-family:'DM Mono',monospace;font-size:19px;font-weight:700;line-height:1}
-.ev-seg .t{font-size:9px;text-transform:uppercase;letter-spacing:.04em;font-weight:700;margin-top:2px;opacity:.85}
-.ev-streams{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:760px){.ev-streams{grid-template-columns:1fr}.ev-metrics{gap:18px}}
-.ev-stream{background:var(--glass);border:1px solid rgba(255,255,255,.07);border-top:2px solid var(--cyan);border-radius:12px;padding:15px 16px}
-.ev-s-n{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;line-height:1}
-.ev-s-name{font-size:12px;font-weight:600;margin-top:7px}
-.ev-s-price{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-top:3px}
-.ev-s-rev{font-family:'DM Mono',monospace;font-size:13px;color:var(--green);margin-top:8px}
-.ev-s-role{font-size:10px;color:var(--muted);margin-top:8px;line-height:1.45;border-top:1px solid rgba(255,255,255,.05);padding-top:8px}
-.ev-foot{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:13px;border-top:1px solid rgba(255,255,255,.06);font-size:12px;flex-wrap:wrap}
-.ev-foot .efl{color:var(--muted)}
-.ev-goal{font-weight:600;color:var(--gold);background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);padding:3px 11px;border-radius:14px}
+/* герой-числа без боксов, с тонкими вертикальными разделителями */
+.hero{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--paper);border:.75px solid var(--line)}
+.hero>div{padding:26px 26px 22px;border-right:.75px solid var(--line)}
+.hero>div:last-child{border-right:0}
+.hero .v{font-family:var(--mono);font-size:34px;font-weight:500;letter-spacing:-.02em;line-height:1;margin:12px 0 10px;color:var(--petrol)}
+.hero .v.cu{color:var(--copper)}
+.hero .n{font-size:12.5px;color:var(--brown)}
+@media(max-width:820px){.hero{grid-template-columns:1fr}.hero>div{border-right:0;border-bottom:.75px solid var(--line)}.hero>div:last-child{border-bottom:0}.hero .v{font-size:30px}}
 
-.charts-grid{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:28px}
-.card{background:var(--glass);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px}
-.card-t{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;margin-bottom:16px}
-.chart-box{position:relative;height:230px;width:100%}
+/* строки-ведомости */
+.ledger{width:100%;border-collapse:collapse}
+.ledger td{padding:9px 0;border-bottom:.75px solid var(--line);vertical-align:top}
+.ledger tr:last-child td{border-bottom:0}
+.ledger td.a{font-family:var(--mono);font-size:12.5px;text-align:right;white-space:nowrap;padding-left:16px;color:var(--ink)}
+.ledger td.a.neg{color:var(--copper)}
+.ledger tr.tot td{font-weight:700;border-top:1.5px solid var(--petrol);border-bottom:0;padding-top:12px}
+.ledger tr.tot td.a{font-size:14px;color:var(--petrol)}
+.ledger .sub{display:block;font-size:11.5px;color:var(--brown);margin-top:2px}
 
-.bot-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:14px}
-@media(max-width:900px){.bot-grid{grid-template-columns:1fr}}
-.rec-card{margin-top:0}
-.rec-flow{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid rgba(255,255,255,.06)}
-.rec-stat{flex:1;min-width:150px}
-.rec-stat.hl{background:rgba(255,181,71,.07);border:1px solid rgba(255,181,71,.2);border-radius:10px;padding:10px 14px;flex:0 0 auto}
-.rec-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.rec-v{font-family:'DM Mono',monospace;font-size:20px;margin-top:5px}
-.rec-arrow{color:var(--cyan);font-size:18px;flex:0 0 auto}
-@media(max-width:620px){.rec-arrow{display:none}.rec-stat{min-width:100%}}
-.recr{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.recr:last-child{border-bottom:none}
-.recr-name{width:210px;flex-shrink:0;font-size:12px;font-weight:500}
-.recr-mid{flex:1;display:flex;align-items:center;gap:10px;min-width:120px}
-.recr-bar{flex:1;height:7px;background:rgba(255,255,255,.06);border-radius:4px;overflow:hidden}
-.recr-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--green),var(--cyan));transition:width 1s ease}
-.recr-pct{font-family:'DM Mono',monospace;font-size:11px;color:var(--green);width:38px;text-align:right}
-.recr-def{display:flex;flex-direction:column;align-items:flex-end;width:130px;flex-shrink:0}
-.recr-def span{font-size:9px;color:var(--muted);text-transform:uppercase}
-.recr-def b{font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);font-weight:500}
-.recr-def.debt span{color:var(--mag)}.recr-def.debt b{color:var(--mag)}
-.recr-fill.debt{background:linear-gradient(90deg,var(--mag),#ff6b9d)}
-.recr-pct.debt{color:var(--mag)}
-.rec-note{margin-top:14px;font-size:12px;color:var(--muted);line-height:1.5}
-@media(max-width:620px){.recr-name{width:130px}.recr-def{width:90px}}
+/* маркер статуса — форма, не цвет */
+.mk{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--petrol);vertical-align:middle;margin-right:8px;flex:none}
+.mk.full{background:var(--petrol)}
+.mk.half{background:linear-gradient(90deg,var(--petrol) 50%,transparent 50%)}
+.mk.cu{border-color:var(--copper)}
+.mk.cu.full{background:var(--copper)}
 
-.cr{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.04)}
-.cr:last-child{border-bottom:none}
-.cr-l{display:flex;flex-direction:column;gap:3px}
-.cr-name{font-size:13px;font-weight:500}
-.cr-trk{font-size:10px;color:var(--muted)}
-.cr-r{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-.ct{font-size:10px;padding:3px 9px;border-radius:9px;font-weight:500;white-space:nowrap}
-.ct.green{background:rgba(0,229,160,.1);color:var(--green)}
-.ct.warn{background:rgba(255,45,120,.12);color:var(--mag)}
-.ct.cyan{background:rgba(0,212,255,.1);color:var(--cyan)}
-.ct.violet{background:rgba(157,123,255,.12);color:var(--violet)}
-.ct.muted{background:rgba(255,255,255,.05);color:var(--muted)}
-.cr-next{font-size:10px;color:var(--muted)}
+/* полосы выполнения */
+.bar{height:6px;background:var(--sand);position:relative;margin-top:10px}
+.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--petrol)}
+.bar i.cu{background:var(--copper)}
+.bar.thin{height:3px}
 
-.acc-item{border:1px solid rgba(255,255,255,.06);border-radius:11px;margin-bottom:8px;overflow:hidden;transition:.2s}
-.acc-item:hover{border-color:rgba(0,212,255,.18)}
-.acc-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;cursor:pointer;user-select:none}
-.acc-head:hover{background:rgba(0,212,255,.03)}
-.acc-name{font-size:12px;font-weight:500;display:flex;align-items:center;gap:9px}
-.acc-chev{color:var(--muted);font-size:11px;transition:transform .25s}
-.acc-item.open .acc-chev{transform:rotate(90deg)}
-.acc-tot{font-family:'DM Mono',monospace;font-size:12px;color:var(--cyan)}
-.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease}
-.acc-item.open .acc-body{max-height:200px}
-.months{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;padding:6px 16px 16px}
-@media(max-width:520px){.months{grid-template-columns:repeat(4,1fr)}}
-.mcell{border-radius:7px;padding:7px 4px;text-align:center;background:rgba(255,255,255,.02)}
-.mcell.paid{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2)}
-.mcell-m{font-size:9px;color:var(--muted);text-transform:uppercase}
-.mcell-v{font-family:'DM Mono',monospace;font-size:10px;margin-top:3px;color:var(--muted)}
-.mcell.paid .mcell-v{color:var(--cyan)}
+/* KPI */
+.kpi{background:var(--paper);border:.75px solid var(--line);padding:16px 18px}
+.kpi .v{font-family:var(--mono);font-size:21px;font-weight:500;letter-spacing:-.01em;margin:8px 0 12px;color:var(--petrol)}
+.kpi .r{display:flex;justify-content:space-between;font-size:12px;color:var(--brown);padding:5px 0;border-top:.75px solid var(--line)}
+.kpi .r b{font-family:var(--mono);font-weight:500;font-size:12px;color:var(--ink)}
+.kpi .r b.cu{color:var(--copper)}
+.kpi .note{font-size:11.5px;color:var(--brown);margin-top:8px;line-height:1.4}
 
-.info{background:rgba(255,181,71,.08);border:1px solid rgba(255,181,71,.2);border-radius:10px;padding:14px 16px;
-      margin-bottom:20px;font-size:12px;color:var(--gold);line-height:1.6}
-.info code{background:rgba(0,0,0,.25);padding:1px 6px;border-radius:4px;font-size:11px}
-.info a{color:var(--cyan);text-decoration:none}
+/* потоки события */
+.stream{padding:14px 0;border-bottom:.75px solid var(--line)}
+.stream:last-child{border-bottom:0}
+.stream .t{display:flex;justify-content:space-between;align-items:baseline}
+.stream .t b{font-family:var(--mono);font-weight:500;font-size:14px}
+.stream .m{font-size:12px;color:var(--brown);margin-top:3px}
 
-.ftr{margin-top:40px;padding-top:18px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;
-     font-size:11px;color:var(--muted);flex-wrap:wrap;gap:8px}
-.ftr a{color:var(--cyan);text-decoration:none}
+/* портфель и график платежей */
+.cr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:.75px solid var(--line)}
+.cr:last-child{border-bottom:0}
+.cr .nm{font-weight:500;font-size:13px}
+.cr .tr{font-size:11.5px;color:var(--brown);margin-top:2px}
+.cr .st{display:flex;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brown);white-space:nowrap}
+.cr .nx{font-size:11.5px;color:var(--brown);text-align:right;margin-top:3px}
+.acc{border-bottom:.75px solid var(--line)}
+.acc:last-of-type{border-bottom:0}
+.acc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 0;cursor:pointer;background:none;border:0;width:100%;text-align:left;color:var(--ink)}
+.acc-head .nm{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
+.acc-head .chev{width:0;height:0;border-left:5px solid var(--copper);border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .15s}
+.acc.open .chev{transform:rotate(90deg)}
+.acc-head .tot{font-family:var(--mono);font-size:12.5px;font-weight:500;white-space:nowrap;padding-left:12px}
+.acc-body{display:none;padding:2px 0 12px}
+.acc.open .acc-body{display:block}
+.months{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
+.mc{padding:6px 2px;text-align:center;border:.75px solid var(--line);background:var(--paper)}
+.mc.paid{background:var(--sand);border-color:var(--copper)}
+.mc .m{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--brown)}
+.mc .v{font-family:var(--mono);font-size:10.5px;margin-top:3px;color:var(--ink)}
+@media(max-width:680px){.months{grid-template-columns:repeat(6,1fr)}}
 
-#loader{display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:14px}
-.spin{width:34px;height:34px;border-radius:50%;border:2px solid rgba(0,212,255,.2);border-top-color:var(--cyan);animation:sp .8s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
+/* таблица платежей */
+.tbl{width:100%;min-width:760px;border-collapse:collapse;font-size:12.5px}
+.tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--brown);text-align:left;padding:8px 8px 8px 0;border-bottom:1.5px solid var(--petrol);font-weight:500}
+.tbl td{padding:7px 8px 7px 0;border-bottom:.75px solid var(--line);vertical-align:top}
+.tbl td.a,.tbl th.a{text-align:right;font-family:var(--mono);white-space:nowrap}
+.tbl td.d{font-family:var(--mono);font-size:11.5px;white-space:nowrap;color:var(--brown)}
+.tbl td.neg{color:var(--copper)}
+.tbl-wrap{overflow-x:auto}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border:.75px solid var(--line);background:var(--paper);color:var(--brown);cursor:pointer}
+.chip.on{border-color:var(--petrol);color:var(--petrol);background:var(--sand)}
+
+/* признание */
+.flow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.flow .v{font-family:var(--mono);font-size:19px;font-weight:500;margin-top:6px;color:var(--petrol)}
+.recr{display:grid;grid-template-columns:1.4fr 2fr 1fr;gap:14px;align-items:center;padding:8px 0;border-bottom:.75px solid var(--line);font-size:12.5px}
+.recr:last-child{border-bottom:0}
+.recr .p{font-family:var(--mono);font-size:11.5px;text-align:right;white-space:nowrap}
+@media(max-width:680px){.flow{grid-template-columns:1fr}.recr{grid-template-columns:1fr;gap:6px}}
+
+.chart-box{height:300px;position:relative}
+.info{background:var(--sand);border:.75px solid var(--copper);padding:12px 16px;font-size:12.5px;margin-top:18px}
+.info code{font-family:var(--mono);font-size:11px}
+.ftr{margin-top:48px;padding-top:14px;border-top:.75px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--brown)}
+.small{font-size:11.5px;color:var(--brown);line-height:1.45}
+#loader{display:flex;align-items:center;gap:14px;padding:40px 0;color:var(--brown)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <div id="loader"><div class="spin"></div><span style="color:var(--muted);font-size:13px">Загрузка данных...</span></div>
+  <div id="loader"><span class="logo"><span class="a"></span><span class="l"></span><span class="b"></span></span><span class="kick">Загружаю фид WEB</span></div>
   <div id="app" style="display:none"></div>
 </div>
+
 <script>
-/* ════════════════ КОНФИГ ════════════════
-   Опубликованная CSV-ссылка вкладки WEB (файл v14, срез 10.08.2026).         */
-const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=741175484&single=true&output=csv';
-/* ════════════════════════════════════════ */
+/* ═══════════ КОНФИГ ═══════════
+   Опубликованная CSV-ссылка вкладки WEB (файл v15, срез 09.09.2026). */
+const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1191732908&single=true&output=csv';
+/* ══════════════════════════════ */
 
 const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 
-// ── Демо-данные (fallback, если фид недоступен; значения v14 на 10.08) ──
+/* Демо-снимок v15 (09.09.2026) — показывается, только если фид недоступен */
 const DEMO = {
   k:{
-    updated_label:'Факт на 10.08.2026 · план 2026', month_label:'август 2026',
-    gross_plan:74313000, gross_fact:34418472, net_plan:60912295, net_fact:28211863,
-    aks_plan:46245000, aks_fact:20665000, mm_plan:28068000, mm_fact:13753472,
-    ebitda_plan:23252839, ebitda_fact:12356397, ebitda_margin_plan:0.3817, ebitda_margin_fact:0.438,
-    np_plan:17439629, np_fact:9267298, np_margin_plan:0.2863,
+    updated_label:'Факт по банку на 08.09.2026 · план 2026 (демо-снимок)', month_label:'сентябрь 2026',
+    gross_plan:79565000, gross_fact:39789472, net_plan:65217213, net_fact:32614322,
+    aks_plan:42497000, aks_fact:23247000, mm_plan:37068000, mm_fact:16542472,
+    ebitda_plan:27598312, ebitda_fact:12127516, ebitda_margin_plan:0.423, ebitda_margin_fact:0.372,
+    np_plan:20698734, np_fact:9095637, np_margin_plan:0.317,
     clients_active:9, clients_target:14,
-    opex_before:1545424, opex_after:1791124, opex_delta:245700,
-    cash_open:4030220, cash_eoy:34073893, inflow_period:67196000, outflow_period:-37152327,
-    mm_title:'Мастермайнд Фонда', mm_dates:'25–30 августа 2026', mm_venue:'Hilton Garden Inn Moscow New Riga, Истра',
-    mm_days_left:14, mm_people_plan:36, mm_people_fact:47, mm_rev_plan:16776000, mm_rev_fact:13452000, mm_rev_pct:0.802,
-    mm_debt:6320000, rec_deferred_acc:3467517, rec_deferred_mm:13452000, rec_deferred_total:16919517,
-    rec_asof:'акселерация — на 30.06.2026 · авансы ММ — на 10.08.2026',
-    vat_payable_year:12191855, fc_gross:78899472, fc_net:64671699, fc_ebitda:29560912,
-    fc_np:22170684, fc_cash:34073893, fc_clients:14, fc_deferred:16919517,
+    cash_open:4030220, cash_eoy:41166252, inflow_period:71615995, outflow_period:-34479963,
+    vat_payable_year:13106188, fc_gross:84151472, fc_net:68976617, fc_ebitda:31301915, fc_np:23476436, fc_cash:41166252, fc_clients:14, fc_deferred:23070078,
+    rec_deferred_acc:6529078, rec_deferred_mm:16541000, rec_deferred_total:23070078,
+    rec_asof:'оценка на 10.08.2026 (снимок Натальи 30.06 + платежи и линейное признание)',
+    mm_aug_title:'Августовский ММ · 25–30.08.2026 · Hilton Garden Inn New Riga',
+    mm_aug_razbor_rub:6800000, mm_aug_guest_rub:8410000, mm_aug_org_rub:1331000,
+    mm_aug_gross:16541000, mm_aug_vat:-2982803, mm_aug_net:13558197, mm_aug_personal_razbor_gross:2250000,
+    mm_aug_cost_bank:3272050, mm_aug_cost_cash:633516, mm_aug_reimburse:-1378900, mm_aug_team_comp:148249,
+    mm_aug_bonus:195500, mm_aug_olga:148936, mm_aug_cost_total:3019351,
+    mm_aug_contribution:10538846, mm_aug_margin:0.777, mm_aug_contribution_ex_aks_bonus:10608846,
+    mm_aug_contribution_ex_personal:8694583, mm_aug_may_loss:121354, mm_aug_tax_ind:-2634711, mm_aug_np_ind:7904134,
+    mm_aug_uncollected:151200, mm_aug_cash_rest:745384, mm_aug_cash_handed:677000, mm_aug_cash_gap:-18016, mm_aug_debt:350000,
+    mm_aug_people_razbor:7, mm_aug_people_guest:39, mm_aug_people_org:12, mm_aug_people:58,
+    mm_rev_plan:16776000, mm_people_plan:36,
+    dec_title:'Декабрьский ММ · дата и площадка не определены',
+    dec_guests_plan:40, dec_guest_price:350000, dec_guests_rub:14000000, dec_razbor_plan:8, dec_razbor_rub:10000000,
+    dec_org_plan:8, dec_org_rub:976000, dec_gross_plan:24976000, dec_net_plan:20472131, dec_cost_plan:3733168,
+    dec_contribution_plan:16738964, dec_margin_plan:0.818, dec_collected:0, dec_people_fact:0, dec_days_left:'дата не задана',
+    cash_bank_0906_calc:19859206,
   },
-  c:[
-    ['Oazis Estate (Изосина)','✓ Активен','Дубровин 150к','сен.26'],
-    ['Разумный инвестор (Голубенко)','✓ Активен','— (Боронина)','авг.26'],
-    ['Лига Миров (ООО ОКАМИ / Бражников)','✓ Активен','Гор 100к','авг.26'],
-    ['144 Капитал (Бобрук)','✓ Активен','Гор 100к','сен.26'],
-    ['АО Напор (Иванова)','✓ Активен','Дубровин 150к','авг.26'],
-    ['Рыбак Всемогущий (Цыганов)','⟳ DD','Дубровин 150к','авг.26'],
-    ['Лебедев Максим','✓ Активен','Алёшин 100к','окт.26'],
-    ['Новик-Качан Кристина','✓ Активен','Алёшин 100к','авг.26'],
-    ['Козырев (Система 10Х)','✓ Активен','трекер не назначен','ноя.26'],
-  ],
-  p:[], pt:null,
-  ev:[
-    {name:'Разборы',n:7,rev:6100000,price:'8 × 1 250 000 ₽',role:'Точка конверсии — разбор на сцене'},
-    {name:'Гости',n:27,rev:5960000,price:'цель 20 · факт 27 (вкл. партнёров)',role:'Вершина воронки — прогрев к покупке'},
-    {name:'Орг. взносы',n:13,rev:1392000,price:'8 × 122 000 ₽',role:'Действующие клиенты — углубление'},
-  ],
-  rec:[
-    {name:'Изосина / Oazis Estate',cf:3750000,pl:2500000,def:1250000,pct:0.667},
-    {name:'Голубенко / Разум Инвест',cf:2500000,pl:1944524,def:555476,pct:0.778},
-    {name:'Бражников / Лига Миров',cf:2500000,pl:1860119,def:639881,pct:0.744},
-    {name:'Цыганов / Рыбак (Вселенная)',cf:2500000,pl:1815476,def:684524,pct:0.726},
-    {name:'Бобрук / 144 Капитал',cf:2500000,pl:1962364,def:537636,pct:0.785},
-    {name:'Иванова / АО Напор',cf:1500000,pl:1700000,def:-200000,pct:1.133},
-  ],
-  recTL:[], eb:{}, rv:{},
+  c:[], p:[], pt:null, ev:[], rec:[], eb:{}, rv:{}, mp:[],
 };
 
-// ── Утилиты ──
+/* ── утилиты ── */
 const Nc = n => {
   if(n==null||n===''||(typeof n==='number'&&isNaN(n))) return '—';
-  if(typeof n!=='number'){ const x=parseFloat(String(n).replace(/\s/g,'').replace(',','.')); if(isNaN(x)) return '—'; n=x; }
   const a=Math.abs(n), s=n<0?'−':'';
-  if(a>=1e9) return s+(a/1e9).toFixed(1).replace('.',',')+' млрд';
-  if(a>=1e6) return s+(a/1e6).toFixed(1).replace('.',',')+' млн';
+  if(a>=1e9) return s+(a/1e9).toFixed(2).replace('.',',')+' млрд';
+  if(a>=1e6) return s+(a/1e6).toFixed(2).replace('.',',')+' млн';
   if(a>=1e3) return s+(a/1e3).toFixed(0)+' тыс';
   return s+Math.round(a);
 };
-const Nf = n => n==null?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n));
+const Nf = n => (n==null||isNaN(n))?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n)).replace(/-/,'−');
 const Pct = n => (n==null||isNaN(n))?'—':(n*100).toFixed(1).replace('.',',')+'%';
+const Pct0 = n => (n==null||isNaN(n))?'—':Math.round(n*100)+'%';
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* убираем символы-иконки из статусов (бренд: без эмодзи в интерфейсах) */
+const clean = s => String(s||'').replace(/[✓⟳⚠☆⏸▶◀●○◐]/g,'').replace(/^\s*[—-]\s*/,'').trim();
 
-// ── Парсер CSV вкладки WEB ──
+/* ── парсер CSV вкладки WEB ── */
 function splitCSV(line){
   const out=[]; let cur='', q=false;
   for(let i=0;i<line.length;i++){
     const ch=line[i];
-    if(ch==='"'){ q=!q; }
+    if(ch==='"'){ if(q && line[i+1]==='"'){cur+='"';i++;} else q=!q; }
     else if(ch===',' && !q){ out.push(cur); cur=''; }
     else cur+=ch;
   }
   out.push(cur); return out;
 }
+/* число из формата Sheets: «16 541 000», «(15)», «77,7%», «-», «—», пусто */
 function num(v){
   if(v==null) return null;
-  let s=String(v).trim().replace(/"/g,'').replace(/\s/g,'').replace(/\u00a0/g,'');
-  if(s==='') return null;
-  if(s.endsWith('%')){ const n=parseFloat(s.replace('%','').replace(',','.')); return isNaN(n)?null:n/100; }
-  const n=parseFloat(s.replace(',','.')); return isNaN(n)?null:n;
+  let s=String(v).trim().replace(/"/g,'').replace(/[\s\u00a0\u202f]/g,'');
+  if(s===''||s==='-'||s==='—'||s==='·') return null;
+  let neg=false;
+  if(/^\(.*\)$/.test(s)){ neg=true; s=s.slice(1,-1); }
+  if(s.startsWith('−')){ neg=true; s=s.slice(1); }
+  let pct=false;
+  if(s.endsWith('%')){ pct=true; s=s.slice(0,-1); }
+  const n=parseFloat(s.replace(',','.'));
+  if(isNaN(n)) return null;
+  return (neg?-n:n)/(pct?100:1);
 }
-
-function applyAliases(k, eb){
-  if(k.ev_date_iso===undefined) k.ev_date_iso='2026-08-25';
-  if(k.ev_target===undefined) k.ev_target='4 новых клиента в акселерацию';
-  for(let i=1;i<=12;i++){
-    const e=eb['m'+i];
-    if(k['ebitda_m'+i]===undefined && e!==undefined) k['ebitda_m'+i]=(e&&e.plan!=null)?e.plan:e;
-  }
-  return k;
-}
+const TEXT_KEY=/_(label|title|dates|iso|target|asof|venue|note|version)$/;
 
 function parseFeed(txt){
-  const k={}, c=[], p=[], ev=[], rec=[], eb={}, rv={}; let pt=null, recTL=[];
+  const k={}, c=[], p=[], ev=[], rec=[], eb={}, rv={}, mp=[]; let pt=null;
   txt.trim().split(/\r?\n/).forEach(line=>{
     const f=splitCSV(line); const tag=(f[0]||'').trim();
-    if(tag==='K'){ const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
-      if(key.endsWith('_label')||key.endsWith('_title')||key.endsWith('_dates')||key.endsWith('_iso')||key.endsWith('_target')||key.endsWith('_asof')||key.endsWith('_venue')){ k[key]=raw; }
-      else { const nv=num(raw); k[key]=(nv==null?0:nv); } }
-    else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4]].map(x=>(x||'').trim().replace(/"/g,''))); }
+    if(tag==='K'){
+      const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
+      if(TEXT_KEY.test(key)){ k[key]=raw; }
+      else { const nv=num(raw); k[key]=(nv==null ? (raw && /[а-яa-z]/i.test(raw) ? raw : 0) : nv); }
+    }
+    else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4],f[5]].map(x=>(x||'').trim().replace(/"/g,''))); }
     else if(tag==='P'){ p.push([(f[1]||'').trim().replace(/"/g,''),...f.slice(2,15).map(num)]); }
     else if(tag==='PT'){ pt=[(f[1]||'').trim(),...f.slice(2,15).map(num)]; }
-    else if(tag==='EV'){ ev.push({name:(f[1]||'').trim().replace(/"/g,''),n:num(f[2])||0,rev:num(f[3])||0,
-      price:(f[4]||'').trim().replace(/"/g,''),role:(f[5]||'').trim().replace(/"/g,'')}); }
-    else if(tag==='R' || tag==='RC'){ rec.push({name:(f[1]||'').trim().replace(/"/g,''),cf:num(f[2])||0,pl:num(f[3])||0,def:num(f[4]),pct:num(f[5])}); }
-    else if(tag==='RT'){ recTL=f.slice(1,8).map(x=>num(x)||0); }
-    else if(tag==='EB'){ const key=(f[1]||'').trim(); eb[key]={plan:num(f[2]),fact:num(f[3])}; }
-    else if(tag==='RV'){ const key=(f[1]||'').trim(); rv[key]={plan:num(f[2]),fact:num(f[3])}; }
+    else if(tag==='EV'){ ev.push({name:(f[1]||'').trim(),n:num(f[2])||0,rev:num(f[3])||0,price:(f[4]||'').trim(),role:(f[5]||'').trim()}); }
+    else if(tag==='R'||tag==='RC'){ rec.push({name:(f[1]||'').trim(),cf:num(f[2])||0,pl:num(f[3])||0,def:num(f[4]),pct:num(f[5])}); }
+    else if(tag==='EB'){ eb[(f[1]||'').trim()]={plan:num(f[2]),fact:num(f[3])}; }
+    else if(tag==='RV'){ rv[(f[1]||'').trim()]={plan:num(f[2]),fact:num(f[3])}; }
+    else if(tag==='MP'){
+      const name=(f[2]||'').trim(); if(!name) return;
+      mp.push({date:(f[1]||'').trim(), name, event:(f[3]||'').trim(), type:(f[4]||'').trim(), owner:(f[5]||'').trim(),
+        invoice:num(f[6]), paid:num(f[7]), people:num(f[8]), status:(f[9]||'').trim(), note:clean(f[10]).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu,'').trim()});
+    }
   });
-  applyAliases(k, eb);
-  return {k,c,p,pt,ev,rec,recTL,eb,rv};
+  return {k,c,p,pt,ev,rec,eb,rv,mp};
 }
 
 async function loadData(){
@@ -299,287 +298,304 @@ async function loadData(){
   }catch(e){ return {d:DEMO, demo:true, err:e.message}; }
 }
 
-// ── Рендер ──
-function kpiPF(label, plan, fact, vc, ac, note){
-  const pct = (plan!=null && plan!==0) ? fact/plan : null;
-  const w = pct!=null ? Math.max(0,Math.min(100,pct*100)) : 0;
-  const factCol = (fact!=null && fact<0) ? ' style="color:var(--mag)"' : '';
-  const pctCol  = (pct!=null && pct<0)   ? ' style="color:var(--mag)"' : ' style="color:var(--cyan)"';
-  return `<div class="kpi ${ac}">
-    <div class="kpi-lbl">${label}</div>
-    <div class="kpi-vlbl">план год</div>
-    <div class="kpi-val ${vc}">${Nc(plan)} ₽</div>
-    <div class="kpi-rows">
-      <div class="kr"><span>Факт YTD</span><b${factCol}>${Nc(fact)} ₽</b></div>
-      <div class="kr pct"><span>% выполнения</span><b${pctCol}>${Pct(pct)}</b></div>
-    </div>
-    <div class="kpi-bar"><div class="kpi-fill" style="width:${w}%"></div></div>
-    ${note?`<div class="kpi-note">${note}</div>`:''}
+/* ── компоненты ── */
+const mark = kind => `<span class="mk ${kind}"></span>`;
+function statusMark(s){
+  const t=clean(s);
+  if(/DD|дью|проверк/i.test(t)) return 'half';
+  if(/ожида|счёт|пауза|не назнач/i.test(t)) return '';
+  return 'full';
+}
+function bar(pct, cu){
+  const w=pct==null?0:Math.max(0,Math.min(100,pct*100));
+  return `<div class="bar"><i class="${cu?'cu':''}" style="width:${w}%"></i></div>`;
+}
+function kpi(label, plan, fact, note){
+  const pct=(plan!=null&&plan!==0)?fact/plan:null;
+  return `<div class="kpi">
+    <div class="kick">${esc(label)}</div>
+    <div class="v">${Nc(plan)} ₽</div>
+    <div class="r"><span>план год</span><b>${Nf(plan)}</b></div>
+    <div class="r"><span>факт YTD</span><b>${Nf(fact)}</b></div>
+    <div class="r"><span>выполнение</span><b class="cu">${Pct(pct)}</b></div>
+    ${bar(pct)}
+    ${note?`<div class="note">${note}</div>`:''}
   </div>`;
 }
-function statusClass(s){
-  if(/Пауза|⏸/.test(s)) return 'muted';
-  if(/Счёт|⚠/.test(s)) return 'warn';
-  if(/Нов|☆/.test(s)) return 'cyan';
-  if(/DD|⟳/.test(s)) return 'violet';
-  return 'green';
+function ledgerRow(label, val, sub, opts={}){
+  const cls = (val!=null && val<0)?'a neg':'a';
+  return `<tr class="${opts.tot?'tot':''}"><td>${esc(label)}${sub?`<span class="sub">${esc(sub)}</span>`:''}</td><td class="${cls}">${opts.pct!=null?Pct(opts.pct):Nf(val)+(opts.tot||opts.rub!==false?' ₽':'')}</td></tr>`;
 }
 
-const EV_COLORS={cyan:'#00D4FF',mag:'#FF2D78',green:'#00E5A0'};
-function daysUntil(iso){
-  if(!iso) return null;
-  const t=new Date(iso+'T00:00:00'); if(isNaN(t)) return null;
-  return Math.ceil((t-new Date())/86400000);
-}
-function buildEvent(d){
+/* ── Августовский ММ: результат ── */
+function buildAug(d){
   const k=d.k;
-  const streams=(d.ev&&d.ev.length?d.ev:[]).map((e,i)=>({...e,color:['mag','cyan','green'][i]||'cyan'}));
-  const cd=(k.mm_days_left!=null && !isNaN(k.mm_days_left) && k.mm_days_left>0)?k.mm_days_left:daysUntil(k.ev_date_iso);
-  const cal='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>';
-  const cdTxt = cd==null?'' : (cd>0?`через ${cd} дн.`:(cd>-7?'идёт сейчас':''));
-  const segs=streams.map(s=>{
-    const c=EV_COLORS[s.color]||'#00D4FF';
-    return `<div class="ev-seg" style="flex:${s.n};background:linear-gradient(135deg,${c},${c}cc)">
-      <div class="n">${s.n}</div><div class="t">${s.name.split(' ')[0]}</div></div>`;
-  }).join('');
-  const cards=streams.map(s=>{
-    const c=EV_COLORS[s.color]||'#00D4FF';
-    return `<div class="ev-stream" style="border-top-color:${c}">
-      <div class="ev-s-n" style="color:${c}">${s.n}</div>
-      <div class="ev-s-name">${s.name}</div>
-      <div class="ev-s-price">${s.price}</div>
-      <div class="ev-s-rev">${Nc(s.rev)} ₽ оплачено</div>
-      <div class="ev-s-role">${s.role}</div></div>`;
-  }).join('');
-  const pplPct=(k.mm_people_plan? k.mm_people_fact/k.mm_people_plan : null);
-  const revPct=(k.mm_rev_pct!=null? k.mm_rev_pct : (k.mm_rev_plan? k.mm_rev_fact/k.mm_rev_plan : null));
-  const w=revPct!=null?Math.max(0,Math.min(100,revPct*100)):0;
-  return `<div class="sec">Августовский мастермайнд · воронка события</div>
-  <div class="ev-card">
-    <div class="ev-top">
-      <div>
-        <div class="ev-title-row"><div class="ev-name">${k.mm_title||'ММ Фонда'}</div>${cdTxt?`<span class="ev-cd">${cdTxt}</span>`:''}</div>
-        <div class="ev-dates">${cal}${k.mm_dates||''}</div>
-        <div class="ev-frame">${k.mm_venue||'Мастермайнд — ключевая точка конверсии воронки фонда'}</div>
+  if(k.mm_aug_gross==null) return '';
+  const gross=k.mm_aug_gross, net=k.mm_aug_net, contr=k.mm_aug_contribution;
+  const streams=[
+    {n:'Разборы', v:k.mm_aug_razbor_rub, p:k.mm_aug_people_razbor, m:'6 сделок, включая два личных разбора на 2,25 млн'},
+    {n:'Гости', v:k.mm_aug_guest_rub, p:k.mm_aug_people_guest, m:'32 плательщика, с партнёрами'},
+    {n:'Орг. взносы резидентов', v:k.mm_aug_org_rub, p:k.mm_aug_people_org, m:'с учётом возврата 61 000'},
+  ];
+  const streamHtml=streams.map(s=>`<div class="stream">
+      <div class="t"><span>${esc(s.n)} <span class="small">· ${s.p??'—'} чел</span></span><b>${Nf(s.v)} ₽</b></div>
+      ${bar(gross?s.v/gross:0)}
+      <div class="m">${esc(s.m)}</div></div>`).join('');
+  const cost=`<table class="ledger">
+    ${ledgerRow('Отель, площадка, техника и ивент-команда — безнал', k.mm_aug_cost_bank, 'реестр выезда бухгалтерии; счёт отеля включает питание участников')}
+    ${ledgerRow('Наличные из кассы события', k.mm_aug_cost_cash, 'доплата питания, трансляция, техспециалист, мелкие расходы')}
+    ${ledgerRow('Компенсация питания участниками', k.mm_aug_reimburse, 'наличные и USDT, собраны на заезде')}
+    ${ledgerRow('Компенсации команде: билеты, проживание', k.mm_aug_team_comp, 'заявки на сентябрь')}
+    ${ledgerRow('Бонусы отдела продаж за событие', k.mm_aug_bonus, 'включая 70 000 за акселерацию')}
+    ${ledgerRow('Надбавка продаж над фиксом, июль–август', k.mm_aug_olga)}
+    ${ledgerRow('Итого прямые расходы', k.mm_aug_cost_total, null, {tot:true})}
+  </table>`;
+  const refs=`<table class="ledger">
+    ${ledgerRow('Вклад без личных разборов', k.mm_aug_contribution_ex_personal)}
+    ${ledgerRow('Вклад без акселерационной части бонусов', k.mm_aug_contribution_ex_aks_bonus)}
+    ${ledgerRow('Отменённый майский ММ — чистый убыток', k.mm_aug_may_loss)}
+    ${ledgerRow('Индикативно после налога на прибыль 25%', k.mm_aug_np_ind, 'вклад — рабочая метрика события, чистая прибыль отдельно не считается')}
+  </table>`;
+  const cash=`<table class="ledger">
+    ${ledgerRow('Не собрано с участников за питание', k.mm_aug_uncollected, '7 человек')}
+    ${ledgerRow('Остаток кассы события', k.mm_aug_cash_rest, 'наличные и USDT')}
+    ${ledgerRow('Передано наличными', k.mm_aug_cash_handed)}
+    ${ledgerRow('Расхождение по кассе — не объяснено', k.mm_aug_cash_gap)}
+    ${ledgerRow('Выставленные счета без оплаты', k.mm_aug_debt)}
+  </table>`;
+  const planPct = k.mm_rev_plan ? gross/k.mm_rev_plan : null;
+  return `
+  <div class="sec"><h2>Августовский мастермайнд — результат</h2><span class="kick">${esc(k.mm_aug_title||'')}</span></div>
+  <div class="hero">
+    <div><div class="kick">Выручка по банку · с НДС</div><div class="v">${Nf(gross)} ₽</div>
+      <div class="n">${planPct!=null?`${Pct0(planPct)} от цели ${Nc(k.mm_rev_plan)} ₽ · `:''}${k.mm_aug_people??'—'} участников · НДС ${Nf(Math.abs(k.mm_aug_vat))} ₽</div></div>
+    <div><div class="kick">Выручка без НДС</div><div class="v">${Nf(net)} ₽</div>
+      <div class="n">прямые расходы события ${Nf(k.mm_aug_cost_total)} ₽ после компенсации питания</div></div>
+    <div><div class="kick cu">Маржинальный вклад события</div><div class="v cu">${Nf(contr)} ₽</div>
+      <div class="n">${Pct(k.mm_aug_margin)} от выручки без НДС</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Откуда выручка</h3>${streamHtml}</div>
+    <div class="card"><h3>Куда ушли деньги</h3>${cost}</div>
+  </div>
+  <div class="grid g2" style="margin-top:14px">
+    <div class="card"><h3>Справочно</h3>${refs}</div>
+    <div class="card"><h3>Касса и хвосты</h3>${cash}</div>
+  </div>
+  ${buildPayments(d)}`;
+}
+
+/* ── реестр платежей события ── */
+let mpFilter='all';
+function buildPayments(d){
+  const rows=(d.mp||[]);
+  if(!rows.length) return '';
+  const paid=rows.filter(r=>r.paid!=null&&r.paid!==0);
+  const total=paid.reduce((s,r)=>s+r.paid,0);
+  return `<div class="acc" id="mpacc" style="margin-top:14px;border:.75px solid var(--line);background:var(--paper);padding:0 20px">
+    <button class="acc-head" type="button" onclick="document.getElementById('mpacc').classList.toggle('open')">
+      <span class="nm"><span class="chev"></span>Реестр платежей события · ${paid.length} платежей и возвратов</span>
+      <span class="tot">${Nf(total)} ₽</span></button>
+    <div class="acc-body">
+      <div class="filters" id="mpf">
+        ${['all','Разбор','Гость','Орг. взнос','Возврат'].map(f=>`<span class="chip ${mpFilter===f?'on':''}" data-f="${f}" onclick="setMpFilter('${f}')">${f==='all'?'все':f}</span>`).join('')}
       </div>
-      <div class="ev-metrics">
-        <div><div class="ev-m-l">участников · цель ${k.mm_people_plan??'—'}</div>
-          <div class="ev-m-v">${k.mm_people_fact??'—'} <span style="font-size:12px;color:${pplPct>=1?'var(--green)':'var(--gold)'}">${Pct(pplPct)}</span></div></div>
-        <div><div class="ev-m-l">собрано · цель ${Nc(k.mm_rev_plan)} ₽</div>
-          <div class="ev-m-v" style="color:var(--cyan)">${Nc(k.mm_rev_fact)} ₽ <span style="font-size:12px;color:var(--gold)">${Pct(revPct)}</span></div></div>
-      </div>
+      <div class="tbl-wrap" id="mptbl">${mpTable(rows)}</div>
+    </div></div>`;
+}
+function mpTable(rows){
+  const list=rows.filter(r=>{
+    if(mpFilter==='all') return true;
+    if(mpFilter==='Возврат') return /возврат/i.test(r.status) || (r.paid!=null && r.paid<0);
+    return r.type===mpFilter && !(r.paid!=null && r.paid<0);
+  });
+  const body=list.map(r=>{
+    const neg=r.paid!=null&&r.paid<0;
+    const mk = neg?'':( (r.invoice!=null && r.paid!=null && r.paid>0 && r.paid<r.invoice) ? 'half' : (r.paid?'full':'') );
+    return `<tr><td class="d">${esc(r.date||'—')}</td><td>${esc(r.name)}<span class="sub small" style="display:block">${esc(r.note.slice(0,90))}${r.note.length>90?'…':''}</span></td>
+      <td>${esc(r.type)}</td><td>${esc(r.owner)}</td>
+      <td class="a">${r.invoice!=null?Nf(r.invoice):'—'}</td>
+      <td class="a ${neg?'neg':''}">${r.paid!=null?Nf(r.paid):'—'}</td>
+      <td style="white-space:nowrap">${mark(mk)}<span class="kick" style="font-size:9px">${esc(r.status)}</span></td></tr>`;
+  }).join('');
+  return `<table class="tbl"><thead><tr><th>дата</th><th>участник</th><th>тип</th><th>отв.</th><th class="a">счёт</th><th class="a">оплачено</th><th>статус</th></tr></thead><tbody>${body}</tbody></table>`;
+}
+let LAST=null;
+function setMpFilter(f){ mpFilter=f; if(!LAST) return;
+  document.getElementById('mptbl').innerHTML=mpTable(LAST.mp||[]);
+  document.querySelectorAll('#mpf .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f)); }
+
+/* ── Декабрьский ММ: цель ── */
+function buildDec(d){
+  const k=d.k;
+  if(k.dec_gross_plan==null) return '';
+  const dl=k.dec_days_left;
+  const cd = (typeof dl==='number') ? (dl>0?`через ${dl} дн.`:'идёт') : (dl||'дата не задана');
+  const coll=k.dec_collected||0, pct=k.dec_gross_plan?coll/k.dec_gross_plan:0;
+  const lines=[
+    {n:'Гости', plan:k.dec_guests_plan, price:k.dec_guest_price, rub:k.dec_guests_rub},
+    {n:'Разборы', plan:k.dec_razbor_plan, price:k.dec_razbor_rub&&k.dec_razbor_plan?k.dec_razbor_rub/k.dec_razbor_plan:null, rub:k.dec_razbor_rub},
+    {n:'Орг. взносы', plan:k.dec_org_plan, price:k.dec_org_rub&&k.dec_org_plan?k.dec_org_rub/k.dec_org_plan:null, rub:k.dec_org_rub},
+  ];
+  const tgt=lines.map(l=>`<div class="stream"><div class="t"><span>${l.n} <span class="small">· ${l.plan??'—'} × ${Nf(l.price)}</span></span><b>${Nf(l.rub)} ₽</b></div></div>`).join('');
+  return `
+  <div class="sec"><h2>Декабрьский мастермайнд — цель</h2><span class="kick">${esc(k.dec_title||'')}</span></div>
+  <div class="grid g3">
+    <div class="card">
+      <div class="kick cu">Цель события · с НДС</div>
+      <div class="v mono" style="font-size:26px;margin:10px 0 4px;color:var(--petrol)">${Nf(k.dec_gross_plan)} ₽</div>
+      <div class="small">без НДС ${Nf(k.dec_net_plan)} ₽ · вклад по действующей смете ${Nf(k.dec_contribution_plan)} ₽ (${Pct(k.dec_margin_plan)})</div>
+      <div style="margin-top:14px">${tgt}</div>
     </div>
-    <div class="kpi-bar" style="margin:0 0 16px"><div class="kpi-fill" style="width:${w}%"></div></div>
-    <div class="ev-bar">${segs}</div>
-    <div class="ev-streams">${cards}</div>
-    <div class="ev-foot">
-      <span class="efl">Цель события:</span><span class="ev-goal">${k.ev_target||''}</span>
-      <span class="efl" style="margin-left:auto">К получению (счета + предоплаты):</span>
-      <span style="font-family:'DM Mono',monospace;color:var(--gold)">${Nc(k.mm_debt)} ₽</span>
+    <div class="card">
+      <div class="kick">Собрано по реестру</div>
+      <div class="v mono" style="font-size:26px;margin:10px 0 4px;color:var(--copper)">${Nf(coll)} ₽</div>
+      <div class="small">${Pct0(pct)} от цели · оплативших ${k.dec_people_fact??0} из ${(k.dec_guests_plan||0)+(k.dec_razbor_plan||0)+(k.dec_org_plan||0)}</div>
+      ${bar(pct,true)}
+      <div class="small" style="margin-top:14px">${mark(coll>0?'half':'')}${esc(cd)}</div>
+    </div>
+    <div class="card">
+      <div class="kick">Что не определено</div>
+      <table class="ledger" style="margin-top:8px">
+        <tr><td>${mark('')}Дата и площадка события</td></tr>
+        <tr><td>${mark('')}Смета под 40 гостей — сейчас в расчёте старая структура, отель и питание не пересчитаны</td></tr>
+        <tr><td>${mark('')}Цена гостя 350 000: в августе средний чек был 215 641 при 32 плательщиках</td></tr>
+      </table>
     </div>
   </div>`;
 }
 
+/* ── Признание ── */
 function buildRec(d){
-  const k=d.k;
-  const clients=d.rec&&d.rec.length?d.rec:[];
-  const cf=clients.reduce((s,x)=>s+x.cf,0);
-  const pl=clients.reduce((s,x)=>s+x.pl,0);
-  const mm=k.rec_deferred_mm, total=(k.rec_deferred_total!=null?k.rec_deferred_total:(cf-pl)+(mm||0));
+  const k=d.k, clients=d.rec||[];
+  if(!clients.length) return '';
+  const cf=clients.reduce((s,x)=>s+x.cf,0), pl=clients.reduce((s,x)=>s+x.pl,0);
   const rows=clients.map(c=>{
-    const def=(c.def!=null && !isNaN(c.def)) ? c.def : (c.cf-c.pl);
-    const pct=(c.pct!=null && !isNaN(c.pct)) ? c.pct : (c.cf?c.pl/c.cf:0);
-    const debt = def < 0;
-    const w = Math.min(100, Math.round(pct*100));
-    const right = debt
-      ? `<div class="recr-def debt"><span>долг</span><b>${Nc(Math.abs(def))} ₽</b></div>`
-      : `<div class="recr-def"><span>отложено</span><b>${Nc(def)} ₽</b></div>`;
-    return `<div class="recr">
-      <div class="recr-name">${c.name}</div>
-      <div class="recr-mid">
-        <div class="recr-bar"><div class="recr-fill${debt?' debt':''}" style="width:${w}%"></div></div>
-        <div class="recr-pct${debt?' debt':''}">${Math.round(pct*100)}%</div>
-      </div>
-      ${right}
-    </div>`;
+    const def=(c.def!=null&&!isNaN(c.def))?c.def:(c.cf-c.pl);
+    const pct=(c.pct!=null&&!isNaN(c.pct))?c.pct:(c.cf?c.pl/c.cf:0);
+    const debt=def<0;
+    return `<div class="recr"><div>${esc(c.name)}</div>
+      <div>${bar(pct, debt)}</div>
+      <div class="p">${debt?'долг ':'отложено '}${Nf(Math.abs(def))} ₽ · ${Pct0(pct)}</div></div>`;
   }).join('');
-  const mmRow = (mm!=null && mm>0)?`
-    <div class="recr" style="border-top:1px solid rgba(255,255,255,.08)">
-      <div class="recr-name" style="font-weight:600;color:var(--gold)">Авансы августовского ММ</div>
-      <div class="recr-mid">
-        <div class="recr-bar"><div class="recr-fill" style="width:0%"></div></div>
-        <div class="recr-pct" style="color:var(--muted)">0%</div>
-      </div>
-      <div class="recr-def"><span>отложено</span><b>${Nc(mm)} ₽</b></div>
-    </div>`:'';
-  return `<div class="sec">Признание выручки · метод начисления · ${k.rec_asof||''}</div>
-  <div class="card rec-card">
-    <div class="rec-flow">
-      <div class="rec-stat"><div class="rec-l">Поступило по акселерации</div><div class="rec-v v-c">${Nc(cf)} ₽</div></div>
-      <span class="rec-arrow">→</span>
-      <div class="rec-stat"><div class="rec-l">Отработано (услуга оказана)</div><div class="rec-v v-gn">${Nc(pl)} ₽</div></div>
-      <span class="rec-arrow">→</span>
-      <div class="rec-stat hl"><div class="rec-l">Отложено всего · акс + авансы ММ</div><div class="rec-v v-go">${Nc(total)} ₽</div></div>
+  return `
+  <div class="sec"><h2>Признание выручки по акселерации</h2><span class="kick">метод начисления · ${esc((k.rec_asof||'').split('·')[0].trim())}</span></div>
+  <div class="card">
+    <div class="flow">
+      <div><div class="kick">Поступило</div><div class="v">${Nf(cf)} ₽</div></div>
+      <div><div class="kick">Отработано</div><div class="v">${Nf(pl)} ₽</div></div>
+      <div><div class="kick cu">Отложено по акселерации</div><div class="v" style="color:var(--copper)">${Nf(k.rec_deferred_acc!=null?k.rec_deferred_acc:cf-pl)} ₽</div></div>
     </div>
-    <div class="rec-clients">${rows}${mmRow}</div>
-    <div class="rec-note">Оценка: снимок Натальи на 30.06 + фактические платежи и линейное признание по 10.08. Точный срез начисления — за Натальей (заменит оценку).
-    Авансы ММ признаются выручкой после проведения события 25–30.08. Долг — признание опередило оплату (закрывается следующим платежом).</div>
+    ${rows}
+    <p class="small" style="margin-top:12px">Оценка: снимок бухгалтерии на 30.06 плюс платежи и линейное признание. Авансы августовского ММ здесь не показаны — событие проведено 25–30.08, выручка по нему признана; лист «Признание» в модели ещё держит их отложенными и требует обновления.</p>
   </div>`;
 }
 
+/* ── график EBITDA ── */
 let chartM=null;
 function buildChart(k, eb){
   if(chartM){chartM.destroy();chartM=null;}
-  const cm=document.getElementById('cm'); if(!cm) return;
+  const cm=document.getElementById('cm'); if(!cm||typeof Chart==='undefined') return;
   const plan=[], fact=[];
-  for(let i=1;i<=12;i++){
-    const e=eb['m'+i];
-    if(e && typeof e==='object'){ plan.push(e.plan??0); fact.push(e.fact); }
-    else { plan.push(k['ebitda_m'+i]??0); fact.push(null); }
-  }
-  let lastF=-1; fact.forEach((v,i)=>{ if(v!=null && v!==0) lastF=i; });
+  for(let i=1;i<=12;i++){ const e=eb['m'+i]; plan.push(e?(e.plan??0):0); fact.push(e?e.fact:null); }
+  let lastF=-1; fact.forEach((v,i)=>{ if(v!=null) lastF=i; });
   const factCut=fact.map((v,i)=> i<=lastF ? v : null);
-  const grid='rgba(255,255,255,0.05)', tick={color:'#4A6080',font:{size:10,family:"'DM Mono',monospace"}};
+  const tick={color:'#5E4A38',font:{size:10,family:"'JetBrains Mono',monospace"}};
   chartM=new Chart(cm,{type:'bar',
     data:{labels:MONTHS,datasets:[
-      {label:'План',data:plan,borderRadius:3,
-       backgroundColor:plan.map(v=>v>=0?'rgba(0,229,160,0.22)':'rgba(255,45,120,0.22)')},
-      {label:'Факт',data:factCut,borderRadius:3,
-       backgroundColor:factCut.map(v=>(v??0)>=0?'rgba(0,229,160,0.9)':'rgba(255,45,120,0.9)')}
+      {label:'План',data:plan,backgroundColor:'#F0E6DB',borderColor:'#D8D4C9',borderWidth:1,borderRadius:0},
+      {label:'Факт',data:factCut,backgroundColor:'#1C4A43',borderRadius:0}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,labels:{color:'#4A6080',font:{size:10},boxWidth:10}},
-      tooltip:{callbacks:{label:c=>c.dataset.label+': '+Nc(c.raw)+' ₽'}}},
-      scales:{x:{grid:{color:grid},ticks:tick},y:{grid:{color:grid},ticks:{...tick,callback:v=>Nc(v)}}}}});
+      plugins:{legend:{display:true,labels:{color:'#5E4A38',font:{size:10,family:"'JetBrains Mono',monospace"},boxWidth:10}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+Nf(c.raw)+' ₽'}}},
+      scales:{x:{grid:{color:'#EDE8DF'},ticks:tick},y:{grid:{color:'#EDE8DF'},ticks:{...tick,callback:v=>Nc(v)}}}}});
 }
 
+/* ── страница ── */
 function render(d,demo,err,time){
-  const k=d.k;
-  const fcMargin   = (k.fc_net && k.fc_net!==0) ? k.fc_ebitda/k.fc_net : null;
-  const fcNpMargin = (k.fc_net && k.fc_net!==0) ? k.fc_np/k.fc_net : null;
-  const npMarginFact = (k.net_fact && k.net_fact!==0) ? k.np_fact/k.net_fact : null;
-
-  document.getElementById('app').innerHTML = `
-    ${demo?`<div class="info"><b>Демо-данные${err?' · <code>'+err+'</code>':''}.</b>
-      Фид WEB недоступен — показан снимок на 10.08.2026. Проверь публикацию листа WEB и нажми <a href="javascript:init()">↻ Обновить</a>.</div>`:''}
-
-    <div class="hdr">
-      <div class="hdr-l"><div class="logo">МД</div>
-        <div><div class="hdr-title">Фонд-Акселератор МД</div>
-        <div class="hdr-sub">Управленческий дашборд · ${k.updated_label||''}</div></div></div>
+  LAST=d; const k=d.k;
+  const fcMargin=(k.fc_net&&k.fc_net!==0)?k.fc_ebitda/k.fc_net:null;
+  const npMarginFact=(k.net_fact&&k.net_fact!==0)?k.np_fact/k.net_fact:null;
+  document.getElementById('app').innerHTML=`
+    <div class="hdr"><div class="hdr-in">
+      <div><span class="logo"><span class="a"></span><span class="l"></span><span class="b"></span></span>
+        <h1>Фонд-акселератор · управленческий дашборд</h1>
+        <div class="sub">${esc(k.updated_label||'')}</div></div>
       <div class="hdr-r">
-        ${demo?'<span class="badge demo">Demo</span>':'<span class="badge">Live ✓</span>'}
-        <span class="badge">Обновлено: ${time}</span>
-        <button class="btn" onclick="init()">↻ Обновить</button>
-      </div>
+        <span class="tag ${demo?'':'cu'}">${demo?'демо-снимок':'live · лист WEB'}</span>
+        <span class="tag">обновлено ${time}</span>
+        <button class="btn" onclick="init()">Обновить</button>
+      </div></div></div>
+    ${demo?`<div class="info"><b>Фид WEB недоступен${err?' — <code>'+esc(err)+'</code>':''}.</b> Показан демо-снимок на 09.09.2026. Проверь, что лист WEB опубликован (Файл → Поделиться → Опубликовать в интернете, CSV) и что ссылка в коде совпадает.</div>`:''}
+
+    <div class="strip">
+      <div><span class="kick">Период</span><b>${esc(k.month_label||'')}</b></div>
+      <div><span class="kick">Остаток на 01.06 · факт</span><b>${Nf(k.cash_open)} ₽</b></div>
+      <div><span class="kick">Остаток на 01.09 · по реестрам</span><b>${Nf(k.cash_bank_0906_calc)} ₽</b></div>
+      <div><span class="kick">Прогноз счёта на 31.12</span><b>${Nf(k.cash_eoy)} ₽</b></div>
+      <div><span class="kick">Портфель акселерации</span><b>${k.clients_active??'—'} активных · цель ${k.clients_target??'—'}</b></div>
     </div>
 
-    <div class="sec">Статус · ${k.month_label||''}</div>
-    <div class="pills">
-      <div class="pill ${k.ebitda_plan>0?'g':'y'}"><div class="dot"></div>EBITDA год план: ${Nc(k.ebitda_plan)} ₽ · ${Pct(k.ebitda_margin_plan)}</div>
-      <div class="pill c"><div class="dot"></div>Портфель: ${k.clients_active} активных · цель ${k.clients_target}</div>
-      <div class="pill g"><div class="dot"></div>Остаток на 01.06: ${Nc(k.cash_open)} ₽</div>
-      <div class="pill c"><div class="dot"></div>Прогноз на конец года: ${Nc(k.cash_eoy)} ₽</div>
+    ${buildAug(d)}
+    ${buildDec(d)}
+
+    <div class="sec"><h2>Год 2026 — план, факт, выполнение</h2><span class="kick">факт YTD по банку</span></div>
+    <div class="grid g3">
+      ${kpi('Выручка с НДС',k.gross_plan,k.gross_fact)}
+      ${kpi('Выручка без НДС',k.net_plan,k.net_fact)}
+      ${kpi('EBITDA',k.ebitda_plan,k.ebitda_fact,'рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
+      ${kpi('Чистая прибыль',k.np_plan,k.np_fact,'рентабельность: план '+Pct(k.np_margin_plan)+' · факт '+Pct(npMarginFact))}
+      ${kpi('Акселерация',k.aks_plan,k.aks_fact)}
+      ${kpi('Мастермайнды',k.mm_plan,k.mm_fact,'август — факт, декабрь — цель 40 гостей × 350 000')}
     </div>
 
-    <div class="sec">Ключевые показатели · план год · факт YTD · % выполнения</div>
-    <div class="kpi-grid">
-      ${kpiPF('Выручка GROSS / год',k.gross_plan,k.gross_fact,'v-c','c')}
-      ${kpiPF('Выручка NET / год',k.net_plan,k.net_fact,'v-w','c')}
-      ${kpiPF('EBITDA / год',k.ebitda_plan,k.ebitda_fact,'v-gn','gn','Рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
-      ${kpiPF('Чистая прибыль / год',k.np_plan,k.np_fact,'v-gn','gn','Рентабельность ЧП: план '+Pct(k.np_margin_plan)+' · факт '+Pct(npMarginFact))}
-      ${kpiPF('Акселерация / год',k.aks_plan,k.aks_fact,'v-c','c')}
-      ${kpiPF('ММ-события / год',k.mm_plan,k.mm_fact,'v-m','m','События: август (сбор идёт) + декабрь')}
+    <div class="sec"><h2>Прогноз на 31.12 — факт плюс план до конца года</h2></div>
+    <div class="grid g4">
+      <div class="kpi"><div class="kick">Выручка с НДС</div><div class="v">${Nc(k.fc_gross)} ₽</div>
+        <div class="r"><span>факт YTD</span><b>${Nf(k.gross_fact)}</b></div>
+        <div class="r"><span>план до 31.12</span><b>${Nf(k.fc_gross-k.gross_fact)}</b></div>
+        <div class="r"><span>исходный план года</span><b>${Nf(k.gross_plan)}</b></div></div>
+      <div class="kpi"><div class="kick">EBITDA</div><div class="v">${Nc(k.fc_ebitda)} ₽</div>
+        <div class="r"><span>рентабельность</span><b class="cu">${Pct(fcMargin)}</b></div>
+        <div class="r"><span>выручка без НДС</span><b>${Nf(k.fc_net)}</b></div>
+        <div class="r"><span>исходный план года</span><b>${Nf(k.ebitda_plan)}</b></div></div>
+      <div class="kpi"><div class="kick">Чистая прибыль</div><div class="v">${Nc(k.fc_np)} ₽</div>
+        <div class="r"><span>рентабельность</span><b class="cu">${Pct(k.fc_net?k.fc_np/k.fc_net:null)}</b></div>
+        <div class="r"><span>исходный план года</span><b>${Nf(k.np_plan)}</b></div></div>
+      <div class="kpi"><div class="kick">Остаток на счёте</div><div class="v">${Nc(k.fc_cash)} ₽</div>
+        <div class="r"><span>НДС к уплате за год</span><b class="cu">${Nf(k.vat_payable_year)}</b></div>
+        <div class="r"><span>отложенная выручка</span><b>${Nf(k.fc_deferred)}</b></div></div>
     </div>
 
-    ${buildEvent(d)}
+    <div class="sec"><h2>EBITDA по месяцам</h2><span class="kick">план · факт · до августа включительно</span></div>
+    <div class="card"><div class="chart-box"><canvas id="cm"></canvas></div></div>
 
-    <div class="sec">Прогноз на конец года · факт + план до 31.12</div>
-    <div class="kpi-grid">
-      <div class="kpi c">
-        <div class="kpi-lbl">Выручка GROSS</div>
-        <div class="kpi-vlbl">прогноз 31.12</div>
-        <div class="kpi-val v-c">${Nc(k.fc_gross)} ₽</div>
-        <div class="kpi-rows">
-          <div class="kr"><span>Факт YTD (на 10.08)</span><b>${Nc(k.gross_fact)} ₽</b></div>
-          <div class="kr"><span>План до 31.12</span><b>${Nc(k.fc_gross-k.gross_fact)} ₽</b></div>
-          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.gross_plan)} ₽</b></div>
-        </div>
-      </div>
-      <div class="kpi gn">
-        <div class="kpi-lbl">EBITDA</div>
-        <div class="kpi-vlbl">прогноз 31.12</div>
-        <div class="kpi-val v-gn">${Nc(k.fc_ebitda)} ₽</div>
-        <div class="kpi-rows">
-          <div class="kr"><span>Рентабельность</span><b style="color:var(--cyan)">${Pct(fcMargin)}</b></div>
-          <div class="kr"><span>Выручка NET</span><b>${Nc(k.fc_net)} ₽</b></div>
-          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.ebitda_plan)} ₽</b></div>
-        </div>
-      </div>
-      <div class="kpi gn">
-        <div class="kpi-lbl">Чистая прибыль</div>
-        <div class="kpi-vlbl">прогноз 31.12</div>
-        <div class="kpi-val v-gn">${Nc(k.fc_np)} ₽</div>
-        <div class="kpi-rows">
-          <div class="kr"><span>Рентабельность</span><b style="color:var(--cyan)">${Pct(fcNpMargin)}</b></div>
-          <div class="kr pct"><span>Исходный план года</span><b style="color:var(--muted)">${Nc(k.np_plan)} ₽</b></div>
-        </div>
-      </div>
-      <div class="kpi c">
-        <div class="kpi-lbl">Остаток на счёте</div>
-        <div class="kpi-vlbl">прогноз 31.12</div>
-        <div class="kpi-val v-c">${Nc(k.fc_cash)} ₽</div>
-        <div class="kpi-rows">
-          <div class="kr"><span>НДС к уплате за год</span><b style="color:var(--mag)">${Nc(k.vat_payable_year)} ₽</b></div>
-          <div class="kr pct"><span>Отложенная выручка</span><b style="color:var(--muted)">${Nc(k.fc_deferred)} ₽</b></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="sec">EBITDA по месяцам · план / факт 2026</div>
-    <div class="charts-grid">
-      <div class="card"><div class="card-t">Операционная прибыль помесячно · факт по август (на 10.08)</div>
-        <div class="chart-box"><canvas id="cm"></canvas></div></div>
-    </div>
-
-    <div class="sec">Портфель и график платежей</div>
-    <div class="bot-grid">
-      <div class="card">
-        <div class="card-t">Портфель компаний · ${k.clients_active} активных</div>
+    <div class="sec"><h2>Портфель и график платежей</h2><span class="kick">акселерация · кассовый принцип</span></div>
+    <div class="grid g2">
+      <div class="card"><h3>Компании в акселерации · ${k.clients_active??'—'}</h3>
         ${d.c.map(c=>`<div class="cr">
-          <div class="cr-l"><div class="cr-name">${c[0]}</div><div class="cr-trk">${c[2]||''}</div></div>
-          <div class="cr-r"><div class="ct ${statusClass(c[1])}">${c[1]}</div>
-          <div class="cr-next">след. платёж: ${c[3]||'—'}</div></div></div>`).join('')}
+          <div><div class="nm">${esc(c[0])}</div><div class="tr">${esc(c[2]||'')}</div></div>
+          <div><div class="st">${mark(statusMark(c[1]))}${esc(clean(c[1]))}</div><div class="nx">след. платёж ${esc(c[3]||'—')}</div></div></div>`).join('')}
       </div>
-      <div class="card">
-        <div class="card-t">График платежей · акселерация 2026 (кассовый)</div>
+      <div class="card"><h3>Поступления по месяцам</h3>
         ${d.p.map((row,idx)=>{
           const name=row[0], months=row.slice(1,13), total=row[13];
-          return `<div class="acc-item" id="acc${idx}">
-            <div class="acc-head" onclick="document.getElementById('acc${idx}').classList.toggle('open')">
-              <div class="acc-name"><span class="acc-chev">▶</span>${name}</div>
-              <div class="acc-tot">${Nc(total)} ₽</div>
-            </div>
-            <div class="acc-body"><div class="months">
-              ${months.map((m,i)=>`<div class="mcell ${m>0?'paid':''}">
-                <div class="mcell-m">${MONTHS[i]}</div>
-                <div class="mcell-v">${m>0?Nc(m):'·'}</div></div>`).join('')}
-            </div></div></div>`;
+          return `<div class="acc" id="acc${idx}">
+            <button class="acc-head" type="button" onclick="document.getElementById('acc${idx}').classList.toggle('open')">
+              <span class="nm"><span class="chev"></span>${esc(name)}</span><span class="tot">${Nf(total)} ₽</span></button>
+            <div class="acc-body"><div class="months">${months.map((m,i)=>`<div class="mc ${m>0?'paid':''}"><div class="m">${MONTHS[i]}</div><div class="v">${m>0?Nc(m):'·'}</div></div>`).join('')}</div></div></div>`;
         }).join('')}
-        <div style="margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);
-             display:flex;justify-content:space-between;font-size:12px">
-          <span style="color:var(--muted)">Итого поступления акселерации / год</span>
-          <span style="font-family:'DM Mono',monospace;color:var(--cyan)">${Nc(d.pt?d.pt[13]:null)} ₽</span></div>
+        <div class="cr" style="margin-top:8px;border-top:1.5px solid var(--petrol);border-bottom:0"><span class="small">Итого поступления акселерации за год</span><span class="mono" style="font-size:13px">${Nf(d.pt?d.pt[13]:null)} ₽</span></div>
       </div>
     </div>
 
     ${buildRec(d)}
 
     <div class="ftr">
-      <span style="font-family:'DM Mono',monospace">Фонд-Акселератор МД · ООО «Группа Развития»</span>
-      <span>${k.updated_label||''} · <a href="https://fond-accelerator.ru" target="_blank">fond-accelerator.ru</a></span>
+      <span><span class="logo sm"><span class="a"></span><span class="l"></span><span class="b"></span></span>&nbsp;&nbsp;Фонд-акселератор · ООО «Группа Развития»</span>
+      <span>${esc(k.feed_version||k.updated_label||'')} · <a href="https://fond-accelerator.ru" target="_blank" rel="noopener">fond-accelerator.ru</a></span>
     </div>`;
-
   requestAnimationFrame(()=>buildChart(k, d.eb||{}));
 }
 
