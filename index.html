@@ -1,614 +1,392 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="dark">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Фонд-акселератор — управленческий дашборд</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Фонд-акселератор — финансы</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
-/* ── Бренд-система Integrity ─────────────────────────────────────────── */
-*{box-sizing:border-box;margin:0;padding:0}
+/* ==============================================================
+   Язык «Уровня правды» (v7, утверждён 22.09): нейтральный графит в тёмной теме,
+   кость в светлой, медь — единственный акцент. Статус кодируется формой
+   (● заполнено · ◐ частично · ○ пусто), а не цветом. Тёмная — по умолчанию.
+   ============================================================== */
 :root{
-  --petrol:#1C4A43; --petrol-d:#12332E; --copper:#B9794B;
-  --ink:#262624; --brown:#5E4A38; --muted:#6E6A61;
-  --ivory:#F5F2EC; --paper:#FBFAF7; --sand:#F0E6DB; --line:#D8D4C9;
-  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
-  --sans:'Onest',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --bg:#f5f2ec; --surface:#fbfaf7; --surface2:#efeae2; --surface3:#f3efe8; --line:#e2ddd3; --line2:#d0c9bd;
+  --txt:#262624; --txt2:#45443f; --txt3:#6b6a66;
+  --accent:#9a5b2a; --accent-soft:rgba(185,121,75,.13); --accent-line:rgba(154,91,42,.45);
+  --ok:#2f7a4f; --watch:#8a6a2f; --bad:#b3362d;
+  --bar-bg:#e9e4db; --bar-zone:#dcd5c9; --bar-fact:#262624; --dim:#d0c9bd; --dim2:#a39b8e;
+  --sans:'Onest',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+  --r-plate:20px; --r-card:16px; --r-group:14px;
 }
-html,body{background:var(--ivory);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.45}
-a{color:var(--petrol)}
-button{font-family:var(--sans)}
-.wrap{max-width:1240px;margin:0 auto;padding:0 28px 48px}
+html.dark{
+  --bg:#151515; --surface:#1c1c1d; --surface2:#242425; --surface3:#2b2b2d; --line:#2c2c2e; --line2:#3a3a3c;
+  --txt:#f2f2f0; --txt2:#cacacc; --txt3:#9d9d9f;
+  --accent:#d08a52; --accent-soft:rgba(208,138,82,.15); --accent-line:rgba(208,138,82,.45);
+  --ok:#5fbf8a; --watch:#c9a46a; --bad:#e07a6a;
+  --bar-bg:#2b2b2d; --bar-zone:#353537; --bar-fact:#f2f2f0; --dim:#3a3a3c; --dim2:#6c6c70;
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--txt);font-family:var(--sans);font-size:15px;line-height:1.45;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 80px}
+@media(max-width:700px){.wrap{padding:18px 14px 60px}}
 
-/* кикеры и подписи — всегда моно, капсом, с трекингом */
-.kick{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--brown)}
-.kick.cu{color:var(--copper)}
-.kick.iv{color:var(--ivory);opacity:.8}
-.mono{font-family:var(--mono)}
+/* Шапка */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:34px}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{display:inline-flex;align-items:center;gap:0}
+.logo .a{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.logo .l{width:34px;height:2px;background:var(--accent)}
+.logo .b{width:10px;height:10px;border-radius:50%;border:2px solid var(--accent)}
+.top h1{font-size:20px;font-weight:600;margin:0;letter-spacing:-.01em}
+.top .sub{color:var(--txt3);font-size:13px;margin-top:2px}
+.controls{display:flex;gap:10px;align-items:center}
+.chip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);
+  border:1px solid var(--line2);border-radius:999px;padding:6px 12px;background:transparent;cursor:pointer}
+.chip:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-/* логотип: точка А → линия → точка Б */
-.logo{display:inline-flex;align-items:center;gap:0;height:12px}
-.logo .a{width:12px;height:12px;border-radius:50%;background:var(--copper)}
-.logo .l{width:38px;height:1.5px;background:var(--copper)}
-.logo .b{width:12px;height:12px;border-radius:50%;border:1.5px solid var(--copper)}
-.logo.sm .a,.logo.sm .b{width:8px;height:8px}
-.logo.sm .l{width:22px}
+/* Моно-метки: один уровень на блок */
+.kick{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--txt3)}
+.kick.acc{color:var(--accent)}
 
-/* шапка — единственный тёмный якорь */
-.hdr{background:var(--petrol-d);color:var(--ivory);margin:0 -28px;padding:26px 28px 24px}
-.hdr-in{max-width:1240px;margin:0 auto;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;flex-wrap:wrap}
-.hdr h1{font-size:22px;font-weight:700;letter-spacing:-.01em;margin-top:14px}
-.hdr .sub{font-size:12.5px;color:var(--ivory);opacity:.75;margin-top:4px}
-.hdr-r{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tag{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:6px 10px;border:1px solid rgba(245,242,236,.35);color:var(--ivory)}
-.tag.cu{border-color:var(--copper);color:var(--copper)}
-.btn{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding:7px 12px;border:1px solid var(--copper);background:transparent;color:var(--ivory);cursor:pointer}
-.btn:hover{background:var(--copper);color:var(--petrol-d)}
-.btn:focus-visible,a:focus-visible,.acc-head:focus-visible{outline:2px solid var(--copper);outline-offset:2px}
+/* Экран */
+.screen{margin-bottom:52px}
+.screen>h2{font-size:15px;font-weight:500;color:var(--txt2);margin:0 0 14px;display:flex;align-items:baseline;gap:14px}
+.screen>h2 .kick{font-weight:500}
 
-/* секции */
-.sec{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:40px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.sec h2{font-size:17px;font-weight:700;letter-spacing:-.01em}
-.sec .kick{text-align:right}
-@media(max-width:680px){.sec{flex-direction:column;align-items:flex-start;gap:4px}.sec .kick{text-align:left}}
-
-/* карточки */
-.card{background:var(--paper);border:.75px solid var(--line);padding:18px 20px}
-.card h3{font-size:13.5px;font-weight:700;margin-bottom:12px}
+/* Сетки и плиты */
 .grid{display:grid;gap:14px}
-.g2{grid-template-columns:1fr 1fr}
-.g3{grid-template-columns:repeat(3,1fr)}
-.g4{grid-template-columns:repeat(4,1fr)}
-.g6{grid-template-columns:repeat(6,1fr)}
-@media(max-width:1000px){.g6{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:680px){.g6,.g4,.g3,.g2{grid-template-columns:1fr}.wrap{padding:0 16px 40px}.hdr{margin:0 -16px;padding:20px 16px}}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
+.g-hero{grid-template-columns:1.35fr 1fr}
+@media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}.g-hero{grid-template-columns:1fr}}
+@media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.plate{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-plate);padding:22px 24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-card);padding:18px 20px}
+.card.soft{background:var(--surface2);border-color:transparent}
 
-/* статусная полоса */
-.strip{display:flex;flex-wrap:wrap;gap:0;border:.75px solid var(--line);background:var(--paper);margin-top:22px}
-.strip>div{flex:1 1 200px;padding:14px 18px;border-right:.75px solid var(--line)}
-.strip>div:last-child{border-right:0}
-.strip b{display:block;font-family:var(--mono);font-size:15px;font-weight:500;margin-top:6px;color:var(--ink)}
+/* Числа */
+.hero{font-size:44px;font-weight:700;letter-spacing:-.035em;line-height:1;margin:10px 0 6px;font-variant-numeric:tabular-nums}
+.hero small{font-size:20px;font-weight:500;color:var(--txt3);margin-left:6px;letter-spacing:0}
+.big{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.05;font-variant-numeric:tabular-nums}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--txt3)}.m2{color:var(--txt2)}
+.row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.row:first-of-type{border-top:0}
+.row .lbl{color:var(--txt2)}
+.row .val{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 
-/* герой-числа без боксов, с тонкими вертикальными разделителями */
-.hero{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--paper);border:.75px solid var(--line)}
-.hero>div{padding:26px 26px 22px;border-right:.75px solid var(--line)}
-.hero>div:last-child{border-right:0}
-.hero .v{font-family:var(--mono);font-size:34px;font-weight:500;letter-spacing:-.02em;line-height:1;margin:12px 0 10px;color:var(--petrol)}
-.hero .v.cu{color:var(--copper)}
-.hero .n{font-size:12.5px;color:var(--brown)}
-@media(max-width:820px){.hero{grid-template-columns:1fr}.hero>div{border-right:0;border-bottom:.75px solid var(--line)}.hero>div:last-child{border-bottom:0}.hero .v{font-size:30px}}
+/* Статус формой */
+.st{display:inline-block;width:10px;height:10px;border-radius:50%;border:2px solid currentColor;vertical-align:-1px;margin-right:8px;color:var(--txt3)}
+.st.full{background:currentColor}
+.st.half{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
+.st.acc{color:var(--accent)}
 
-/* строки-ведомости */
-.ledger{width:100%;border-collapse:collapse}
-.ledger td{padding:9px 0;border-bottom:.75px solid var(--line);vertical-align:top}
-.ledger tr:last-child td{border-bottom:0}
-.ledger td.a{font-family:var(--mono);font-size:12.5px;text-align:right;white-space:nowrap;padding-left:16px;color:var(--ink)}
-.ledger td.a.neg{color:var(--copper)}
-.ledger tr.tot td{font-weight:700;border-top:1.5px solid var(--petrol);border-bottom:0;padding-top:12px}
-.ledger tr.tot td.a{font-size:14px;color:var(--petrol)}
-.ledger .sub{display:block;font-size:11.5px;color:var(--brown);margin-top:2px}
+/* Полоска план/факт */
+.bar{height:8px;border-radius:4px;background:var(--bar-bg);position:relative;overflow:hidden;margin-top:10px}
+.bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--bar-fact);border-radius:4px}
+.bar>b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--accent)}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--txt3);margin-top:8px}
+.legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
 
-/* маркер статуса — форма, не цвет */
-.mk{display:inline-block;width:9px;height:9px;border-radius:50%;border:1.5px solid var(--petrol);vertical-align:middle;margin-right:8px;flex:none}
-.mk.full{background:var(--petrol)}
-.mk.half{background:linear-gradient(90deg,var(--petrol) 50%,transparent 50%)}
-.mk.cu{border-color:var(--copper)}
-.mk.cu.full{background:var(--copper)}
+/* Таблица потоков */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--txt3);font-weight:500;text-align:right;padding:0 0 10px}
+th:first-child,td:first-child{text-align:left}
+td{padding:10px 0;border-top:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+td.b{font-weight:600}
+tr.total td{border-top:1px solid var(--line2);font-weight:700}
+.scroll{overflow-x:auto}
 
-/* полосы выполнения */
-.bar{height:6px;background:var(--sand);position:relative;margin-top:10px}
-.bar i{position:absolute;left:0;top:0;bottom:0;background:var(--petrol)}
-.bar i.cu{background:var(--copper)}
-.bar.thin{height:3px}
+/* Траектория */
+.chart{width:100%;height:auto;display:block}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--txt3)}
+.chart .plan{fill:none;stroke:var(--dim2);stroke-width:2;stroke-dasharray:4 5}
+.chart .fact{fill:none;stroke:var(--bar-fact);stroke-width:2.5}
+.chart .fc{fill:none;stroke:var(--accent);stroke-width:2;stroke-dasharray:2 4}
+.chart .gap{fill:var(--accent-soft)}
+.chart .dotA{fill:var(--accent)}.chart .dotB{fill:none;stroke:var(--accent);stroke-width:2}
+.chart .grid{stroke:var(--line);stroke-width:1}
 
-/* KPI */
-.kpi{background:var(--paper);border:.75px solid var(--line);padding:16px 18px}
-.kpi .v{font-family:var(--mono);font-size:21px;font-weight:500;letter-spacing:-.01em;margin:8px 0 12px;color:var(--petrol)}
-.kpi .r{display:flex;justify-content:space-between;font-size:12px;color:var(--brown);padding:5px 0;border-top:.75px solid var(--line)}
-.kpi .r b{font-family:var(--mono);font-weight:500;font-size:12px;color:var(--ink)}
-.kpi .r b.cu{color:var(--copper)}
-.kpi .note{font-size:11.5px;color:var(--brown);margin-top:8px;line-height:1.4}
+/* Акценты: медь — ключевая цифра экрана и её дельта. Одна медная цифра на плиту. */
+.hero.acc,.big.acc{color:var(--accent)}
+.delta{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--accent);
+  background:var(--accent-soft);border-radius:999px;padding:4px 10px;margin-left:10px;vertical-align:middle;white-space:nowrap}
+.delta.dim{color:var(--txt3);background:var(--surface3)}
+.key{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-top:14px;padding:14px 16px;
+  border-radius:var(--r-group);background:var(--accent-soft);border:1px solid var(--accent-line)}
+.key .lbl{font-weight:600;font-size:15px}
+.key .val{font-size:30px;font-weight:700;letter-spacing:-.03em;color:var(--accent);font-variant-numeric:tabular-nums;line-height:1}
+.big{font-size:32px}
+.card .kick,.plate .kick{display:block}
+.card .big{margin-top:10px}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;padding:3px;gap:2px;margin-left:auto}
+.seg button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:0;background:transparent;color:var(--txt3);border-radius:999px;padding:5px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--surface3);color:var(--txt)}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ph{display:flex;align-items:center;gap:12px}
+.mini{font-size:12.5px;color:var(--txt3)}
+/* Список клиентов */
+.clients{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.cl{border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--surface)}
+.cl .n{font-weight:600;font-size:14px}
+.cl .d{font-size:12.5px;color:var(--txt3);margin-top:3px}
+.cl .d b{color:var(--txt2);font-weight:600}
 
-/* потоки события */
-.stream{padding:14px 0;border-bottom:.75px solid var(--line)}
-.stream:last-child{border-bottom:0}
-.stream .t{display:flex;justify-content:space-between;align-items:baseline}
-.stream .t b{font-family:var(--mono);font-weight:500;font-size:14px}
-.stream .m{font-size:12px;color:var(--brown);margin-top:3px}
+/* Календарь платежей */
+.sched{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:700px){.sched{grid-template-columns:1fr}}
+.month{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--surface)}
+.month .mh{display:flex;justify-content:space-between;align-items:baseline}
+.month .mh .kick{color:var(--txt2)}
+.month .li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line);white-space:nowrap}
+.month .li:first-of-type{border-top:0;margin-top:8px}
 
-/* портфель и график платежей */
-.cr{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:.75px solid var(--line)}
-.cr:last-child{border-bottom:0}
-.cr .nm{font-weight:500;font-size:13px}
-.cr .tr{font-size:11.5px;color:var(--brown);margin-top:2px}
-.cr .st{display:flex;align-items:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--brown);white-space:nowrap}
-.cr .nx{font-size:11.5px;color:var(--brown);text-align:right;margin-top:3px}
-.acc{border-bottom:.75px solid var(--line)}
-.acc:last-of-type{border-bottom:0}
-.acc-head{display:flex;justify-content:space-between;align-items:center;padding:10px 0;cursor:pointer;background:none;border:0;width:100%;text-align:left;color:var(--ink)}
-.acc-head .nm{font-size:13px;font-weight:500;display:flex;align-items:center;gap:8px}
-.acc-head .chev{width:0;height:0;border-left:5px solid var(--copper);border-top:4px solid transparent;border-bottom:4px solid transparent;transition:transform .15s}
-.acc.open .chev{transform:rotate(90deg)}
-.acc-head .tot{font-family:var(--mono);font-size:12.5px;font-weight:500;white-space:nowrap;padding-left:12px}
-.acc-body{display:none;padding:2px 0 12px}
-.acc.open .acc-body{display:block}
-.months{display:grid;grid-template-columns:repeat(12,1fr);gap:3px}
-.mc{padding:6px 2px;text-align:center;border:.75px solid var(--line);background:var(--paper)}
-.mc.paid{background:var(--sand);border-color:var(--copper)}
-.mc .m{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--brown)}
-.mc .v{font-family:var(--mono);font-size:10.5px;margin-top:3px;color:var(--ink)}
-@media(max-width:680px){.months{grid-template-columns:repeat(6,1fr)}}
-
-/* таблица платежей */
-.tbl{width:100%;min-width:760px;border-collapse:collapse;font-size:12.5px}
-.tbl th{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--brown);text-align:left;padding:8px 8px 8px 0;border-bottom:1.5px solid var(--petrol);font-weight:500}
-.tbl td{padding:7px 8px 7px 0;border-bottom:.75px solid var(--line);vertical-align:top}
-.tbl td.a,.tbl th.a{text-align:right;font-family:var(--mono);white-space:nowrap}
-.tbl td.d{font-family:var(--mono);font-size:11.5px;white-space:nowrap;color:var(--brown)}
-.tbl td.neg{color:var(--copper)}
-.tbl-wrap{overflow-x:auto}
-.filters{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
-.chip{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:5px 10px;border:.75px solid var(--line);background:var(--paper);color:var(--brown);cursor:pointer}
-.chip.on{border-color:var(--petrol);color:var(--petrol);background:var(--sand)}
-
-/* признание */
-.flow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
-.flow .v{font-family:var(--mono);font-size:19px;font-weight:500;margin-top:6px;color:var(--petrol)}
-.recr{display:grid;grid-template-columns:1.4fr 2fr 1fr;gap:14px;align-items:center;padding:8px 0;border-bottom:.75px solid var(--line);font-size:12.5px}
-.recr:last-child{border-bottom:0}
-.recr .p{font-family:var(--mono);font-size:11.5px;text-align:right;white-space:nowrap}
-@media(max-width:680px){.flow{grid-template-columns:1fr}.recr{grid-template-columns:1fr;gap:6px}}
-
-.chart-box{height:300px;position:relative}
-.info{background:var(--sand);border:.75px solid var(--copper);padding:12px 16px;font-size:12.5px;margin-top:18px}
-.info code{font-family:var(--mono);font-size:11px}
-.ftr{margin-top:48px;padding-top:14px;border-top:.75px solid var(--line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:11.5px;color:var(--brown)}
-.small{font-size:11.5px;color:var(--brown);line-height:1.45}
-#loader{display:flex;align-items:center;gap:14px;padding:40px 0;color:var(--brown)}
-@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.note{font-size:12.5px;color:var(--txt3);margin-top:12px;line-height:1.5}
+.foot{margin-top:40px;border-top:1px solid var(--line);padding-top:14px;font-size:12.5px;color:var(--txt3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+@media(prefers-reduced-motion:no-preference){.plate,.card{transition:background .2s,border-color .2s}}
+</style>
+<style>
+#loader{display:flex;align-items:center;gap:14px;padding:60px 0;color:var(--txt3)}
+#err{display:none;border:1px solid var(--accent-line);background:var(--accent-soft);border-radius:var(--r-card);padding:16px 20px;margin:20px 0}
+.empty{color:var(--txt3);font-size:13px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div id="loader"><span class="logo"><span class="a"></span><span class="l"></span><span class="b"></span></span><span class="kick">Загружаю фид WEB</span></div>
+  <div id="err"></div>
   <div id="app" style="display:none"></div>
 </div>
-
 <script>
-/* ═══════════ КОНФИГ ═══════════
-   Опубликованная CSV-ссылка вкладки WEB (файл v15, срез 09.09.2026). */
-const PUB_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1191732908&single=true&output=csv';
-/* ══════════════════════════════ */
+/* ============================================================
+   Финансовый дашборд фонда. Источник — вкладка WEB финмодели,
+   опубликованная как CSV. Формат строк: тип · ключ · значение.
+   K — скаляр; M — месяц; CL — клиент; PS — платёж; CH — канал.
+   Совместимость: feed_version должен начинаться с "v17".
+   ============================================================ */
+const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1615904320&single=true&output=csv';
+const FEED_MIN = 'v17';
 
-const MONTHS = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-
-/* Демо-снимок v15 (09.09.2026) — показывается, только если фид недоступен */
-const DEMO = {
-  k:{
-    updated_label:'Факт по банку на 08.09.2026 · план 2026 (демо-снимок)', month_label:'сентябрь 2026',
-    gross_plan:79565000, gross_fact:39789472, net_plan:65217213, net_fact:32614322,
-    aks_plan:42497000, aks_fact:23247000, mm_plan:37068000, mm_fact:16542472,
-    ebitda_plan:27598312, ebitda_fact:12127516, ebitda_margin_plan:0.423, ebitda_margin_fact:0.372,
-    np_plan:20698734, np_fact:9095637, np_margin_plan:0.317,
-    clients_active:9, clients_target:14,
-    cash_open:4030220, cash_eoy:41166252, inflow_period:71615995, outflow_period:-34479963,
-    vat_payable_year:13106188, fc_gross:84151472, fc_net:68976617, fc_ebitda:31301915, fc_np:23476436, fc_cash:41166252, fc_clients:14, fc_deferred:23070078,
-    rec_deferred_acc:6529078, rec_deferred_mm:16541000, rec_deferred_total:23070078,
-    rec_asof:'оценка на 10.08.2026 (снимок Натальи 30.06 + платежи и линейное признание)',
-    mm_aug_title:'Августовский ММ · 25–30.08.2026 · Hilton Garden Inn New Riga',
-    mm_aug_razbor_rub:6800000, mm_aug_guest_rub:8410000, mm_aug_org_rub:1331000,
-    mm_aug_gross:16541000, mm_aug_vat:-2982803, mm_aug_net:13558197, mm_aug_personal_razbor_gross:2250000,
-    mm_aug_cost_bank:3272050, mm_aug_cost_cash:633516, mm_aug_reimburse:-1378900, mm_aug_team_comp:148249,
-    mm_aug_bonus:195500, mm_aug_olga:148936, mm_aug_cost_total:3019351,
-    mm_aug_contribution:10538846, mm_aug_margin:0.777, mm_aug_contribution_ex_aks_bonus:10608846,
-    mm_aug_contribution_ex_personal:8694583, mm_aug_may_loss:121354, mm_aug_tax_ind:-2634711, mm_aug_np_ind:7904134,
-    mm_aug_uncollected:151200, mm_aug_cash_rest:745384, mm_aug_cash_handed:677000, mm_aug_cash_gap:-18016, mm_aug_debt:350000,
-    mm_aug_people_razbor:7, mm_aug_people_guest:39, mm_aug_people_org:12, mm_aug_people:58,
-    mm_rev_plan:16776000, mm_people_plan:36,
-    dec_title:'Декабрьский ММ · дата и площадка не определены',
-    dec_guests_plan:40, dec_guest_price:350000, dec_guests_rub:14000000, dec_razbor_plan:8, dec_razbor_rub:10000000,
-    dec_org_plan:8, dec_org_rub:976000, dec_gross_plan:24976000, dec_net_plan:20472131, dec_cost_plan:3733168,
-    dec_contribution_plan:16738964, dec_margin_plan:0.818, dec_collected:0, dec_people_fact:0, dec_days_left:'дата не задана',
-    cash_bank_0906_calc:19859206,
-  },
-  c:[], p:[], pt:null, ev:[], rec:[], eb:{}, rv:{}, mp:[],
-};
-
-/* ── утилиты ── */
-const Nc = n => {
-  if(n==null||n===''||(typeof n==='number'&&isNaN(n))) return '—';
-  const a=Math.abs(n), s=n<0?'−':'';
-  if(a>=1e9) return s+(a/1e9).toFixed(2).replace('.',',')+' млрд';
-  if(a>=1e6) return s+(a/1e6).toFixed(2).replace('.',',')+' млн';
-  if(a>=1e3) return s+(a/1e3).toFixed(0)+' тыс';
-  return s+Math.round(a);
-};
-const Nf = n => (n==null||isNaN(n))?'—':new Intl.NumberFormat('ru-RU').format(Math.round(n)).replace(/-/,'−');
-const Pct = n => (n==null||isNaN(n))?'—':(n*100).toFixed(1).replace('.',',')+'%';
-const Pct0 = n => (n==null||isNaN(n))?'—':Math.round(n*100)+'%';
-const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-/* убираем символы-иконки из статусов (бренд: без эмодзи в интерфейсах) */
-const clean = s => String(s||'').replace(/[✓⟳⚠☆⏸▶◀●○◐]/g,'').replace(/^\s*[—-]\s*/,'').trim();
-
-/* ── парсер CSV вкладки WEB ── */
-function splitCSV(line){
-  const out=[]; let cur='', q=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch==='"'){ if(q && line[i+1]==='"'){cur+='"';i++;} else q=!q; }
-    else if(ch===',' && !q){ out.push(cur); cur=''; }
-    else cur+=ch;
-  }
-  out.push(cur); return out;
+// ---------- CSV ----------
+function parseCSV(t){
+  const rows=[];let row=[],cell='',q=false;
+  for(let i=0;i<t.length;i++){const c=t[i];
+    if(q){ if(c==='"'){ if(t[i+1]==='"'){cell+='"';i++;} else q=false; } else cell+=c; }
+    else if(c==='"') q=true;
+    else if(c===','){row.push(cell);cell='';}
+    else if(c==='\n'||c==='\r'){ if(c==='\r'&&t[i+1]==='\n') i++; row.push(cell);rows.push(row);row=[];cell=''; }
+    else cell+=c; }
+  if(cell!==''||row.length){row.push(cell);rows.push(row);}
+  return rows;
 }
-/* число из формата Sheets: «16 541 000», «(15)», «77,7%», «-», «—», пусто */
-function num(v){
-  if(v==null) return null;
-  let s=String(v).trim().replace(/"/g,'').replace(/[\s\u00a0\u202f]/g,'');
-  if(s===''||s==='-'||s==='—'||s==='·') return null;
-  let neg=false;
-  if(/^\(.*\)$/.test(s)){ neg=true; s=s.slice(1,-1); }
-  if(s.startsWith('−')){ neg=true; s=s.slice(1); }
-  let pct=false;
-  if(s.endsWith('%')){ pct=true; s=s.slice(0,-1); }
-  const n=parseFloat(s.replace(',','.'));
-  if(isNaN(n)) return null;
-  return (neg?-n:n)/(pct?100:1);
-}
-const TEXT_KEY=/_(label|title|dates|iso|target|asof|venue|note|version)$/;
-
-function parseFeed(txt){
-  const k={}, c=[], p=[], ev=[], rec=[], eb={}, rv={}, mp=[]; let pt=null;
-  txt.trim().split(/\r?\n/).forEach(line=>{
-    const f=splitCSV(line); const tag=(f[0]||'').trim();
-    if(tag==='K'){
-      const key=(f[1]||'').trim(); const raw=(f[2]||'').trim().replace(/"/g,'');
-      if(TEXT_KEY.test(key)){ k[key]=raw; }
-      else { const nv=num(raw); k[key]=(nv==null ? (raw && /[а-яa-z]/i.test(raw) ? raw : 0) : nv); }
-    }
-    else if(tag==='C'){ c.push([f[1],f[2],f[3],f[4],f[5]].map(x=>(x||'').trim().replace(/"/g,''))); }
-    else if(tag==='P'){ p.push([(f[1]||'').trim().replace(/"/g,''),...f.slice(2,15).map(num)]); }
-    else if(tag==='PT'){ pt=[(f[1]||'').trim(),...f.slice(2,15).map(num)]; }
-    else if(tag==='EV'){ ev.push({name:(f[1]||'').trim(),n:num(f[2])||0,rev:num(f[3])||0,price:(f[4]||'').trim(),role:(f[5]||'').trim()}); }
-    else if(tag==='R'||tag==='RC'){ rec.push({name:(f[1]||'').trim(),cf:num(f[2])||0,pl:num(f[3])||0,def:num(f[4]),pct:num(f[5])}); }
-    else if(tag==='EB'){ eb[(f[1]||'').trim()]={plan:num(f[2]),fact:num(f[3])}; }
-    else if(tag==='RV'){ rv[(f[1]||'').trim()]={plan:num(f[2]),fact:num(f[3])}; }
-    else if(tag==='MP'){
-      const name=(f[2]||'').trim(); if(!name) return;
-      mp.push({date:(f[1]||'').trim(), name, event:(f[3]||'').trim(), type:(f[4]||'').trim(), owner:(f[5]||'').trim(),
-        invoice:num(f[6]), paid:num(f[7]), people:num(f[8]), status:(f[9]||'').trim(), note:clean(f[10]).replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu,'').trim()});
-    }
-  });
-  return {k,c,p,pt,ev,rec,eb,rv,mp};
+// Числа приходят в формате ячейки Sheets: «18 507 881», «488037,3406», «(1 840 440)», «29,5%», «-» вместо нуля
+function num(v){ if(v==null) return null; let s=String(v).trim(); if(s==='') return null; if(s==='-'||s==='—'||s==='–') return 0;
+  let neg=false; if(/^\(.*\)$/.test(s)){neg=true;s=s.slice(1,-1);}
+  s=s.replace(/[\s\u00A0\u202F]/g,'').replace(/[−–]/g,'-').replace(/₽|руб\.?/g,'');
+  let pct=false; if(s.endsWith('%')){pct=true;s=s.slice(0,-1);}
+  if(s.includes(',')&&!s.includes('.')) s=s.replace(',','.'); else s=s.replace(/,/g,'');
+  const n=Number(s); if(!Number.isFinite(n)) return null; return (neg?-n:n)/(pct?100:1); }
+function load(rows){
+  const K={},M=[],CL=[],PS=[],CH=[];
+  for(const r of rows){ const t=r[0];
+    if(t==='K') K[r[1]]=r[2];
+    else if(t==='M') M.push({m:num(r[1]),rp:num(r[2]),rf:num(r[3]),ep:num(r[4]),ef:num(r[5]),ap:num(r[6]),af:num(r[7]),mp:num(r[8]),mf:num(r[9])});
+    else if(t==='CL') CL.push({name:r[1],co:r[2],st:r[3],tariff:r[4],tracker:r[5],note:r[6]});
+    else if(t==='PS'){const a=num(r[3]); if(a>0) PS.push({name:r[1],m:num(r[2]),amount:a});}
+    else if(t==='CH') CH.push({ch:r[1],inv:num(r[2])||0,col:num(r[3])||0}); }
+  return {K,M,CL,PS,CH};
 }
 
-async function loadData(){
-  if(!PUB_CSV_URL) return {d:DEMO, demo:true, err:null};
+// ---------- формат ----------
+const fmtM=v=>{const n=num(v); if(n==null) return '—'; return (n/1e6).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' М';};
+const fmtR=v=>{const n=num(v); if(n==null) return '—'; return Math.round(n).toLocaleString('ru-RU');};
+const fmtPct=v=>{const n=num(v); if(n==null) return '—'; return Math.round(n*100)+' %';};
+const sign=v=>{const n=num(v); if(n==null) return '—'; return (n>=0?'+':'−')+fmtM(Math.abs(n));};
+const MONTHS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const MONTHS_FULL=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const ST={pay:['full',''],fx:['half','acc'],deal:['half','acc'],option:['half','acc'],out:['',''],nosub:['','']};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ---------- рендер ----------
+function render(D){
+  const K=D.K, fm=num(K.feed_month)||9;
+  const cash=num(K.cash_calc), free=num(K.cash_free), oblig=num(K.oblig_total);
+  const gp=num(K.gross_plan), gf=num(K.gross_fact), ptd=num(K.plan_todate_gross), ep=num(K.ebitda_plan), ef=num(K.ebitda_fact), etd=num(K.plan_todate_ebitda);
+  const pct=(a,b)=>b?Math.max(0,Math.min(100,a/b*100)):0;
+  const evT=num(K.ev_next_target), evC=num(K.ev_next_collected), evI=num(K.ev_next_invoiced);
+  const dec=fm+3>12; // если три месяца вперёд выходят за год — PS уже пусты
+
+  const oblRows=[1,2,3,4].map(i=>`<div class="row"><span class="lbl">${esc(K['oblig_'+i+'_label'])}</span><span class="val">−${fmtR(K['oblig_'+i])}</span></div>`).join('');
+
+  const clients=D.CL.map(c=>{const [f,a]=ST[c.st]||['',''];
+    const d=[c.tariff,c.tracker,c.note].filter(Boolean).map(esc).join(' · ');
+    return `<div class="cl"><div class="n"><i class="st ${f} ${a}"></i>${esc(c.name)}${c.co?' · '+esc(c.co):''}</div><div class="d">${d}</div></div>`;}).join('');
+
+  const months=[...new Set(D.PS.map(p=>p.m))].sort((a,b)=>a-b).slice(0,3);
+  const sched=months.map(m=>{const items=D.PS.filter(p=>p.m===m); const tot=items.reduce((s,p)=>s+p.amount,0);
+    return `<div class="month"><div class="mh"><span class="kick">${MONTHS_FULL[m-1]||m}</span><span class="big num" style="font-size:20px">${fmtM(tot)}</span></div>${items.map(p=>`<div class="li${/Новые/.test(p.name)?' muted':''}"><span>${esc(p.name)}</span><span class="num">${fmtR(p.amount)}</span></div>`).join('')}</div>`;}).join('') || '<div class="empty">Платежей по графику нет</div>';
+
+  const chans=D.CH.filter(c=>c.inv>0||c.col>0).map(c=>`<div class="row"><span class="lbl">${esc(c.ch)}</span><span class="val">${c.inv>0?fmtM(c.inv)+' в счетах':''}${c.inv>0&&c.col>0?' · ':''}${c.col>0?fmtM(c.col)+' собрано':''}</span></div>`).join('');
+
+  const app=document.getElementById('app');
+  app.innerHTML=`
+<header class="top">
+  <div class="brand"><span class="logo"><span class="a"></span><span class="l"></span><span class="b"></span></span>
+    <div><h1>Финансы фонда</h1><div class="sub">${esc(K.asof_label)} · план 2026 · фид ${esc(K.feed_version)}</div></div></div>
+  <div class="controls"><button class="chip" id="theme" type="button">Светлая тема</button></div>
+</header>
+
+<section class="screen"><h2><span class="kick">01</span>Где фонд сейчас</h2>
+  <div class="grid g-hero">
+    <div class="plate"><span class="kick">Деньги на счетах · ${esc(K.cash_label)}</span>
+      <div class="hero num">${fmtR(cash)}<small>₽</small></div>
+      <div class="mini" style="margin-bottom:6px">из них уйдёт в ближайшие 60 дней — ${fmtM(oblig)}</div>
+      ${oblRows}
+      <div class="key"><span class="lbl">Свободно после обязательств</span><span class="val">${fmtM(free)}</span></div>
+      <div class="note">${esc(K.updated_note)}</div></div>
+    <div class="grid" style="grid-template-rows:auto 1fr">
+      <div class="card"><span class="kick">Дивидендный поток</span>
+        <div class="big num">${fmtR(K.div_year)} ₽${num(K.options_signed)>0?`<span class="delta">${fmtR(K.options_signed)} опцион подписан</span>`:''}</div>
+        <div class="mini" style="margin-top:6px">за 2026 · первый поток — после закрытия опционов</div>
+        <div class="row" style="margin-top:8px"><span class="lbl"><i class="st full acc"></i>Опцион подписан</span><span class="val">${fmtR(K.options_signed)}${K.options_signed_names?' · '+esc(K.options_signed_names):''}</span></div>
+        <div class="row"><span class="lbl"><i class="st half acc"></i>В подписании</span><span class="val">${fmtR(K.options_pending)}</span></div>
+        <div class="row"><span class="lbl"><i class="st"></i>Даёт дивиденды</span><span class="val">${fmtR(K.options_paying)}</span></div></div>
+      <div class="card soft"><span class="kick">Что клиенты уже оплатили, но мы ещё не отработали</span>
+        <div class="big num">${fmtM(K.rec_deferred)}</div>
+        <div class="mini" style="margin-top:6px">${esc(K.rec_asof)} · акселерация · авансы ММ отработаны</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="screen"><h2><span class="kick">02</span>Год 2026 — где мы относительно плана</h2>
+  <div class="grid g2">
+    <div class="plate"><span class="kick">Три потока выручки · gross</span>
+      <div class="scroll"><table><thead><tr><th>Поток</th><th>План год</th><th>Факт</th><th>Прогноз 31.12</th></tr></thead><tbody>
+        <tr><td>Акселерация</td><td>${fmtM(K.aks_plan)}</td><td class="b">${fmtM(K.aks_fact)}</td><td>${fmtM(K.aks_fc)}</td></tr>
+        <tr><td>Мастермайнды</td><td>${fmtM(K.mm_plan)}</td><td class="b">${fmtM(K.mm_fact)}</td><td>${fmtM(K.mm_fc)}</td></tr>
+        <tr><td>Дивиденды</td><td>${fmtM(K.div_plan)}</td><td class="b">${fmtM(K.div_fact)}</td><td>${fmtM(K.div_plan)}</td></tr>
+        <tr class="total"><td>Итого gross</td><td>${fmtM(gp)}</td><td style="color:var(--accent)">${fmtM(gf)}</td><td>${fmtM(K.fc_gross)}</td></tr>
+        <tr><td class="muted">без НДС</td><td class="muted">${fmtM(K.net_plan)}</td><td class="muted">${fmtM(K.net_fact)}</td><td class="muted">${fmtM(K.fc_net)}</td></tr>
+      </tbody></table></div>
+      <div class="bar"><i style="width:${pct(gf,gp)}%"></i><b style="left:${pct(ptd,gp)}%"></b></div>
+      <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт ${Math.round(pct(gf,gp))} % годового плана</span><span><i style="background:var(--accent)"></i>по графику к концу ${MONTHS[fm-1]} — ${Math.round(pct(ptd,gp))} %</span><span class="delta" style="margin-left:auto">${sign(gf-ptd)} к графику</span></div></div>
+    <div class="plate"><span class="kick">Результат</span>
+      <div class="grid g2" style="margin-top:10px">
+        <div><div class="mini">EBITDA · факт</div><div class="big num acc">${fmtM(ef)}</div><div class="mini">план ${fmtM(ep).replace(' М','')} · прогноз ${fmtM(K.fc_ebitda).replace(' М','')}<span class="delta">${sign(ef-etd)} к графику</span></div></div>
+        <div><div class="mini">Чистая прибыль · факт</div><div class="big num">${fmtM(K.np_fact)}</div><div class="mini">план ${fmtM(K.np_plan).replace(' М','')} · прогноз ${fmtM(K.fc_np).replace(' М','')}</div></div></div>
+      <div class="row" style="margin-top:14px"><span class="lbl">Рентабельность EBITDA от net</span><span class="val">${fmtPct(K.ebitda_margin_fact)}</span></div>
+      <div class="row"><span class="lbl">Расходы факт · план</span><span class="val">${fmtM(K.exp_fact)} · ${fmtM(K.exp_plan)}</span></div>
+      <div class="row"><span class="lbl">в т.ч. трекинг компаний без подписки</span><span class="val">${fmtM(K.tr_nosub_month)} / мес</span></div>
+      <div class="row"><span class="lbl">Остаток на 31.12 · прогноз</span><span class="val">${fmtM(K.cash_eoy)}</span></div></div>
+  </div>
+  <div class="plate" style="margin-top:14px">
+    <div class="ph"><span class="kick" id="chartKick"></span><div class="seg" role="group" aria-label="Показатель"><button type="button" data-m="ebitda" aria-pressed="true">EBITDA</button><button type="button" data-m="rev" aria-pressed="false">Выручка</button></div></div>
+    <svg class="chart" viewBox="0 0 1100 300" aria-label="Траектория: план, факт, прогноз">
+      <line class="grid" x1="60" x2="1080" y1="250" y2="250"/><line class="grid" x1="60" x2="1080" y1="170" y2="170"/><line class="grid" x1="60" x2="1080" y1="90" y2="90"/>
+      <text x="8" y="254" id="ay0"></text><text x="8" y="174" id="ay1"></text><text x="8" y="94" id="ay2"></text>
+      <g id="months"></g><path class="gap" id="gap"/><polyline class="plan" id="plan"/><polyline class="fact" id="fact"/><polyline class="fc" id="fc"/>
+      <circle class="dotA" r="5" id="dotA"/><circle class="dotB" r="6" id="dotB"/><text id="lblA" text-anchor="middle"></text><text id="lblB" text-anchor="end"></text>
+    </svg>
+    <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт</span><span><i style="background:var(--dim2)"></i>план</span><span><i style="background:var(--accent)"></i>прогноз</span><span><i style="background:var(--accent-soft);height:10px"></i>отклонение от плана на сегодня</span></div>
+    <div class="note" id="chartNote"></div>
+  </div>
+</section>
+
+<section class="screen"><h2><span class="kick">03</span>Акселерация — двигатель подписки</h2>
+  <div class="grid g4">
+    <div class="card"><span class="kick acc">В акселерации</span><div class="big num acc">${fmtR(K.aks_clients_active)}</div><div class="mini">платят в рублях ${fmtR(K.aks_clients_paying)}${num(K.aks_clients_active)>num(K.aks_clients_paying)?' · валютный контур '+(num(K.aks_clients_active)-num(K.aks_clients_paying)):''}</div></div>
+    <div class="card"><span class="kick">Подписка в месяц · gross</span><div class="big num">${fmtM(K.aks_sub_month_gross)}</div><div class="mini">${fmtM(K.aks_sub_month_net)} без НДС</div></div>
+    <div class="card"><span class="kick">Вклад после трекеров и ЦК</span><div class="big num">${fmtM(K.aks_contrib)}</div><div class="mini">фикс команды ${fmtM(K.aks_fixed)}<span class="delta dim">${sign(K.aks_result)} в месяц без ММ</span></div></div>
+    <div class="card"><span class="kick">Безубыточность без ММ</span><div class="big num">${fmtR(K.aks_be_clients)} <small style="font-size:14px;font-weight:500;color:var(--txt3)">клиентов</small></div><div class="mini">${esc(K.aks_short_text)}${K.aks_pipeline_text?`<span class="delta">в счёте: ${esc(String(K.aks_pipeline_text).split(' ')[0])}</span>`:''}</div></div>
+  </div>
+  <div class="grid" style="margin-top:14px;grid-template-columns:1fr">
+    <div class="plate"><span class="kick">Портфель · кто платит, кто в сделке</span><div class="clients" style="margin-top:12px">${clients}</div></div>
+    <div class="plate"><span class="kick">Платежи ближайших 90 дней · по графику</span>
+      <div class="sched" style="margin-top:12px">${sched}</div>
+      ${K.aks_pipeline_text?`<div class="row" style="margin-top:14px"><span class="lbl"><i class="st half acc"></i>В счёте, не оплачено</span><span class="val">${esc(K.aks_pipeline_text)}</span></div>`:''}
+      <div class="row"><span class="lbl">Отработано клиентам · признание</span><span class="val">${fmtM(K.rec_earned_ytd)} из ${fmtM(K.aks_cash_ytd)}</span></div></div>
+  </div>
+</section>
+
+<section class="screen"><h2><span class="kick">04</span>События</h2>
+  <div class="grid g-hero">
+    <div class="plate"><span class="kick acc">${esc(K.ev_next_title)} · ${esc(K.ev_next_dates)} · ${fmtR(K.ev_next_days)} дней</span>
+      <div class="grid g3" style="margin-top:14px">
+        <div><div class="mini">Цель</div><div class="big num">${fmtM(evT)}</div><div class="mini">${fmtR(K.ev_next_guests_target)} гостей · ${fmtR(K.ev_next_razbor_target)} разбора · ${fmtR(K.ev_next_org_target)} взносов</div></div>
+        <div><div class="mini">Собрано</div><div class="big num acc">${fmtM(evC)}</div><div class="mini">${fmtR(K.ev_next_people)} чел.</div></div>
+        <div><div class="mini">В счетах, не оплачено</div><div class="big num">${fmtM(evI)}</div><div class="mini">${fmtR(K.ev_next_invoices_n)} счетов · ${fmtR(K.ev_next_invoiced_people)} человек</div></div></div>
+      <div class="bar"><i style="width:${pct(evC,evT)}%"></i><b style="left:${pct(evC+evI,evT)}%"></b></div>
+      <div class="legend"><span><i style="background:var(--bar-fact)"></i>собрано ${Math.round(pct(evC,evT))} %</span><span><i style="background:var(--accent)"></i>с учётом счетов ${Math.round(pct(evC+evI,evT))} %</span></div>
+      <div style="margin-top:14px">${chans||'<div class="empty">Счетов по каналам пока нет</div>'}</div>
+      <div class="row"><span class="lbl">Прогноз вклада события при цели</span><span class="val">${fmtM(K.ev_next_contrib_plan)}</span></div></div>
+    <div class="card soft"><span class="kick">${esc(K.ev_last_title)} · итог</span>
+      <div class="big num">${fmtM(K.ev_last_contrib)}</div><div class="m2" style="margin-top:4px">маржинальный вклад · ${fmtPct(K.ev_last_margin)} от net</div>
+      <div class="row" style="margin-top:10px"><span class="lbl">Выручка gross</span><span class="val">${fmtM(K.ev_last_gross)}</span></div>
+      <div class="row"><span class="lbl">Участников</span><span class="val">${fmtR(K.ev_last_people)} · ${fmtR(K.ev_last_razbor)} разборов</span></div>
+      <div class="row"><span class="lbl">Прямые расходы</span><span class="val">${fmtM(K.ev_last_cost)}</span></div>
+      <div class="note">Полный разбор события — в таблице, лист ЮЭ_ММ.</div></div>
+  </div>
+</section>
+<footer class="foot"><span>Источник — финмодель фонда, лист WEB · ${esc(K.feed_version)}</span><span>Доступ — только команда фонда</span></footer>`;
+  document.getElementById('loader').style.display='none'; app.style.display='';
+  theme(); chart(D);
+}
+
+function theme(){
+  const b=document.getElementById('theme'), root=document.documentElement; let t='dark';
+  try{t=localStorage.getItem('fond-theme')||'dark'}catch(e){}
+  const apply=v=>{root.classList.toggle('dark',v==='dark');b.textContent=v==='dark'?'Светлая тема':'Тёмная тема';try{localStorage.setItem('fond-theme',v)}catch(e){}};
+  apply(t); b.addEventListener('click',()=>apply(root.classList.contains('dark')?'light':'dark'));
+}
+
+function chart(D){
+  const K=D.K, fm=num(K.feed_month)||9, M=D.M.slice().sort((a,b)=>a.m-b.m);
+  const cum=a=>a.reduce((acc,v)=>{acc.push((acc.length?acc[acc.length-1]:0)+(v||0));return acc},[]);
+  const build=(pk,fk)=>{const plan=M.map(r=>r[pk]||0), fact=M.filter(r=>r.m<=fm).map(r=>r[fk]||0);
+    const P=cum(plan), F=cum(fact); const FC=cum(fact.concat(plan.slice(fm))).slice(fm-1); return {P,F,FC};};
+  const cfg={ebitda:{...build('ep','ef'),kick:'Траектория · EBITDA нарастающим, точка А → точка Б',unit:v=>fmtM(v)},
+             rev:{...build('rp','rf'),kick:'Траектория · выручка gross нарастающим, точка А → точка Б',unit:v=>fmtM(v)}};
+  const x0=60,x1=1080,y0=250,yTop=90,step=(x1-x0)/11,x=i=>x0+i*step;
+  const g=document.getElementById('months'); g.innerHTML='';
+  MONTHS.forEach((n,i)=>{const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',x(i));t.setAttribute('y',272);t.setAttribute('text-anchor','middle');t.textContent=n;g.appendChild(t)});
+  function draw(m){const d=cfg[m]; const all=d.P.concat(d.F,d.FC); const st=5e6; const lo=Math.floor(Math.min(0,...all)/st)*st, hi=Math.ceil(Math.max(...all)/st)*st; const rng=(hi-lo)||1;
+    const y=v=>y0-((v-lo)/rng)*(y0-yTop); const pts=a=>a.map((v,i)=>`${x(i)},${y(v)}`).join(' ');
+    document.getElementById('plan').setAttribute('points',pts(d.P)); document.getElementById('fact').setAttribute('points',pts(d.F));
+    document.getElementById('fc').setAttribute('points',d.FC.map((v,i)=>`${x(fm-1+i)},${y(v)}`).join(' '));
+    const i1=fm-1, i0=Math.max(0,i1-2); let p=`M${x(i0)},${y(d.F[i0])}`;
+    for(let i=i0;i<=i1;i++) p+=` L${x(i)},${y(d.F[i])}`; for(let i=i1;i>=i0;i--) p+=` L${x(i)},${y(d.P[i])}`;
+    document.getElementById('gap').setAttribute('d',p+' Z');
+    const A=document.getElementById('dotA');A.setAttribute('cx',x(i1));A.setAttribute('cy',y(d.F[i1]));
+    const B=document.getElementById('dotB');B.setAttribute('cx',x(11));B.setAttribute('cy',y(d.P[11]));
+    const la=document.getElementById('lblA');la.setAttribute('x',x(i1));la.setAttribute('y',y(d.F[i1])+22);la.textContent='А · '+d.unit(d.F[i1]);
+    const lb=document.getElementById('lblB');lb.setAttribute('x',x(11)-10);lb.setAttribute('y',y(d.P[11])-12);lb.textContent='Б · '+d.unit(d.P[11]);
+    document.getElementById('ay0').textContent=fmtM(lo).replace(',00',''); document.getElementById('ay1').textContent=fmtM(lo+rng/2).replace(',00',''); document.getElementById('ay2').textContent=fmtM(hi).replace(',00','');
+    document.getElementById('chartKick').textContent=d.kick;
+    const dev=d.F[i1]-d.P[i1], rest=d.P[11]-d.P[i1], decShare=M[11][m==='ebitda'?'ep':'rp'];
+    document.getElementById('chartNote').textContent=`Факт на сегодня — ${d.unit(d.F[i1])} против ${d.unit(d.P[i1])} по плану к концу ${MONTHS[i1]}: ${dev>=0?'опережение':'отставание'} ${fmtM(Math.abs(dev))}. До конца года план добавляет ${fmtM(rest)}; декабрь один даёт ${fmtM(decShare)}.`;
+    document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false'));}
+  document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>draw(b.dataset.m)));
+  draw('ebitda');
+}
+
+function fail(msg){document.getElementById('loader').style.display='none';const e=document.getElementById('err');e.style.display='';e.innerHTML=`<div class="kick acc">Фид не загрузился</div><div style="margin-top:8px">${esc(msg)}</div><div class="note">Проверь, что вкладка WEB опубликована как CSV и версия фида начинается с ${FEED_MIN}.</div>`;}
+
+(async function(){
   try{
-    const r=await fetch(PUB_CSV_URL+(PUB_CSV_URL.includes('?')?'&':'?')+'cb='+Date.now());
-    if(!r.ok) throw new Error('HTTP '+r.status);
-    const txt=await r.text();
-    if(txt.includes('<!DOCTYPE')||txt.includes('<html')) throw new Error('лист не опубликован');
-    const d=parseFeed(txt);
-    if(d.k.gross_plan==null) throw new Error('данные не распознаны');
-    return {d, demo:false, err:null};
-  }catch(e){ return {d:DEMO, demo:true, err:e.message}; }
-}
-
-/* ── компоненты ── */
-const mark = kind => `<span class="mk ${kind}"></span>`;
-function statusMark(s){
-  const t=clean(s);
-  if(/DD|дью|проверк/i.test(t)) return 'half';
-  if(/ожида|счёт|пауза|не назнач/i.test(t)) return '';
-  return 'full';
-}
-function bar(pct, cu){
-  const w=pct==null?0:Math.max(0,Math.min(100,pct*100));
-  return `<div class="bar"><i class="${cu?'cu':''}" style="width:${w}%"></i></div>`;
-}
-function kpi(label, plan, fact, note){
-  const pct=(plan!=null&&plan!==0)?fact/plan:null;
-  return `<div class="kpi">
-    <div class="kick">${esc(label)}</div>
-    <div class="v">${Nc(plan)} ₽</div>
-    <div class="r"><span>план год</span><b>${Nf(plan)}</b></div>
-    <div class="r"><span>факт YTD</span><b>${Nf(fact)}</b></div>
-    <div class="r"><span>выполнение</span><b class="cu">${Pct(pct)}</b></div>
-    ${bar(pct)}
-    ${note?`<div class="note">${note}</div>`:''}
-  </div>`;
-}
-function ledgerRow(label, val, sub, opts={}){
-  const cls = (val!=null && val<0)?'a neg':'a';
-  return `<tr class="${opts.tot?'tot':''}"><td>${esc(label)}${sub?`<span class="sub">${esc(sub)}</span>`:''}</td><td class="${cls}">${opts.pct!=null?Pct(opts.pct):Nf(val)+(opts.tot||opts.rub!==false?' ₽':'')}</td></tr>`;
-}
-
-/* ── Августовский ММ: результат ── */
-function buildAug(d){
-  const k=d.k;
-  if(k.mm_aug_gross==null) return '';
-  const gross=k.mm_aug_gross, net=k.mm_aug_net, contr=k.mm_aug_contribution;
-  const streams=[
-    {n:'Разборы', v:k.mm_aug_razbor_rub, p:k.mm_aug_people_razbor, m:'6 сделок, включая два личных разбора на 2,25 млн'},
-    {n:'Гости', v:k.mm_aug_guest_rub, p:k.mm_aug_people_guest, m:'32 плательщика, с партнёрами'},
-    {n:'Орг. взносы резидентов', v:k.mm_aug_org_rub, p:k.mm_aug_people_org, m:'с учётом возврата 61 000'},
-  ];
-  const streamHtml=streams.map(s=>`<div class="stream">
-      <div class="t"><span>${esc(s.n)} <span class="small">· ${s.p??'—'} чел</span></span><b>${Nf(s.v)} ₽</b></div>
-      ${bar(gross?s.v/gross:0)}
-      <div class="m">${esc(s.m)}</div></div>`).join('');
-  const cost=`<table class="ledger">
-    ${ledgerRow('Отель, площадка, техника и ивент-команда — безнал', k.mm_aug_cost_bank, 'реестр выезда бухгалтерии; счёт отеля включает питание участников')}
-    ${ledgerRow('Наличные из кассы события', k.mm_aug_cost_cash, 'доплата питания, трансляция, техспециалист, мелкие расходы')}
-    ${ledgerRow('Компенсация питания участниками', k.mm_aug_reimburse, 'наличные и USDT, собраны на заезде')}
-    ${ledgerRow('Компенсации команде: билеты, проживание', k.mm_aug_team_comp, 'заявки на сентябрь')}
-    ${ledgerRow('Бонусы отдела продаж за событие', k.mm_aug_bonus, 'включая 70 000 за акселерацию')}
-    ${ledgerRow('Надбавка продаж над фиксом, июль–август', k.mm_aug_olga)}
-    ${ledgerRow('Итого прямые расходы', k.mm_aug_cost_total, null, {tot:true})}
-  </table>`;
-  const refs=`<table class="ledger">
-    ${ledgerRow('Вклад без личных разборов', k.mm_aug_contribution_ex_personal)}
-    ${ledgerRow('Вклад без акселерационной части бонусов', k.mm_aug_contribution_ex_aks_bonus)}
-    ${ledgerRow('Отменённый майский ММ — чистый убыток', k.mm_aug_may_loss)}
-    ${ledgerRow('Индикативно после налога на прибыль 25%', k.mm_aug_np_ind, 'вклад — рабочая метрика события, чистая прибыль отдельно не считается')}
-  </table>`;
-  const cash=`<table class="ledger">
-    ${ledgerRow('Не собрано с участников за питание', k.mm_aug_uncollected, '7 человек')}
-    ${ledgerRow('Остаток кассы события', k.mm_aug_cash_rest, 'наличные и USDT')}
-    ${ledgerRow('Передано наличными', k.mm_aug_cash_handed)}
-    ${ledgerRow('Расхождение по кассе — не объяснено', k.mm_aug_cash_gap)}
-    ${ledgerRow('Выставленные счета без оплаты', k.mm_aug_debt)}
-  </table>`;
-  const planPct = k.mm_rev_plan ? gross/k.mm_rev_plan : null;
-  return `
-  <div class="sec"><h2>Августовский мастермайнд — результат</h2><span class="kick">${esc(k.mm_aug_title||'')}</span></div>
-  <div class="hero">
-    <div><div class="kick">Выручка по банку · с НДС</div><div class="v">${Nf(gross)} ₽</div>
-      <div class="n">${planPct!=null?`${Pct0(planPct)} от цели ${Nc(k.mm_rev_plan)} ₽ · `:''}${k.mm_aug_people??'—'} участников · НДС ${Nf(Math.abs(k.mm_aug_vat))} ₽</div></div>
-    <div><div class="kick">Выручка без НДС</div><div class="v">${Nf(net)} ₽</div>
-      <div class="n">прямые расходы события ${Nf(k.mm_aug_cost_total)} ₽ после компенсации питания</div></div>
-    <div><div class="kick cu">Маржинальный вклад события</div><div class="v cu">${Nf(contr)} ₽</div>
-      <div class="n">${Pct(k.mm_aug_margin)} от выручки без НДС</div></div>
-  </div>
-  <div class="grid g2" style="margin-top:14px">
-    <div class="card"><h3>Откуда выручка</h3>${streamHtml}</div>
-    <div class="card"><h3>Куда ушли деньги</h3>${cost}</div>
-  </div>
-  <div class="grid g2" style="margin-top:14px">
-    <div class="card"><h3>Справочно</h3>${refs}</div>
-    <div class="card"><h3>Касса и хвосты</h3>${cash}</div>
-  </div>
-  ${buildPayments(d)}`;
-}
-
-/* ── реестр платежей события ── */
-let mpFilter='all';
-function buildPayments(d){
-  const rows=(d.mp||[]);
-  if(!rows.length) return '';
-  const paid=rows.filter(r=>r.paid!=null&&r.paid!==0);
-  const total=paid.reduce((s,r)=>s+r.paid,0);
-  return `<div class="acc" id="mpacc" style="margin-top:14px;border:.75px solid var(--line);background:var(--paper);padding:0 20px">
-    <button class="acc-head" type="button" onclick="document.getElementById('mpacc').classList.toggle('open')">
-      <span class="nm"><span class="chev"></span>Реестр платежей события · ${paid.length} платежей и возвратов</span>
-      <span class="tot">${Nf(total)} ₽</span></button>
-    <div class="acc-body">
-      <div class="filters" id="mpf">
-        ${['all','Разбор','Гость','Орг. взнос','Возврат'].map(f=>`<span class="chip ${mpFilter===f?'on':''}" data-f="${f}" onclick="setMpFilter('${f}')">${f==='all'?'все':f}</span>`).join('')}
-      </div>
-      <div class="tbl-wrap" id="mptbl">${mpTable(rows)}</div>
-    </div></div>`;
-}
-function mpTable(rows){
-  const list=rows.filter(r=>{
-    if(mpFilter==='all') return true;
-    if(mpFilter==='Возврат') return /возврат/i.test(r.status) || (r.paid!=null && r.paid<0);
-    return r.type===mpFilter && !(r.paid!=null && r.paid<0);
-  });
-  const body=list.map(r=>{
-    const neg=r.paid!=null&&r.paid<0;
-    const mk = neg?'':( (r.invoice!=null && r.paid!=null && r.paid>0 && r.paid<r.invoice) ? 'half' : (r.paid?'full':'') );
-    return `<tr><td class="d">${esc(r.date||'—')}</td><td>${esc(r.name)}<span class="sub small" style="display:block">${esc(r.note.slice(0,90))}${r.note.length>90?'…':''}</span></td>
-      <td>${esc(r.type)}</td><td>${esc(r.owner)}</td>
-      <td class="a">${r.invoice!=null?Nf(r.invoice):'—'}</td>
-      <td class="a ${neg?'neg':''}">${r.paid!=null?Nf(r.paid):'—'}</td>
-      <td style="white-space:nowrap">${mark(mk)}<span class="kick" style="font-size:9px">${esc(r.status)}</span></td></tr>`;
-  }).join('');
-  return `<table class="tbl"><thead><tr><th>дата</th><th>участник</th><th>тип</th><th>отв.</th><th class="a">счёт</th><th class="a">оплачено</th><th>статус</th></tr></thead><tbody>${body}</tbody></table>`;
-}
-let LAST=null;
-function setMpFilter(f){ mpFilter=f; if(!LAST) return;
-  document.getElementById('mptbl').innerHTML=mpTable(LAST.mp||[]);
-  document.querySelectorAll('#mpf .chip').forEach(c=>c.classList.toggle('on',c.dataset.f===f)); }
-
-/* ── Декабрьский ММ: цель ── */
-function buildDec(d){
-  const k=d.k;
-  if(k.dec_gross_plan==null) return '';
-  const dl=k.dec_days_left;
-  const cd = (typeof dl==='number') ? (dl>0?`через ${dl} дн.`:'идёт') : (dl||'дата не задана');
-  const coll=k.dec_collected||0, pct=k.dec_gross_plan?coll/k.dec_gross_plan:0;
-  const lines=[
-    {n:'Гости', plan:k.dec_guests_plan, price:k.dec_guest_price, rub:k.dec_guests_rub},
-    {n:'Разборы', plan:k.dec_razbor_plan, price:k.dec_razbor_rub&&k.dec_razbor_plan?k.dec_razbor_rub/k.dec_razbor_plan:null, rub:k.dec_razbor_rub},
-    {n:'Орг. взносы', plan:k.dec_org_plan, price:k.dec_org_rub&&k.dec_org_plan?k.dec_org_rub/k.dec_org_plan:null, rub:k.dec_org_rub},
-  ];
-  const tgt=lines.map(l=>`<div class="stream"><div class="t"><span>${l.n} <span class="small">· ${l.plan??'—'} × ${Nf(l.price)}</span></span><b>${Nf(l.rub)} ₽</b></div></div>`).join('');
-  return `
-  <div class="sec"><h2>Декабрьский мастермайнд — цель</h2><span class="kick">${esc(k.dec_title||'')}</span></div>
-  <div class="grid g3">
-    <div class="card">
-      <div class="kick cu">Цель события · с НДС</div>
-      <div class="v mono" style="font-size:26px;margin:10px 0 4px;color:var(--petrol)">${Nf(k.dec_gross_plan)} ₽</div>
-      <div class="small">без НДС ${Nf(k.dec_net_plan)} ₽ · вклад по действующей смете ${Nf(k.dec_contribution_plan)} ₽ (${Pct(k.dec_margin_plan)})</div>
-      <div style="margin-top:14px">${tgt}</div>
-    </div>
-    <div class="card">
-      <div class="kick">Собрано по реестру</div>
-      <div class="v mono" style="font-size:26px;margin:10px 0 4px;color:var(--copper)">${Nf(coll)} ₽</div>
-      <div class="small">${Pct0(pct)} от цели · оплативших ${k.dec_people_fact??0} из ${(k.dec_guests_plan||0)+(k.dec_razbor_plan||0)+(k.dec_org_plan||0)}</div>
-      ${bar(pct,true)}
-      <div class="small" style="margin-top:14px">${mark(coll>0?'half':'')}${esc(cd)}</div>
-    </div>
-    <div class="card">
-      <div class="kick">Что не определено</div>
-      <table class="ledger" style="margin-top:8px">
-        <tr><td>${mark('')}Площадка события</td></tr>
-        <tr><td>${mark('')}Смета под 40 гостей — сейчас в расчёте старая структура, отель и питание не пересчитаны</td></tr>
-        <tr><td>${mark('')}Цена гостя 350 000: в августе средний чек был 215 641 при 32 плательщиках</td></tr>
-      </table>
-    </div>
-  </div>`;
-}
-
-/* ── Признание ── */
-function buildRec(d){
-  const k=d.k, clients=d.rec||[];
-  if(!clients.length) return '';
-  const cf=clients.reduce((s,x)=>s+x.cf,0), pl=clients.reduce((s,x)=>s+x.pl,0);
-  const rows=clients.map(c=>{
-    const def=(c.def!=null&&!isNaN(c.def))?c.def:(c.cf-c.pl);
-    const pct=(c.pct!=null&&!isNaN(c.pct))?c.pct:(c.cf?c.pl/c.cf:0);
-    const debt=def<0;
-    return `<div class="recr"><div>${esc(c.name)}</div>
-      <div>${bar(pct, debt)}</div>
-      <div class="p">${debt?'долг ':'отложено '}${Nf(Math.abs(def))} ₽ · ${Pct0(pct)}</div></div>`;
-  }).join('');
-  return `
-  <div class="sec"><h2>Признание выручки по акселерации</h2><span class="kick">метод начисления · ${esc((k.rec_asof||'').split('·')[0].trim())}</span></div>
-  <div class="card">
-    <div class="flow">
-      <div><div class="kick">Поступило</div><div class="v">${Nf(cf)} ₽</div></div>
-      <div><div class="kick">Отработано</div><div class="v">${Nf(pl)} ₽</div></div>
-      <div><div class="kick cu">Отложено по акселерации</div><div class="v" style="color:var(--copper)">${Nf(k.rec_deferred_acc!=null?k.rec_deferred_acc:cf-pl)} ₽</div></div>
-    </div>
-    ${rows}
-    <p class="small" style="margin-top:12px">Оценка: снимок бухгалтерии на 30.06 плюс платежи и линейное признание. Авансы августовского ММ здесь не показаны — событие проведено 25–30.08, выручка по нему признана; лист «Признание» в модели ещё держит их отложенными и требует обновления.</p>
-  </div>`;
-}
-
-/* ── график EBITDA ── */
-let chartM=null;
-function buildChart(k, eb){
-  if(chartM){chartM.destroy();chartM=null;}
-  const cm=document.getElementById('cm'); if(!cm||typeof Chart==='undefined') return;
-  const plan=[], fact=[];
-  for(let i=1;i<=12;i++){ const e=eb['m'+i]; plan.push(e?(e.plan??0):0); fact.push(e?e.fact:null); }
-  let lastF=-1; fact.forEach((v,i)=>{ if(v!=null) lastF=i; });
-  const factCut=fact.map((v,i)=> i<=lastF ? v : null);
-  const tick={color:'#5E4A38',font:{size:10,family:"'JetBrains Mono',monospace"}};
-  chartM=new Chart(cm,{type:'bar',
-    data:{labels:MONTHS,datasets:[
-      {label:'План',data:plan,backgroundColor:'#F0E6DB',borderColor:'#D8D4C9',borderWidth:1,borderRadius:0},
-      {label:'Факт',data:factCut,backgroundColor:'#1C4A43',borderRadius:0}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:true,labels:{color:'#5E4A38',font:{size:10,family:"'JetBrains Mono',monospace"},boxWidth:10}},
-        tooltip:{callbacks:{label:c=>c.dataset.label+': '+Nf(c.raw)+' ₽'}}},
-      scales:{x:{grid:{color:'#EDE8DF'},ticks:tick},y:{grid:{color:'#EDE8DF'},ticks:{...tick,callback:v=>Nc(v)}}}}});
-}
-
-/* ── страница ── */
-function render(d,demo,err,time){
-  LAST=d; const k=d.k;
-  const fcMargin=(k.fc_net&&k.fc_net!==0)?k.fc_ebitda/k.fc_net:null;
-  const npMarginFact=(k.net_fact&&k.net_fact!==0)?k.np_fact/k.net_fact:null;
-  document.getElementById('app').innerHTML=`
-    <div class="hdr"><div class="hdr-in">
-      <div><span class="logo"><span class="a"></span><span class="l"></span><span class="b"></span></span>
-        <h1>Фонд-акселератор · управленческий дашборд</h1>
-        <div class="sub">${esc(k.updated_label||'')}</div></div>
-      <div class="hdr-r">
-        <span class="tag ${demo?'':'cu'}">${demo?'демо-снимок':'live · лист WEB'}</span>
-        <span class="tag">обновлено ${time}</span>
-        <button class="btn" onclick="init()">Обновить</button>
-      </div></div></div>
-    ${demo?`<div class="info"><b>Фид WEB недоступен${err?' — <code>'+esc(err)+'</code>':''}.</b> Показан демо-снимок на 09.09.2026. Проверь, что лист WEB опубликован (Файл → Поделиться → Опубликовать в интернете, CSV) и что ссылка в коде совпадает.</div>`:''}
-
-    <div class="strip">
-      <div><span class="kick">Период</span><b>${esc(k.month_label||'')}</b></div>
-      <div><span class="kick">Остаток на 01.06 · факт</span><b>${Nf(k.cash_open)} ₽</b></div>
-      <div><span class="kick">Остаток на 01.09 · по реестрам</span><b>${Nf(k.cash_bank_0906_calc)} ₽</b></div>
-      <div><span class="kick">Прогноз счёта на 31.12</span><b>${Nf(k.cash_eoy)} ₽</b></div>
-      <div><span class="kick">Портфель акселерации</span><b>${k.clients_active??'—'} активных · цель ${k.clients_target??'—'}</b></div>
-    </div>
-
-    ${buildAug(d)}
-    ${buildDec(d)}
-
-    <div class="sec"><h2>Год 2026 — план, факт, выполнение</h2><span class="kick">факт YTD по банку</span></div>
-    <div class="grid g3">
-      ${kpi('Выручка с НДС',k.gross_plan,k.gross_fact)}
-      ${kpi('Выручка без НДС',k.net_plan,k.net_fact)}
-      ${kpi('EBITDA',k.ebitda_plan,k.ebitda_fact,'рентабельность: план '+Pct(k.ebitda_margin_plan)+' · факт '+Pct(k.ebitda_margin_fact))}
-      ${kpi('Чистая прибыль',k.np_plan,k.np_fact,'рентабельность: план '+Pct(k.np_margin_plan)+' · факт '+Pct(npMarginFact))}
-      ${kpi('Акселерация',k.aks_plan,k.aks_fact)}
-      ${kpi('Мастермайнды',k.mm_plan,k.mm_fact,'август — факт, декабрь — цель 40 гостей × 350 000')}
-    </div>
-
-    <div class="sec"><h2>Прогноз на 31.12 — факт плюс план до конца года</h2></div>
-    <div class="grid g4">
-      <div class="kpi"><div class="kick">Выручка с НДС</div><div class="v">${Nc(k.fc_gross)} ₽</div>
-        <div class="r"><span>факт YTD</span><b>${Nf(k.gross_fact)}</b></div>
-        <div class="r"><span>план до 31.12</span><b>${Nf(k.fc_gross-k.gross_fact)}</b></div>
-        <div class="r"><span>исходный план года</span><b>${Nf(k.gross_plan)}</b></div></div>
-      <div class="kpi"><div class="kick">EBITDA</div><div class="v">${Nc(k.fc_ebitda)} ₽</div>
-        <div class="r"><span>рентабельность</span><b class="cu">${Pct(fcMargin)}</b></div>
-        <div class="r"><span>выручка без НДС</span><b>${Nf(k.fc_net)}</b></div>
-        <div class="r"><span>исходный план года</span><b>${Nf(k.ebitda_plan)}</b></div></div>
-      <div class="kpi"><div class="kick">Чистая прибыль</div><div class="v">${Nc(k.fc_np)} ₽</div>
-        <div class="r"><span>рентабельность</span><b class="cu">${Pct(k.fc_net?k.fc_np/k.fc_net:null)}</b></div>
-        <div class="r"><span>исходный план года</span><b>${Nf(k.np_plan)}</b></div></div>
-      <div class="kpi"><div class="kick">Остаток на счёте</div><div class="v">${Nc(k.fc_cash)} ₽</div>
-        <div class="r"><span>НДС к уплате за год</span><b class="cu">${Nf(k.vat_payable_year)}</b></div>
-        <div class="r"><span>отложенная выручка</span><b>${Nf(k.fc_deferred)}</b></div></div>
-    </div>
-
-    <div class="sec"><h2>EBITDA по месяцам</h2><span class="kick">план · факт · до августа включительно</span></div>
-    <div class="card"><div class="chart-box"><canvas id="cm"></canvas></div></div>
-
-    <div class="sec"><h2>Портфель и график платежей</h2><span class="kick">акселерация · кассовый принцип</span></div>
-    <div class="grid g2">
-      <div class="card"><h3>Компании в акселерации · ${k.clients_active??'—'}</h3>
-        ${d.c.map(c=>`<div class="cr">
-          <div><div class="nm">${esc(c[0])}</div><div class="tr">${esc(c[2]||'')}</div></div>
-          <div><div class="st">${mark(statusMark(c[1]))}${esc(clean(c[1]))}</div><div class="nx">след. платёж ${esc(c[3]||'—')}</div></div></div>`).join('')}
-      </div>
-      <div class="card"><h3>Поступления по месяцам</h3>
-        ${d.p.map((row,idx)=>{
-          const name=row[0], months=row.slice(1,13), total=row[13];
-          return `<div class="acc" id="acc${idx}">
-            <button class="acc-head" type="button" onclick="document.getElementById('acc${idx}').classList.toggle('open')">
-              <span class="nm"><span class="chev"></span>${esc(name)}</span><span class="tot">${Nf(total)} ₽</span></button>
-            <div class="acc-body"><div class="months">${months.map((m,i)=>`<div class="mc ${m>0?'paid':''}"><div class="m">${MONTHS[i]}</div><div class="v">${m>0?Nc(m):'·'}</div></div>`).join('')}</div></div></div>`;
-        }).join('')}
-        <div class="cr" style="margin-top:8px;border-top:1.5px solid var(--petrol);border-bottom:0"><span class="small">Итого поступления акселерации за год</span><span class="mono" style="font-size:13px">${Nf(d.pt?d.pt[13]:null)} ₽</span></div>
-      </div>
-    </div>
-
-    ${buildRec(d)}
-
-    <div class="ftr">
-      <span><span class="logo sm"><span class="a"></span><span class="l"></span><span class="b"></span></span>&nbsp;&nbsp;Фонд-акселератор · ООО «Группа Развития»</span>
-      <span>${esc(k.feed_version||k.updated_label||'')} · <a href="https://fond-accelerator.ru" target="_blank" rel="noopener">fond-accelerator.ru</a></span>
-    </div>`;
-  requestAnimationFrame(()=>buildChart(k, d.eb||{}));
-}
-
-async function init(){
-  document.getElementById('loader').style.display='flex';
-  document.getElementById('app').style.display='none';
-  const {d,demo,err}=await loadData();
-  const time=new Date().toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('loader').style.display='none';
-  document.getElementById('app').style.display='block';
-  render(d,demo,err,time);
-}
-init();
+    let text;
+    if(window.__FEED_CSV__) text=window.__FEED_CSV__;
+    else{ const r=await fetch(FEED_URL,{cache:'no-store'}); if(!r.ok) throw new Error('HTTP '+r.status); text=await r.text(); }
+    const D=load(parseCSV(text));
+    if(!String(D.K.feed_version||'').startsWith(FEED_MIN)) throw new Error('Версия фида «'+(D.K.feed_version||'не указана')+'», страница ждёт '+FEED_MIN);
+    render(D);
+  }catch(e){fail(e.message);}
+})();
 </script>
 </body>
 </html>
