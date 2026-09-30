@@ -61,7 +61,7 @@ a{color:inherit}
 .screen>h2 .kick{font-weight:500}
 
 /* Сетки и плиты */
-.grid{display:grid;gap:14px}
+.grid{display:grid;gap:14px}.grid>*{min-width:0}
 .g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}.g4{grid-template-columns:repeat(4,1fr)}
 .g-hero{grid-template-columns:1.35fr 1fr}
 @media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}.g-hero{grid-template-columns:1fr}}
@@ -91,7 +91,7 @@ a{color:inherit}
 .bar{height:8px;border-radius:4px;background:var(--bar-bg);position:relative;overflow:hidden;margin-top:10px}
 .bar>i{position:absolute;left:0;top:0;bottom:0;background:var(--bar-fact);border-radius:4px}
 .bar>b{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--accent)}
-.legend{display:flex;gap:16px;font-size:12px;color:var(--txt3);margin-top:8px}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--txt3);margin-top:8px;align-items:center}
 .legend i{display:inline-block;width:14px;height:3px;vertical-align:middle;margin-right:6px;border-radius:2px}
 
 /* Таблица потоков */
@@ -129,7 +129,8 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 .seg button{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;border:0;background:transparent;color:var(--txt3);border-radius:999px;padding:5px 12px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--surface3);color:var(--txt)}
 .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.ph{display:flex;align-items:center;gap:12px}
+.ph{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+@media(max-width:560px){.seg{margin-left:0}.stepper{margin-left:0!important}}
 .mini{font-size:12.5px;color:var(--txt3)}
 /* Список клиентов */
 .clients{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
@@ -147,6 +148,23 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 .month .li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line);white-space:nowrap}
 .month .li:first-of-type{border-top:0;margin-top:8px}
 
+/* Неделя к неделе */
+.stepper{display:inline-flex;align-items:center;gap:8px}
+.stepper .chip{padding:5px 10px;line-height:1}
+.stepper .chip[disabled]{opacity:.35;cursor:default}
+.stepper .wkLbl{color:var(--txt);min-width:150px;text-align:center}
+.wkcard{padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.wkcard.acc{background:var(--accent-soft);border-color:var(--accent-line)}
+.wkcard .v{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-top:8px;font-variant-numeric:tabular-nums}
+.wkcard .v small{font-size:13px;font-weight:500;color:var(--txt3);letter-spacing:0;margin-left:4px}
+.wkcard .dl{margin-top:8px;font-size:12.5px;color:var(--txt3)}
+.wkcard .dl b{font-family:var(--mono);font-weight:500;color:var(--txt);font-size:12px;letter-spacing:.04em}
+.wkcard.acc .dl b{color:var(--accent)}
+.chart.wk .wb{fill:var(--dim2);cursor:pointer} .chart.wk .wb.sel{fill:var(--accent)} .chart.wk .wb.cur{fill:none;stroke:var(--accent);stroke-width:2}
+.chart.wk .wb.cur.sel{fill:var(--accent-soft)}
+.chart.wk .ln{fill:none;stroke:var(--bar-fact);stroke-width:2} .chart.wk .pt{fill:var(--surface);stroke:var(--dim2);stroke-width:2;cursor:pointer}
+.chart.wk .pt.sel{fill:var(--accent);stroke:var(--accent)} .chart.wk .pt.cur{stroke:var(--accent);stroke-dasharray:2 2}
+.chart.wk .zero{stroke:var(--line2);stroke-width:1}
 .note{font-size:12.5px;color:var(--txt3);margin-top:12px;line-height:1.5}
 .foot{margin-top:40px;border-top:1px solid var(--line);padding-top:14px;font-size:12.5px;color:var(--txt3);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 @media(prefers-reduced-motion:no-preference){.plate,.card{transition:background .2s,border-color .2s}}
@@ -167,11 +185,12 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 /* ============================================================
    Финансовый дашборд фонда. Источник — вкладка WEB финмодели,
    опубликованная как CSV. Формат строк: тип · ключ · значение.
-   K — скаляр; M — месяц; CL — клиент; PS — платёж; CH — канал.
-   Совместимость: feed_version должен начинаться с "v17".
+   K — скаляр; M — месяц; CL — клиент; PS — платёж; CH — канал;
+   W — недельный срез (лист «Недели»: история по воскресеньям + текущий срез на дату фида).
+   Совместимость: feed_version должен начинаться с "v18".
    ============================================================ */
-const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1615904320&single=true&output=csv';
-const FEED_MIN = 'v17';
+const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=558787656&single=true&output=csv';
+const FEED_MIN = 'v18';
 
 // ---------- CSV ----------
 function parseCSV(t){
@@ -192,15 +211,22 @@ function num(v){ if(v==null) return null; let s=String(v).trim(); if(s==='') ret
   let pct=false; if(s.endsWith('%')){pct=true;s=s.slice(0,-1);}
   if(s.includes(',')&&!s.includes('.')) s=s.replace(',','.'); else s=s.replace(/,/g,'');
   const n=Number(s); if(!Number.isFinite(n)) return null; return (neg?-n:n)/(pct?100:1); }
+// Даты приходят как «30.09.2026», «2026-09-30» или серийным числом Sheets
+function dat(v){ if(v==null) return null; const s=String(v).trim(); if(!s) return null;
+  let m=s.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/); if(m) return new Date(Date.UTC(+m[3],+m[2]-1,+m[1]));
+  m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if(m) return new Date(Date.UTC(+m[1],+m[2]-1,+m[3]));
+  const n=num(s); if(n!=null&&n>30000&&n<80000) return new Date(Date.UTC(1899,11,30)+n*864e5); return null; }
 function load(rows){
-  const K={},M=[],CL=[],PS=[],CH=[];
+  const K={},M=[],CL=[],PS=[],CH=[],W=[];
   for(const r of rows){ const t=r[0];
     if(t==='K') K[r[1]]=r[2];
     else if(t==='M') M.push({m:num(r[1]),rp:num(r[2]),rf:num(r[3]),ep:num(r[4]),ef:num(r[5]),ap:num(r[6]),af:num(r[7]),mp:num(r[8]),mf:num(r[9])});
     else if(t==='CL') CL.push({name:r[1],co:r[2],st:r[3],tariff:r[4],tracker:r[5],note:r[6]});
     else if(t==='PS'){const a=num(r[3]); if(a>0) PS.push({name:r[1],m:num(r[2]),amount:a});}
-    else if(t==='CH') CH.push({ch:r[1],inv:num(r[2])||0,col:num(r[3])||0}); }
-  return {K,M,CL,PS,CH};
+    else if(t==='CH') CH.push({ch:r[1],inv:num(r[2])||0,col:num(r[3])||0});
+    else if(t==='W'){const from=dat(r[1]); if(from) W.push({from,to:dat(r[2]),cash:num(r[3]),rev:num(r[4]),aks:num(r[5]),mm:num(r[6]),exp:num(r[7]),ebitda:num(r[8]),drev:num(r[9]),debitda:num(r[10]),dcash:num(r[11]),cur:String(r[12]||'').trim()==='cur'});} }
+  W.sort((a,b)=>a.from-b.from||(a.cur?1:-1));
+  return {K,M,CL,PS,CH,W};
 }
 
 // ---------- формат ----------
@@ -208,6 +234,8 @@ const fmtM=v=>{const n=num(v); if(n==null) return '—'; return (n/1e6).toLocale
 const fmtR=v=>{const n=num(v); if(n==null) return '—'; return Math.round(n).toLocaleString('ru-RU');};
 const fmtPct=v=>{const n=num(v); if(n==null) return '—'; return Math.round(n*100)+' %';};
 const sign=v=>{const n=num(v); if(n==null) return '—'; return (n>=0?'+':'−')+fmtM(Math.abs(n));};
+const fmtD=d=>d?String(d.getUTCDate()).padStart(2,'0')+'.'+String(d.getUTCMonth()+1).padStart(2,'0'):'—';
+const wkLabel=w=>w?(w.cur?fmtD(w.from)+'–'+fmtD(w.to)+' · текущая':fmtD(w.from)+'–'+fmtD(w.to)):'—';
 const MONTHS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
 const MONTHS_FULL=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const ST={pay:['full',''],fx:['half','acc'],deal:['half','acc'],option:['half','acc'],out:['',''],nosub:['','']};
@@ -222,7 +250,7 @@ function render(D){
   const evT=num(K.ev_next_target), evC=num(K.ev_next_collected), evI=num(K.ev_next_invoiced);
   const dec=fm+3>12; // если три месяца вперёд выходят за год — PS уже пусты
 
-  const oblRows=[1,2,3,4].map(i=>`<div class="row"><span class="lbl">${esc(K['oblig_'+i+'_label'])}</span><span class="val">−${fmtR(K['oblig_'+i])}</span></div>`).join('');
+  const oblRows=[1,2,3,4].map(i=>`<div class="row"><span class="lbl">${esc(K['oblig_'+i+'_label'])}</span><span class="val">${num(K['oblig_'+i])?'−'+fmtR(K['oblig_'+i]):'0'}</span></div>`).join('');
 
   const clients=D.CL.map(c=>{const [f,a]=ST[c.st]||['',''];
     const d=[c.tariff,c.tracker,c.note].filter(Boolean).map(esc).join(' · ');
@@ -233,6 +261,10 @@ function render(D){
     return `<div class="month"><div class="mh"><span class="kick">${MONTHS_FULL[m-1]||m}</span><span class="big num" style="font-size:20px">${fmtM(tot)}</span></div>${items.map(p=>`<div class="li${/Новые/.test(p.name)?' muted':''}"><span>${esc(p.name)}</span><span class="num">${fmtR(p.amount)}</span></div>`).join('')}</div>`;}).join('') || '<div class="empty">Платежей по графику нет</div>';
 
   const chans=D.CH.filter(c=>c.inv>0||c.col>0).map(c=>`<div class="row"><span class="lbl">${esc(c.ch)}</span><span class="val">${c.inv>0?fmtM(c.inv)+' в счетах':''}${c.inv>0&&c.col>0?' · ':''}${c.col>0?fmtM(c.col)+' собрано':''}</span></div>`).join('');
+
+  // Сдвиг недели: дельта текущего среза к последней закрытой неделе (ключи wk_*)
+  const prev=dat(K.wk_prev_date), hasWk=prev&&num(K.wk_n)>0;
+  const wk=(key,dim)=>hasWk&&num(K[key])!=null?`<span class="delta${dim?' dim':''}" title="к срезу на ${fmtD(prev)}">${sign(K[key])} с ${fmtD(prev)}</span>`:'';
 
   const app=document.getElementById('app');
   app.innerHTML=`
@@ -245,7 +277,7 @@ function render(D){
 <section class="screen"><h2><span class="kick">01</span>Где фонд сейчас</h2>
   <div class="grid g-hero">
     <div class="plate"><span class="kick">Деньги на счетах · ${esc(K.cash_label)}</span>
-      <div class="hero num">${fmtR(cash)}<small>₽</small></div>
+      <div class="hero num">${fmtR(cash)}<small>₽</small>${wk('wk_cash_delta')}</div>
       <div class="mini" style="margin-bottom:6px">из них уйдёт в ближайшие 60 дней — ${fmtM(oblig)}</div>
       ${oblRows}
       <div class="key"><span class="lbl">Свободно после обязательств</span><span class="val">${fmtM(free)}</span></div>
@@ -264,7 +296,27 @@ function render(D){
   </div>
 </section>
 
-<section class="screen"><h2><span class="kick">02</span>Год 2026 — где мы относительно плана</h2>
+${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</span>Неделя к неделе</h2>
+  <div class="plate">
+    <div class="ph" style="flex-wrap:wrap;gap:10px">
+      <span class="kick">Сдвиг недели · срез на воскресенье, текущая — на дату фида</span>
+      <div class="stepper" style="margin-left:auto">
+        <button type="button" class="chip" id="wkPrev" aria-label="Неделя назад">◀</button>
+        <span class="kick wkLbl" id="wkLbl" aria-live="polite"></span>
+        <button type="button" class="chip" id="wkNext" aria-label="Неделя вперёд">▶</button>
+        <button type="button" class="chip" id="wkNow" title="К текущему срезу">сейчас</button>
+      </div>
+    </div>
+    <div class="grid g3" style="margin-top:14px" id="wkCards"></div>
+    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick"></span>
+      <div class="seg" role="group" aria-label="Показатель недели"><button type="button" data-w="ebitda" aria-pressed="true">EBITDA за неделю</button><button type="button" data-w="rev" aria-pressed="false">Выручка за неделю</button><button type="button" data-w="cash" aria-pressed="false">Касса</button></div></div>
+    <div class="scroll"><svg class="chart wk" viewBox="0 0 1100 230" aria-label="Недельная динамика" id="wkChart" style="min-width:640px"></svg></div>
+    <div class="legend"><span><i style="background:var(--dim2)"></i>закрытые недели</span><span><i style="background:var(--accent)"></i>выбранная неделя</span><span><i style="border:2px solid var(--accent);height:8px;width:12px;background:transparent"></i>текущая, неполная</span></div>
+    <div class="note" id="wkNote"></div>
+  </div>
+</section>`:''}
+
+<section class="screen"><h2><span class="kick">${D.W.length?'03':'02'}</span>Год 2026 — где мы относительно плана</h2>
   <div class="grid g2">
     <div class="plate"><span class="kick">Три потока выручки · gross</span>
       <div class="scroll"><table><thead><tr><th>Поток</th><th>План год</th><th>Факт</th><th>Прогноз 31.12</th></tr></thead><tbody>
@@ -275,10 +327,10 @@ function render(D){
         <tr><td class="muted">без НДС</td><td class="muted">${fmtM(K.net_plan)}</td><td class="muted">${fmtM(K.net_fact)}</td><td class="muted">${fmtM(K.fc_net)}</td></tr>
       </tbody></table></div>
       <div class="bar"><i style="width:${pct(gf,gp)}%"></i><b style="left:${pct(ptd,gp)}%"></b></div>
-      <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт ${Math.round(pct(gf,gp))} % годового плана</span><span><i style="background:var(--accent)"></i>по графику к концу ${MONTHS[fm-1]} — ${Math.round(pct(ptd,gp))} %</span><span class="delta" style="margin-left:auto">${sign(gf-ptd)} к графику</span></div></div>
+      <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт ${Math.round(pct(gf,gp))} % годового плана</span><span><i style="background:var(--accent)"></i>по графику к концу ${MONTHS[fm-1]} — ${Math.round(pct(ptd,gp))} %</span>${hasWk&&num(K.wk_rev_delta)!=null?`<span>с ${fmtD(prev)} — <b style="color:var(--txt2)">${sign(K.wk_rev_delta)}</b></span>`:''}<span class="delta" style="margin-left:auto">${sign(gf-ptd)} к графику</span></div></div>
     <div class="plate"><span class="kick">Результат</span>
       <div class="grid g2" style="margin-top:10px">
-        <div><div class="mini">EBITDA · факт</div><div class="big num acc">${fmtM(ef)}</div><div class="mini">план ${fmtM(ep).replace(' М','')} · прогноз ${fmtM(K.fc_ebitda).replace(' М','')}<span class="delta">${sign(ef-etd)} к графику</span></div></div>
+        <div><div class="mini">EBITDA · факт</div><div class="big num acc">${fmtM(ef)}</div><div class="mini">план ${fmtM(ep).replace(' М','')} · прогноз ${fmtM(K.fc_ebitda).replace(' М','')}<span class="delta">${sign(ef-etd)} к графику</span>${wk('wk_ebitda_delta',true)}</div></div>
         <div><div class="mini">Чистая прибыль · факт</div><div class="big num">${fmtM(K.np_fact)}</div><div class="mini">план ${fmtM(K.np_plan).replace(' М','')} · прогноз ${fmtM(K.fc_np).replace(' М','')}</div></div></div>
       <div class="row" style="margin-top:14px"><span class="lbl">Рентабельность EBITDA от net</span><span class="val">${fmtPct(K.ebitda_margin_fact)}</span></div>
       <div class="row"><span class="lbl">Расходы факт · план</span><span class="val">${fmtM(K.exp_fact)} · ${fmtM(K.exp_plan)}</span></div>
@@ -287,18 +339,18 @@ function render(D){
   </div>
   <div class="plate" style="margin-top:14px">
     <div class="ph"><span class="kick" id="chartKick"></span><div class="seg" role="group" aria-label="Показатель"><button type="button" data-m="ebitda" aria-pressed="true">EBITDA</button><button type="button" data-m="rev" aria-pressed="false">Выручка</button></div></div>
-    <svg class="chart" viewBox="0 0 1100 300" aria-label="Траектория: план, факт, прогноз">
+    <div class="scroll"><svg class="chart" viewBox="0 0 1100 300" aria-label="Траектория: план, факт, прогноз" style="min-width:640px">
       <line class="grid" x1="60" x2="1080" y1="250" y2="250"/><line class="grid" x1="60" x2="1080" y1="170" y2="170"/><line class="grid" x1="60" x2="1080" y1="90" y2="90"/>
       <text x="8" y="254" id="ay0"></text><text x="8" y="174" id="ay1"></text><text x="8" y="94" id="ay2"></text>
       <g id="months"></g><path class="gap" id="gap"/><polyline class="plan" id="plan"/><polyline class="fact" id="fact"/><polyline class="fc" id="fc"/>
       <circle class="dotA" r="5" id="dotA"/><circle class="dotB" r="6" id="dotB"/><text id="lblA" text-anchor="middle"></text><text id="lblB" text-anchor="end"></text>
-    </svg>
+    </svg></div>
     <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт</span><span><i style="background:var(--dim2)"></i>план</span><span><i style="background:var(--accent)"></i>прогноз</span><span><i style="background:var(--accent-soft);height:10px"></i>отклонение от плана на сегодня</span></div>
     <div class="note" id="chartNote"></div>
   </div>
 </section>
 
-<section class="screen"><h2><span class="kick">03</span>Акселерация — двигатель подписки</h2>
+<section class="screen"><h2><span class="kick">${D.W.length?'04':'03'}</span>Акселерация — двигатель подписки</h2>
   <div class="grid g4">
     <div class="card"><span class="kick acc">В акселерации</span><div class="big num acc">${fmtR(K.aks_clients_active)}</div><div class="mini">платят в рублях ${fmtR(K.aks_clients_paying)}${num(K.aks_clients_active)>num(K.aks_clients_paying)?' · валютный контур '+(num(K.aks_clients_active)-num(K.aks_clients_paying)):''}</div></div>
     <div class="card"><span class="kick">Подписка в месяц · gross</span><div class="big num">${fmtM(K.aks_sub_month_gross)}</div><div class="mini">${fmtM(K.aks_sub_month_net)} без НДС</div></div>
@@ -309,12 +361,12 @@ function render(D){
     <div class="plate"><span class="kick">Портфель · кто платит, кто в сделке</span><div class="clients" style="margin-top:12px">${clients}</div></div>
     <div class="plate"><span class="kick">Платежи ближайших 90 дней · по графику</span>
       <div class="sched" style="margin-top:12px">${sched}</div>
-      ${K.aks_pipeline_text?`<div class="row" style="margin-top:14px"><span class="lbl"><i class="st half acc"></i>В счёте, не оплачено</span><span class="val">${esc(K.aks_pipeline_text)}</span></div>`:''}
+      ${K.aks_pipeline_text?`<div class="row" style="margin-top:14px"><span class="lbl"><i class="st half acc"></i>В счёте, не оплачено</span><span class="val" style="white-space:normal;text-align:right">${esc(K.aks_pipeline_text)}</span></div>`:''}
       <div class="row"><span class="lbl">Отработано клиентам · признание</span><span class="val">${fmtM(K.rec_earned_ytd)} из ${fmtM(K.aks_cash_ytd)}</span></div></div>
   </div>
 </section>
 
-<section class="screen"><h2><span class="kick">04</span>События</h2>
+<section class="screen"><h2><span class="kick">${D.W.length?'05':'04'}</span>События</h2>
   <div class="grid g-hero">
     <div class="plate"><span class="kick acc">${esc(K.ev_next_title)} · ${esc(K.ev_next_dates)} · ${fmtR(K.ev_next_days)} дней</span>
       <div class="grid g3" style="margin-top:14px">
@@ -335,7 +387,7 @@ function render(D){
 </section>
 <footer class="foot"><span>Источник — финмодель фонда, лист WEB · ${esc(K.feed_version)}</span><span>Доступ — только команда фонда</span></footer>`;
   document.getElementById('loader').style.display='none'; app.style.display='';
-  theme(); chart(D);
+  theme(); chart(D); weekly(D);
 }
 
 function theme(){
@@ -370,9 +422,57 @@ function chart(D){
     document.getElementById('chartKick').textContent=d.kick;
     const dev=d.F[i1]-d.P[i1], rest=d.P[11]-d.P[i1], decShare=M[11][m==='ebitda'?'ep':'rp'];
     document.getElementById('chartNote').textContent=`Факт на сегодня — ${d.unit(d.F[i1])} против ${d.unit(d.P[i1])} по плану к концу ${MONTHS[i1]}: ${dev>=0?'опережение':'отставание'} ${fmtM(Math.abs(dev))}. До конца года план добавляет ${fmtM(rest)}; декабрь один даёт ${fmtM(decShare)}.`;
-    document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false'));}
-  document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>draw(b.dataset.m)));
+    document.querySelectorAll('.seg button[data-m]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false'));}
+  document.querySelectorAll('.seg button[data-m]').forEach(b=>b.addEventListener('click',()=>draw(b.dataset.m)));
   draw('ebitda');
+}
+
+// ---------- неделя к неделе ----------
+// W-строки: история по воскресеньям (hist) + текущий срез на дату фида (cur). Сдвиг = выбранная неделя минус предыдущая.
+function weekly(D){
+  const W=D.W; if(!W.length) return;
+  const svg=document.getElementById('wkChart'), cards=document.getElementById('wkCards'), lbl=document.getElementById('wkLbl');
+  const bPrev=document.getElementById('wkPrev'), bNext=document.getElementById('wkNext'), bNow=document.getElementById('wkNow');
+  let sel=W.length-1, mode='ebitda';
+  const NS='http://www.w3.org/2000/svg', el=(t,a)=>{const e=document.createElementNS(NS,t); for(const k in a) e.setAttribute(k,a[k]); return e;};
+  const d=(i,k)=>{const w=W[i], p=W[i-1]; if(w[k]==null) return null; if(w['d'+k]!=null&&i>0) return w['d'+k]; return p&&p[k]!=null?w[k]-p[k]:null;};
+  const dl=(v,unit)=>v==null?'первая точка истории':`<b>${sign(v)}</b> ${unit}`;
+  function cardsDraw(){
+    const w=W[sel], p=W[sel-1]; const ref=p?`к ${fmtD(p.to)}`:'';
+    cards.innerHTML=`
+      <div class="wkcard acc"><span class="kick">Касса${w.cur?' · на '+fmtD(w.to):' · на '+fmtD(w.to)}</span><div class="v num">${fmtR(w.cash)}<small>₽</small></div><div class="dl">${dl(d(sel,'cash'),'за неделю '+ref)}</div></div>
+      <div class="wkcard"><span class="kick">Выручка gross · с начала года</span><div class="v num">${fmtM(w.rev)}</div><div class="dl">${dl(d(sel,'rev'),'за неделю')}${w.aks!=null?` · акселерация ${fmtM(w.aks)}${w.mm!=null?', ММ '+fmtM(w.mm):''}`:''}</div></div>
+      <div class="wkcard"><span class="kick">EBITDA · с начала года</span><div class="v num">${fmtM(w.ebitda)}</div><div class="dl">${dl(d(sel,'ebitda'),'за неделю')}${w.exp!=null?` · расходы ${fmtM(w.exp)}`:''}</div></div>`;
+    lbl.textContent=wkLabel(w); bPrev.disabled=sel===0; bNext.disabled=sel===W.length-1; bNow.disabled=sel===W.length-1;
+    const cnt=W.filter(x=>!x.cur).length, first=W[0];
+    document.getElementById('wkNote').textContent=(w.cur?`Текущая неделя — срез на дату фида ${fmtD(w.to)}, неделя не закрыта: сравнение с воскресеньем ${p?fmtD(p.to):'—'}. `:`Срез на воскресенье ${fmtD(w.to)}; сдвиг — к предыдущему воскресенью. `)+`Закрытых недель в истории — ${cnt}, с ${fmtD(first.from)}. Выручка и EBITDA — нарастающим по кассовому P&L; касса — расчётный остаток на конец недели.`;
+  }
+  function chartDraw(){
+    while(svg.firstChild) svg.removeChild(svg.firstChild);
+    const x0=60,x1=1080,y0=190,yT=24,n=W.length,step=(x1-x0)/Math.max(1,n-1),x=i=>n>1?x0+i*step:(x0+x1)/2, bw=Math.min(40,step*0.62);
+    const vals=W.map((w,i)=>mode==='cash'?w.cash:d(i,mode==='rev'?'rev':'ebitda'));
+    const nums=vals.filter(v=>v!=null); if(!nums.length) return;
+    const st=mode==='cash'?5e6:1e6; let lo=Math.floor(Math.min(0,...nums)/st)*st, hi=Math.ceil(Math.max(0,...nums)/st)*st; if(hi===lo) hi=lo+st;
+    const y=v=>y0-((v-lo)/(hi-lo))*(y0-yT);
+    [...new Set([lo,lo<0&&hi>0?0:(lo+hi)/2,hi])].forEach(v=>{svg.appendChild(el('line',{class:'grid',x1:x0-10,x2:x1,y1:y(v),y2:y(v)})); const t=el('text',{x:8,y:y(v)+4}); t.textContent=fmtM(v).replace(',00',''); svg.appendChild(t);});
+    if(lo<0&&mode!=='cash') svg.appendChild(el('line',{class:'zero',x1:x0-10,x2:x1,y1:y(0),y2:y(0)}));
+    const every=n>12?2:1;
+    W.forEach((w,i)=>{ if(i%every===0||i===n-1){const t=el('text',{x:x(i),y:214,'text-anchor':'middle'}); t.textContent=fmtD(w.to); svg.appendChild(t);} });
+    if(mode==='cash'){
+      svg.appendChild(el('polyline',{class:'ln',points:W.map((w,i)=>`${x(i)},${y(vals[i]??0)}`).join(' ')}));
+      W.forEach((w,i)=>{ if(vals[i]==null) return; const c=el('circle',{class:'pt'+(i===sel?' sel':'')+(w.cur?' cur':''),cx:x(i),cy:y(vals[i]),r:i===sel?7:5}); c.addEventListener('click',()=>go(i)); svg.appendChild(c); });
+    } else {
+      W.forEach((w,i)=>{ const v=vals[i]; if(v==null) return; const top=Math.min(y(v),y(0)), h=Math.max(2,Math.abs(y(v)-y(0)));
+        const r=el('rect',{class:'wb'+(i===sel?' sel':'')+(w.cur?' cur':''),x:x(i)-bw/2,y:top,width:bw,height:h,rx:3}); r.addEventListener('click',()=>go(i)); svg.appendChild(r); });
+    }
+    const v=vals[sel]; if(v!=null){const t=el('text',{x:x(sel),y:Math.max(14,y(Math.max(v,0))-10),'text-anchor':sel===n-1?'end':(sel===0?'start':'middle'),style:'fill:var(--accent)'}); t.textContent=(mode==='cash'?'':(v>=0?'+':'−'))+fmtM(Math.abs(v)); svg.appendChild(t);}
+    document.getElementById('wkKick').textContent={ebitda:'EBITDA за неделю · приращение нарастающего итога',rev:'Выручка gross за неделю · поступления по кассе',cash:'Касса на конец недели · расчётный остаток'}[mode];
+  }
+  function go(i){ sel=Math.max(0,Math.min(W.length-1,i)); cardsDraw(); chartDraw(); }
+  bPrev.addEventListener('click',()=>go(sel-1)); bNext.addEventListener('click',()=>go(sel+1)); bNow.addEventListener('click',()=>go(W.length-1));
+  document.getElementById('weekly').addEventListener('keydown',e=>{ if(e.key==='ArrowLeft'){go(sel-1);e.preventDefault();} else if(e.key==='ArrowRight'){go(sel+1);e.preventDefault();} });
+  document.querySelectorAll('#weekly .seg button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.w; document.querySelectorAll('#weekly .seg button').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); chartDraw();}));
+  go(W.length-1);
 }
 
 function fail(msg){document.getElementById('loader').style.display='none';const e=document.getElementById('err');e.style.display='';e.innerHTML=`<div class="kick acc">Фид не загрузился</div><div style="margin-top:8px">${esc(msg)}</div><div class="note">Проверь, что вкладка WEB опубликована как CSV и версия фида начинается с ${FEED_MIN}.</div>`;}
