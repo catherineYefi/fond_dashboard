@@ -148,6 +148,25 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 .month .li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line);white-space:nowrap}
 .month .li:first-of-type{border-top:0;margin-top:8px}
 
+/* Неделя — деньги (первый экран для МД) */
+.flow .card{padding:18px 20px}
+.flow .v{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-top:10px;font-variant-numeric:tabular-nums}
+.flow .v small{font-size:14px;font-weight:500;color:var(--txt3);letter-spacing:0;margin-left:4px}
+.flow .dl{margin-top:8px;font-size:12.5px;color:var(--txt3);line-height:1.4}
+.flow .dl b{color:var(--txt2);font-weight:600}
+.flow .card.acc{background:var(--accent-soft);border-color:var(--accent-line)}
+.flow .card.acc .v{color:var(--accent)}
+.payers .row{padding:7px 0}
+.payers .row .lbl{color:var(--txt)}
+.flow2{grid-template-columns:1fr 1.5fr}@media(max-width:800px){.flow2{grid-template-columns:1fr}}
+#flowTable{min-width:480px}#flowTable td,#flowTable th{padding:7px 0 7px 12px;font-size:13px;white-space:nowrap}#flowTable td:first-child,#flowTable th:first-child{padding-left:0}
+#flowTable tr.sel td{color:var(--accent);font-weight:600}
+#flowTable tr.cur td{color:var(--txt3)}
+details.plate>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:12px}
+details.plate>summary::-webkit-details-marker{display:none}
+details.plate>summary .kick::before{content:'▸ ';}
+details.plate[open]>summary .kick::before{content:'▾ ';}
+details.plate>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 /* Неделя к неделе */
 .stepper{display:inline-flex;align-items:center;gap:8px}
 .stepper .chip{padding:5px 10px;line-height:1}
@@ -183,13 +202,13 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 </div>
 <script>
 /* ============================================================
-   Финансовый дашборд фонда. Источник — вкладка WEB финмодели,
+   Финансовый дашборд фонда. v18+ (07.10.2026): первый экран — неделя по банку (колонки W 14–19). Источник — вкладка WEB финмодели,
    опубликованная как CSV. Формат строк: тип · ключ · значение.
    K — скаляр; M — месяц; CL — клиент; PS — платёж; CH — канал;
    W — недельный срез (лист «Недели»: история по воскресеньям + текущий срез на дату фида).
    Совместимость: feed_version должен начинаться с "v18".
    ============================================================ */
-const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=558787656&single=true&output=csv';
+const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1133997871&single=true&output=csv';
 const FEED_MIN = 'v18';
 
 // ---------- CSV ----------
@@ -224,7 +243,7 @@ function load(rows){
     else if(t==='CL') CL.push({name:r[1],co:r[2],st:r[3],tariff:r[4],tracker:r[5],note:r[6]});
     else if(t==='PS'){const a=num(r[3]); if(a>0) PS.push({name:r[1],m:num(r[2]),amount:a});}
     else if(t==='CH') CH.push({ch:r[1],inv:num(r[2])||0,col:num(r[3])||0});
-    else if(t==='W'){const from=dat(r[1]); if(from) W.push({from,to:dat(r[2]),cash:num(r[3]),rev:num(r[4]),aks:num(r[5]),mm:num(r[6]),exp:num(r[7]),ebitda:num(r[8]),drev:num(r[9]),debitda:num(r[10]),dcash:num(r[11]),cur:String(r[12]||'').trim()==='cur'});} }
+    else if(t==='W'){const from=dat(r[1]); if(from) W.push({from,to:dat(r[2]),cash:num(r[3]),rev:num(r[4]),aks:num(r[5]),mm:num(r[6]),exp:num(r[7]),ebitda:num(r[8]),drev:num(r[9]),debitda:num(r[10]),dcash:num(r[11]),cur:String(r[12]||'').trim()==='cur',inn:num(r[13]),out:num(r[14]),tax:num(r[15]),nsales:num(r[16]),payers:String(r[17]||'').trim(),sales:num(r[18])});} }
   W.sort((a,b)=>a.from-b.from||(a.cur?1:-1));
   return {K,M,CL,PS,CH,W};
 }
@@ -266,6 +285,8 @@ function render(D){
   const prev=dat(K.wk_prev_date), hasWk=prev&&num(K.wk_n)>0;
   const wk=(key,dim)=>hasWk&&num(K[key])!=null?`<span class="delta${dim?' dim':''}" title="к срезу на ${fmtD(prev)}">${sign(K[key])} с ${fmtD(prev)}</span>`:'';
 
+  const hasFlow=D.W.some(w=>w.inn!=null&&w.out!=null);
+  const n0=hasFlow?1:0, sec=i=>String(i+n0).padStart(2,'0');
   const app=document.getElementById('app');
   app.innerHTML=`
 <header class="top">
@@ -274,7 +295,20 @@ function render(D){
   <div class="controls"><button class="chip" id="theme" type="button">Светлая тема</button></div>
 </header>
 
-<section class="screen"><h2><span class="kick">01</span>Где фонд сейчас</h2>
+${hasFlow?`<section class="screen" id="flow"><h2><span class="kick">01</span>Неделя — деньги</h2>
+  <div class="plate">
+    <div class="ph"><span class="kick" id="flowKick"></span>
+      <div class="seg" role="group" aria-label="Период"><button type="button" data-f="closed" aria-pressed="true">Закрытая неделя</button><button type="button" data-f="cur" aria-pressed="false">Эта неделя</button></div></div>
+    <div class="grid g4 flow" style="margin-top:14px" id="flowCards"></div>
+    <div class="grid flow2" style="margin-top:14px">
+      <div class="card soft payers"><span class="kick">Кто заплатил</span><div id="flowPayers" style="margin-top:6px"></div></div>
+      <div class="card soft"><span class="kick">Последние недели</span><div class="scroll" style="margin-top:6px"><table id="flowTable"></table></div></div>
+    </div>
+    <div class="note" id="flowNote"></div>
+  </div>
+</section>`:''}
+
+<section class="screen"><h2><span class="kick">${sec(1)}</span>Где фонд сейчас</h2>
   <div class="grid g-hero">
     <div class="plate"><span class="kick">Деньги на счетах · ${esc(K.cash_label)}</span>
       <div class="hero num">${fmtR(cash)}<small>₽</small>${wk('wk_cash_delta')}</div>
@@ -296,7 +330,7 @@ function render(D){
   </div>
 </section>
 
-${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</span>Неделя к неделе</h2>
+${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kick">02</span>Неделя к неделе</h2>
   <div class="plate">
     <div class="ph" style="flex-wrap:wrap;gap:10px">
       <span class="kick">Сдвиг недели · срез на воскресенье, текущая — на дату фида</span>
@@ -316,7 +350,7 @@ ${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</spa
   </div>
 </section>`:''}
 
-<section class="screen"><h2><span class="kick">${D.W.length?'03':'02'}</span>Год 2026 — где мы относительно плана</h2>
+<section class="screen"><h2><span class="kick">${sec(D.W.length&&!hasFlow?3:2)}</span>Год 2026 — где мы относительно плана</h2>
   <div class="grid g2">
     <div class="plate"><span class="kick">Три потока выручки · gross</span>
       <div class="scroll"><table><thead><tr><th>Поток</th><th>План год</th><th>Факт</th><th>Прогноз 31.12</th></tr></thead><tbody>
@@ -348,9 +382,24 @@ ${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</spa
     <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт</span><span><i style="background:var(--dim2)"></i>план</span><span><i style="background:var(--accent)"></i>прогноз</span><span><i style="background:var(--accent-soft);height:10px"></i>отклонение от плана на сегодня</span></div>
     <div class="note" id="chartNote"></div>
   </div>
+  ${D.W.length&&hasFlow?`<details class="plate" style="margin-top:14px" id="weekly">
+    <summary><span class="kick">Динамика по неделям · EBITDA, выручка, касса — для команды</span>
+      <div class="stepper" style="margin-left:auto" onclick="event.preventDefault()">
+        <button type="button" class="chip" id="wkPrev" aria-label="Неделя назад">◀</button>
+        <span class="kick wkLbl" id="wkLbl" aria-live="polite"></span>
+        <button type="button" class="chip" id="wkNext" aria-label="Неделя вперёд">▶</button>
+        <button type="button" class="chip" id="wkNow" title="К текущему срезу">сейчас</button>
+      </div></summary>
+    <div class="grid g3" style="margin-top:14px" id="wkCards"></div>
+    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick"></span>
+      <div class="seg" role="group" aria-label="Показатель недели"><button type="button" data-w="ebitda" aria-pressed="true">EBITDA за неделю</button><button type="button" data-w="rev" aria-pressed="false">Выручка за неделю</button><button type="button" data-w="cash" aria-pressed="false">Касса</button></div></div>
+    <div class="scroll"><svg class="chart wk" viewBox="0 0 1100 230" aria-label="Недельная динамика" id="wkChart" style="min-width:640px"></svg></div>
+    <div class="legend"><span><i style="background:var(--dim2)"></i>закрытые недели</span><span><i style="background:var(--accent)"></i>выбранная неделя</span><span><i style="border:2px solid var(--accent);height:8px;width:12px;background:transparent"></i>текущая, неполная</span></div>
+    <div class="note" id="wkNote"></div>
+  </details>`:''}
 </section>
 
-<section class="screen"><h2><span class="kick">${D.W.length?'04':'03'}</span>Акселерация — двигатель подписки</h2>
+<section class="screen"><h2><span class="kick">${sec(D.W.length&&!hasFlow?4:3)}</span>Акселерация — двигатель подписки</h2>
   <div class="grid g4">
     <div class="card"><span class="kick acc">В акселерации</span><div class="big num acc">${fmtR(K.aks_clients_active)}</div><div class="mini">платят в рублях ${fmtR(K.aks_clients_paying)}${num(K.aks_clients_active)>num(K.aks_clients_paying)?' · валютный контур '+(num(K.aks_clients_active)-num(K.aks_clients_paying)):''}</div></div>
     <div class="card"><span class="kick">Подписка в месяц · gross</span><div class="big num">${fmtM(K.aks_sub_month_gross)}</div><div class="mini">${fmtM(K.aks_sub_month_net)} без НДС</div></div>
@@ -366,7 +415,7 @@ ${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</spa
   </div>
 </section>
 
-<section class="screen"><h2><span class="kick">${D.W.length?'05':'04'}</span>События</h2>
+<section class="screen"><h2><span class="kick">${sec(D.W.length&&!hasFlow?5:4)}</span>События</h2>
   <div class="grid g-hero">
     <div class="plate"><span class="kick acc">${esc(K.ev_next_title)} · ${esc(K.ev_next_dates)} · ${fmtR(K.ev_next_days)} дней</span>
       <div class="grid g3" style="margin-top:14px">
@@ -387,7 +436,7 @@ ${D.W.length?`<section class="screen" id="weekly"><h2><span class="kick">02</spa
 </section>
 <footer class="foot"><span>Источник — финмодель фонда, лист WEB · ${esc(K.feed_version)}</span><span>Доступ — только команда фонда</span></footer>`;
   document.getElementById('loader').style.display='none'; app.style.display='';
-  theme(); chart(D); weekly(D);
+  theme(); chart(D); weekly(D); if(hasFlow) flow(D);
 }
 
 function theme(){
@@ -473,6 +522,34 @@ function weekly(D){
   document.getElementById('weekly').addEventListener('keydown',e=>{ if(e.key==='ArrowLeft'){go(sel-1);e.preventDefault();} else if(e.key==='ArrowRight'){go(sel+1);e.preventDefault();} });
   document.querySelectorAll('#weekly .seg button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.w; document.querySelectorAll('#weekly .seg button').forEach(o=>o.setAttribute('aria-pressed',o===b?'true':'false')); chartDraw();}));
   go(W.length-1);
+}
+
+// ---------- неделя — деньги ----------
+// Четыре числа по банку: пришло, ушло, на счетах на конец, продажи (оплаты клиентов). Было + пришло − ушло = стало.
+function flow(D){
+  const W=D.W, hist=W.filter(w=>!w.cur&&w.inn!=null), cur=W.find(w=>w.cur&&w.inn!=null);
+  if(!hist.length) return;
+  const pl=(n,a,b,c)=>{n=Math.abs(n)%100; const d=n%10; return n>10&&n<20?c:d===1?a:d>=2&&d<=4?b:c;};
+  const cards=document.getElementById('flowCards'), pay=document.getElementById('flowPayers'), tbl=document.getElementById('flowTable'), kick=document.getElementById('flowKick'), note=document.getElementById('flowNote');
+  function show(mode){
+    const w=mode==='cur'&&cur?cur:hist[hist.length-1];
+    const idx=W.indexOf(w), prev=W[idx-1]; const was=prev?prev.cash:null;
+    const other=(w.inn||0)-(w.sales||0), tax=w.tax||0, delta=(w.inn||0)-(w.out||0);
+    kick.textContent=w.cur?`Эта неделя · с ${fmtD(w.from)} по ${fmtD(w.to)} · неделя не закрыта`:`Закрытая неделя · ${fmtD(w.from)}–${fmtD(w.to)} · пн–вс`;
+    cards.innerHTML=`
+      <div class="card acc"><span class="kick">Пришло на счета</span><div class="v num">+${fmtR(w.inn)}<small>₽</small></div><div class="dl">${w.sales?`оплаты клиентов <b>${fmtR(w.sales)}</b>`:'оплат клиентов не было'}${other>0.5?` · проценты и прочее <b>${fmtR(other)}</b>`:''}</div></div>
+      <div class="card"><span class="kick">Ушло со счетов</span><div class="v num">${w.out?'−'+fmtR(w.out):'0'}<small>₽</small></div><div class="dl">${tax>0?`в т.ч. налоги и НДС <b>${fmtR(tax)}</b>`:'налогов и НДС на неделе не было'}${w.out&&w.out-tax>0.5?` · остальное <b>${fmtR(w.out-tax)}</b>`:''}</div></div>
+      <div class="card"><span class="kick">На счетах · на ${fmtD(w.to)}</span><div class="v num">${fmtR(w.cash)}<small>₽</small></div><div class="dl">${was!=null?`было <b>${fmtR(was)}</b> → за неделю <b>${delta>=0?'+':'−'}${fmtR(Math.abs(delta))}</b>`:'первая неделя истории'}</div></div>
+      <div class="card"><span class="kick">Продажи · оплаты клиентов</span><div class="v num">${w.sales?fmtR(w.sales):'0'}<small>₽</small></div><div class="dl">${w.nsales?`<b>${fmtR(w.nsales)}</b> ${pl(w.nsales,'оплата','оплаты','оплат')}`:'без оплат'}${w.drev!=null&&w.sales!=null&&Math.abs(w.drev-w.sales)>0.5?` · в выручке <b>${fmtR(w.drev)}</b> (с учётом возвратов)`:''}</div></div>`;
+    const parts=(w.payers||'').split(' · ').map(s=>s.trim()).filter(s=>s&&s!=='—');
+    pay.innerHTML=parts.length?parts.map(s=>{const m=s.match(/^(.+?)\s(\d[\d\s]*\d|\d)(\s*\(.*\))?$/); return m?`<div class="row"><span class="lbl">${esc(m[1])}${m[3]?' <span class="muted">'+esc(m[3].trim())+'</span>':''}</span><span class="val">${esc(m[2])}</span></div>`:`<div class="row"><span class="lbl">${esc(s)}</span></div>`;}).join(''):'<div class="empty" style="margin-top:8px">Оплат от клиентов на этой неделе не было</div>';
+    const last=hist.slice(-5).concat(cur?[cur]:[]);
+    tbl.innerHTML=`<thead><tr><th>Неделя</th><th>Пришло</th><th>Ушло</th><th>На счетах</th><th>Продажи</th></tr></thead><tbody>${last.map(x=>`<tr class="${x===w?'sel':''}${x.cur?' cur':''}"><td>${fmtD(x.from)}–${fmtD(x.to)}${x.cur?' · эта':''}</td><td>+${fmtR(x.inn)}</td><td>${x.out?'−'+fmtR(x.out):'0'}</td><td>${fmtR(x.cash)}</td><td>${x.sales?fmtR(x.sales):'—'}${x.nsales?` <span class="muted">(${fmtR(x.nsales)})</span>`:''}</td></tr>`).join('')}</tbody>`;
+    note.textContent=`Все суммы — по выписке банка, без внутренних переводов между счетами; пришло включает проценты по депозиту, ушло — налоги и НДС. Касса на конец = было + пришло − ушло. ${cur?`Эта неделя — с понедельника по дату фида ${fmtD(cur.to)}.`:''}`;
+    document.querySelectorAll('#flow .seg button[data-f]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===mode?'true':'false'));
+  }
+  document.querySelectorAll('#flow .seg button[data-f]').forEach(b=>b.addEventListener('click',()=>show(b.dataset.f)));
+  show('closed');
 }
 
 function fail(msg){document.getElementById('loader').style.display='none';const e=document.getElementById('err');e.style.display='';e.innerHTML=`<div class="kick acc">Фид не загрузился</div><div style="margin-top:8px">${esc(msg)}</div><div class="note">Проверь, что вкладка WEB опубликована как CSV и версия фида начинается с ${FEED_MIN}.</div>`;}
