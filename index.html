@@ -148,6 +148,17 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 .month .li{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;padding:6px 0;border-top:1px solid var(--line);white-space:nowrap}
 .month .li:first-of-type{border-top:0;margin-top:8px}
 
+/* Подсказки: что это · как считается · откуда. Маркер — у заголовков, не у чисел */
+[data-help]{cursor:help;border-bottom:1px dotted var(--txt3);padding-bottom:1px}
+[data-help]::after{content:'ⓘ';font-family:var(--mono);font-size:10px;margin-left:5px;color:var(--txt3);text-transform:none;letter-spacing:0;vertical-align:1px}
+[data-help].acc::after{color:var(--accent)}
+.lbl[data-help],.mini[data-help]{border-bottom:1px dotted var(--line2)}
+#pop{position:absolute;z-index:50;max-width:340px;background:var(--surface);border:1px solid var(--line2);border-radius:12px;padding:12px 14px;box-shadow:0 12px 32px rgba(0,0,0,.28);font-size:12.5px;line-height:1.45;color:var(--txt2);display:none}
+#pop .pt{font-weight:600;color:var(--txt);font-size:13px;margin-bottom:4px}
+#pop .pw{margin-bottom:6px}
+#pop .ph2,#pop .ps{color:var(--txt3);margin-top:4px}
+#pop .ph2 b,#pop .ps b{color:var(--txt2);font-weight:600}
+#pop .ps code{font-family:var(--mono);font-size:11px;color:var(--accent)}
 /* Неделя — деньги (первый экран для МД) */
 .flow .card{padding:18px 20px}
 .flow .v{font-size:30px;font-weight:700;letter-spacing:-.03em;line-height:1.05;margin-top:10px;font-variant-numeric:tabular-nums}
@@ -157,6 +168,9 @@ tr.total td{border-top:1px solid var(--line2);font-weight:700}
 .flow .card.acc{background:var(--accent-soft);border-color:var(--accent-line)}
 .flow .card.acc .v{color:var(--accent)}
 .payers .row{padding:7px 0}
+.payers .grp{margin-top:10px;display:flex;justify-content:space-between;align-items:baseline}
+.payers .grp .kick{font-size:10px}
+.payers .grp .sum{font-family:var(--mono);font-size:11px;color:var(--txt2)}
 .payers .row .lbl{color:var(--txt)}
 .flow2{grid-template-columns:1fr 1.5fr}@media(max-width:800px){.flow2{grid-template-columns:1fr}}
 #flowTable{min-width:480px}#flowTable td,#flowTable th{padding:7px 0 7px 12px;font-size:13px;white-space:nowrap}#flowTable td:first-child,#flowTable th:first-child{padding-left:0}
@@ -208,7 +222,7 @@ details.plate>summary:focus-visible{outline:2px solid var(--accent);outline-offs
    W — недельный срез (лист «Недели»: история по воскресеньям + текущий срез на дату фида).
    Совместимость: feed_version должен начинаться с "v18".
    ============================================================ */
-const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=1133997871&single=true&output=csv';
+const FEED_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQm44TrbgO6MvBJYKetceRUs0agWwmQOdp3QV0Dy4cOfDuX5vhDCKF3spgpVnh2gQ2E5kBOMDjeye08/pub?gid=2058251631&single=true&output=csv';
 const FEED_MIN = 'v18';
 
 // ---------- CSV ----------
@@ -243,7 +257,7 @@ function load(rows){
     else if(t==='CL') CL.push({name:r[1],co:r[2],st:r[3],tariff:r[4],tracker:r[5],note:r[6]});
     else if(t==='PS'){const a=num(r[3]); if(a>0) PS.push({name:r[1],m:num(r[2]),amount:a});}
     else if(t==='CH') CH.push({ch:r[1],inv:num(r[2])||0,col:num(r[3])||0});
-    else if(t==='W'){const from=dat(r[1]); if(from) W.push({from,to:dat(r[2]),cash:num(r[3]),rev:num(r[4]),aks:num(r[5]),mm:num(r[6]),exp:num(r[7]),ebitda:num(r[8]),drev:num(r[9]),debitda:num(r[10]),dcash:num(r[11]),cur:String(r[12]||'').trim()==='cur',inn:num(r[13]),out:num(r[14]),tax:num(r[15]),nsales:num(r[16]),payers:String(r[17]||'').trim(),sales:num(r[18])});} }
+    else if(t==='W'){const from=dat(r[1]); if(from) W.push({from,to:dat(r[2]),cash:num(r[3]),rev:num(r[4]),aks:num(r[5]),mm:num(r[6]),exp:num(r[7]),ebitda:num(r[8]),drev:num(r[9]),debitda:num(r[10]),dcash:num(r[11]),cur:String(r[12]||'').trim()==='cur',inn:num(r[13]),out:num(r[14]),tax:num(r[15]),nsales:num(r[16]),payers:String(r[17]||'').trim(),sales:num(r[18]),aksNew:num(r[19]),aksCur:num(r[20]),mm:num(r[21])});} }
   W.sort((a,b)=>a.from-b.from||(a.cur?1:-1));
   return {K,M,CL,PS,CH,W};
 }
@@ -297,12 +311,12 @@ function render(D){
 
 ${hasFlow?`<section class="screen" id="flow"><h2><span class="kick">01</span>Неделя — деньги</h2>
   <div class="plate">
-    <div class="ph"><span class="kick" id="flowKick"></span>
+    <div class="ph"><span class="kick" id="flowKick" data-help="flow_week"></span>
       <div class="seg" role="group" aria-label="Период"><button type="button" data-f="closed" aria-pressed="true">Закрытая неделя</button><button type="button" data-f="cur" aria-pressed="false">Эта неделя</button></div></div>
     <div class="grid g4 flow" style="margin-top:14px" id="flowCards"></div>
     <div class="grid flow2" style="margin-top:14px">
-      <div class="card soft payers"><span class="kick">Кто заплатил</span><div id="flowPayers" style="margin-top:6px"></div></div>
-      <div class="card soft"><span class="kick">Последние недели</span><div class="scroll" style="margin-top:6px"><table id="flowTable"></table></div></div>
+      <div class="card soft payers"><span class="kick" data-help="flow_payers">Кто заплатил</span><div id="flowPayers" style="margin-top:6px"></div></div>
+      <div class="card soft"><span class="kick" data-help="flow_table">Последние недели</span><div class="scroll" style="margin-top:6px"><table id="flowTable"></table></div></div>
     </div>
     <div class="note" id="flowNote"></div>
   </div>
@@ -310,20 +324,20 @@ ${hasFlow?`<section class="screen" id="flow"><h2><span class="kick">01</span>Н�
 
 <section class="screen"><h2><span class="kick">${sec(1)}</span>Где фонд сейчас</h2>
   <div class="grid g-hero">
-    <div class="plate"><span class="kick">Деньги на счетах · ${esc(K.cash_label)}</span>
+    <div class="plate"><span class="kick" data-help="cash_now">Деньги на счетах · ${esc(K.cash_label)}</span>
       <div class="hero num">${fmtR(cash)}<small>₽</small>${wk('wk_cash_delta')}</div>
       <div class="mini" style="margin-bottom:6px">из них уйдёт в ближайшие 60 дней — ${fmtM(oblig)}</div>
       ${oblRows}
-      <div class="key"><span class="lbl">Свободно после обязательств</span><span class="val">${fmtM(free)}</span></div>
+      <div class="key"><span class="lbl" data-help="cash_free">Свободно после обязательств</span><span class="val">${fmtM(free)}</span></div>
       <div class="note">${esc(K.updated_note)}</div></div>
     <div class="grid" style="grid-template-rows:auto 1fr">
-      <div class="card"><span class="kick">Дивидендный поток</span>
+      <div class="card"><span class="kick" data-help="div">Дивидендный поток</span>
         <div class="big num">${fmtR(K.div_year)} ₽${num(K.options_signed)>0?`<span class="delta">${fmtR(K.options_signed)} опцион подписан</span>`:''}</div>
         <div class="mini" style="margin-top:6px">за 2026 · первый поток — после закрытия опционов</div>
         <div class="row" style="margin-top:8px"><span class="lbl"><i class="st full acc"></i>Опцион подписан</span><span class="val">${fmtR(K.options_signed)}${K.options_signed_names?' · '+esc(K.options_signed_names):''}</span></div>
         <div class="row"><span class="lbl"><i class="st half acc"></i>В подписании</span><span class="val">${fmtR(K.options_pending)}</span></div>
         <div class="row"><span class="lbl"><i class="st"></i>Даёт дивиденды</span><span class="val">${fmtR(K.options_paying)}</span></div></div>
-      <div class="card soft"><span class="kick">Что клиенты уже оплатили, но мы ещё не отработали</span>
+      <div class="card soft"><span class="kick" data-help="rec_deferred">Что клиенты уже оплатили, но мы ещё не отработали</span>
         <div class="big num">${fmtM(K.rec_deferred)}</div>
         <div class="mini" style="margin-top:6px">${esc(K.rec_asof)} · акселерация · авансы ММ отработаны</div></div>
     </div>
@@ -342,7 +356,7 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
       </div>
     </div>
     <div class="grid g3" style="margin-top:14px" id="wkCards"></div>
-    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick"></span>
+    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick" data-help="wk_chart"></span>
       <div class="seg" role="group" aria-label="Показатель недели"><button type="button" data-w="ebitda" aria-pressed="true">EBITDA за неделю</button><button type="button" data-w="rev" aria-pressed="false">Выручка за неделю</button><button type="button" data-w="cash" aria-pressed="false">Касса</button></div></div>
     <div class="scroll"><svg class="chart wk" viewBox="0 0 1100 230" aria-label="Недельная динамика" id="wkChart" style="min-width:640px"></svg></div>
     <div class="legend"><span><i style="background:var(--dim2)"></i>закрытые недели</span><span><i style="background:var(--accent)"></i>выбранная неделя</span><span><i style="border:2px solid var(--accent);height:8px;width:12px;background:transparent"></i>текущая, неполная</span></div>
@@ -352,8 +366,8 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
 
 <section class="screen"><h2><span class="kick">${sec(D.W.length&&!hasFlow?3:2)}</span>Год 2026 — где мы относительно плана</h2>
   <div class="grid g2">
-    <div class="plate"><span class="kick">Три потока выручки · gross</span>
-      <div class="scroll"><table><thead><tr><th>Поток</th><th>План год</th><th>Факт</th><th>Прогноз 31.12</th></tr></thead><tbody>
+    <div class="plate"><span class="kick" data-help="streams">Три потока выручки · gross</span>
+      <div class="scroll"><table><thead><tr><th>Поток</th><th>План год</th><th><span data-help="fact_ytd">Факт</span></th><th><span data-help="fc">Прогноз 31.12</span></th></tr></thead><tbody>
         <tr><td>Акселерация</td><td>${fmtM(K.aks_plan)}</td><td class="b">${fmtM(K.aks_fact)}</td><td>${fmtM(K.aks_fc)}</td></tr>
         <tr><td>Мастермайнды</td><td>${fmtM(K.mm_plan)}</td><td class="b">${fmtM(K.mm_fact)}</td><td>${fmtM(K.mm_fc)}</td></tr>
         <tr><td>Дивиденды</td><td>${fmtM(K.div_plan)}</td><td class="b">${fmtM(K.div_fact)}</td><td>${fmtM(K.div_plan)}</td></tr>
@@ -362,17 +376,17 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
       </tbody></table></div>
       <div class="bar"><i style="width:${pct(gf,gp)}%"></i><b style="left:${pct(ptd,gp)}%"></b></div>
       <div class="legend"><span><i style="background:var(--bar-fact)"></i>факт ${Math.round(pct(gf,gp))} % годового плана</span><span><i style="background:var(--accent)"></i>по графику к концу ${MONTHS[fm-1]} — ${Math.round(pct(ptd,gp))} %</span>${hasWk&&num(K.wk_rev_delta)!=null?`<span>с ${fmtD(prev)} — <b style="color:var(--txt2)">${sign(K.wk_rev_delta)}</b></span>`:''}<span class="delta" style="margin-left:auto">${sign(gf-ptd)} к графику</span></div></div>
-    <div class="plate"><span class="kick">Результат</span>
+    <div class="plate"><span class="kick" data-help="result">Результат</span>
       <div class="grid g2" style="margin-top:10px">
-        <div><div class="mini">EBITDA · факт</div><div class="big num acc">${fmtM(ef)}</div><div class="mini">план ${fmtM(ep).replace(' М','')} · прогноз ${fmtM(K.fc_ebitda).replace(' М','')}<span class="delta">${sign(ef-etd)} к графику</span>${wk('wk_ebitda_delta',true)}</div></div>
-        <div><div class="mini">Чистая прибыль · факт</div><div class="big num">${fmtM(K.np_fact)}</div><div class="mini">план ${fmtM(K.np_plan).replace(' М','')} · прогноз ${fmtM(K.fc_np).replace(' М','')}</div></div></div>
-      <div class="row" style="margin-top:14px"><span class="lbl">Рентабельность EBITDA от net</span><span class="val">${fmtPct(K.ebitda_margin_fact)}</span></div>
-      <div class="row"><span class="lbl">Расходы факт · план</span><span class="val">${fmtM(K.exp_fact)} · ${fmtM(K.exp_plan)}</span></div>
-      <div class="row"><span class="lbl">в т.ч. трекинг компаний без подписки</span><span class="val">${fmtM(K.tr_nosub_month)} / мес</span></div>
-      <div class="row"><span class="lbl">Остаток на 31.12 · прогноз</span><span class="val">${fmtM(K.cash_eoy)}</span></div></div>
+        <div><div class="mini" data-help="ebitda">EBITDA · факт</div><div class="big num acc">${fmtM(ef)}</div><div class="mini">план ${fmtM(ep).replace(' М','')} · прогноз ${fmtM(K.fc_ebitda).replace(' М','')}<span class="delta">${sign(ef-etd)} к графику</span>${wk('wk_ebitda_delta',true)}</div></div>
+        <div><div class="mini" data-help="np">Чистая прибыль · факт</div><div class="big num">${fmtM(K.np_fact)}</div><div class="mini">план ${fmtM(K.np_plan).replace(' М','')} · прогноз ${fmtM(K.fc_np).replace(' М','')}</div></div></div>
+      <div class="row" style="margin-top:14px"><span class="lbl" data-help="margin">Рентабельность EBITDA от net</span><span class="val">${fmtPct(K.ebitda_margin_fact)}</span></div>
+      <div class="row"><span class="lbl" data-help="exp">Расходы факт · план</span><span class="val">${fmtM(K.exp_fact)} · ${fmtM(K.exp_plan)}</span></div>
+      <div class="row"><span class="lbl" data-help="tr_nosub">в т.ч. трекинг компаний без подписки</span><span class="val">${fmtM(K.tr_nosub_month)} / мес</span></div>
+      <div class="row"><span class="lbl" data-help="cash_eoy">Остаток на 31.12 · прогноз</span><span class="val">${fmtM(K.cash_eoy)}</span></div></div>
   </div>
   <div class="plate" style="margin-top:14px">
-    <div class="ph"><span class="kick" id="chartKick"></span><div class="seg" role="group" aria-label="Показатель"><button type="button" data-m="ebitda" aria-pressed="true">EBITDA</button><button type="button" data-m="rev" aria-pressed="false">Выручка</button></div></div>
+    <div class="ph"><span class="kick" id="chartKick" data-help="traj"></span><div class="seg" role="group" aria-label="Показатель"><button type="button" data-m="ebitda" aria-pressed="true">EBITDA</button><button type="button" data-m="rev" aria-pressed="false">Выручка</button></div></div>
     <div class="scroll"><svg class="chart" viewBox="0 0 1100 300" aria-label="Траектория: план, факт, прогноз" style="min-width:640px">
       <line class="grid" x1="60" x2="1080" y1="250" y2="250"/><line class="grid" x1="60" x2="1080" y1="170" y2="170"/><line class="grid" x1="60" x2="1080" y1="90" y2="90"/>
       <text x="8" y="254" id="ay0"></text><text x="8" y="174" id="ay1"></text><text x="8" y="94" id="ay2"></text>
@@ -383,7 +397,7 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
     <div class="note" id="chartNote"></div>
   </div>
   ${D.W.length&&hasFlow?`<details class="plate" style="margin-top:14px" id="weekly">
-    <summary><span class="kick">Динамика по неделям · EBITDA, выручка, касса — для команды</span>
+    <summary><span class="kick" data-help="wk_dyn">Динамика по неделям · EBITDA, выручка, касса — для команды</span>
       <div class="stepper" style="margin-left:auto" onclick="event.preventDefault()">
         <button type="button" class="chip" id="wkPrev" aria-label="Неделя назад">◀</button>
         <span class="kick wkLbl" id="wkLbl" aria-live="polite"></span>
@@ -391,7 +405,7 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
         <button type="button" class="chip" id="wkNow" title="К текущему срезу">сейчас</button>
       </div></summary>
     <div class="grid g3" style="margin-top:14px" id="wkCards"></div>
-    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick"></span>
+    <div class="ph" style="margin-top:18px"><span class="kick" id="wkKick" data-help="wk_chart"></span>
       <div class="seg" role="group" aria-label="Показатель недели"><button type="button" data-w="ebitda" aria-pressed="true">EBITDA за неделю</button><button type="button" data-w="rev" aria-pressed="false">Выручка за неделю</button><button type="button" data-w="cash" aria-pressed="false">Касса</button></div></div>
     <div class="scroll"><svg class="chart wk" viewBox="0 0 1100 230" aria-label="Недельная динамика" id="wkChart" style="min-width:640px"></svg></div>
     <div class="legend"><span><i style="background:var(--dim2)"></i>закрытые недели</span><span><i style="background:var(--accent)"></i>выбранная неделя</span><span><i style="border:2px solid var(--accent);height:8px;width:12px;background:transparent"></i>текущая, неполная</span></div>
@@ -401,17 +415,17 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
 
 <section class="screen"><h2><span class="kick">${sec(D.W.length&&!hasFlow?4:3)}</span>Акселерация — двигатель подписки</h2>
   <div class="grid g4">
-    <div class="card"><span class="kick acc">В акселерации</span><div class="big num acc">${fmtR(K.aks_clients_active)}</div><div class="mini">платят в рублях ${fmtR(K.aks_clients_paying)}${num(K.aks_clients_active)>num(K.aks_clients_paying)?' · валютный контур '+(num(K.aks_clients_active)-num(K.aks_clients_paying)):''}</div></div>
-    <div class="card"><span class="kick">Подписка в месяц · gross</span><div class="big num">${fmtM(K.aks_sub_month_gross)}</div><div class="mini">${fmtM(K.aks_sub_month_net)} без НДС</div></div>
-    <div class="card"><span class="kick">Вклад после трекеров и ЦК</span><div class="big num">${fmtM(K.aks_contrib)}</div><div class="mini">фикс команды ${fmtM(K.aks_fixed)}<span class="delta dim">${sign(K.aks_result)} в месяц без ММ</span></div></div>
-    <div class="card"><span class="kick">Безубыточность без ММ</span><div class="big num">${fmtR(K.aks_be_clients)} <small style="font-size:14px;font-weight:500;color:var(--txt3)">клиентов</small></div><div class="mini">${esc(K.aks_short_text)}${K.aks_pipeline_text?`<span class="delta">в счёте: ${esc(String(K.aks_pipeline_text).split(' ')[0])}</span>`:''}</div></div>
+    <div class="card"><span class="kick acc" data-help="aks_active">В акселерации</span><div class="big num acc">${fmtR(K.aks_clients_active)}</div><div class="mini">платят в рублях ${fmtR(K.aks_clients_paying)}${num(K.aks_clients_active)>num(K.aks_clients_paying)?' · валютный контур '+(num(K.aks_clients_active)-num(K.aks_clients_paying)):''}</div></div>
+    <div class="card"><span class="kick" data-help="aks_sub">Подписка в месяц · gross</span><div class="big num">${fmtM(K.aks_sub_month_gross)}</div><div class="mini">${fmtM(K.aks_sub_month_net)} без НДС</div></div>
+    <div class="card"><span class="kick" data-help="aks_contrib">Вклад после трекеров и ЦК</span><div class="big num">${fmtM(K.aks_contrib)}</div><div class="mini">фикс команды ${fmtM(K.aks_fixed)}<span class="delta dim">${sign(K.aks_result)} в месяц без ММ</span></div></div>
+    <div class="card"><span class="kick" data-help="aks_be">Безубыточность без ММ</span><div class="big num">${fmtR(K.aks_be_clients)} <small style="font-size:14px;font-weight:500;color:var(--txt3)">клиентов</small></div><div class="mini">${esc(K.aks_short_text)}${K.aks_pipeline_text?`<span class="delta">в счёте: ${esc(String(K.aks_pipeline_text).split(' ')[0])}</span>`:''}</div></div>
   </div>
   <div class="grid" style="margin-top:14px;grid-template-columns:1fr">
-    <div class="plate"><span class="kick">Портфель · кто платит, кто в сделке</span><div class="clients" style="margin-top:12px">${clients}</div></div>
-    <div class="plate"><span class="kick">Платежи ближайших 90 дней · по графику</span>
+    <div class="plate"><span class="kick" data-help="portfolio">Портфель · кто платит, кто в сделке</span><div class="clients" style="margin-top:12px">${clients}</div></div>
+    <div class="plate"><span class="kick" data-help="sched">Платежи ближайших 90 дней · по графику</span>
       <div class="sched" style="margin-top:12px">${sched}</div>
-      ${K.aks_pipeline_text?`<div class="row" style="margin-top:14px"><span class="lbl"><i class="st half acc"></i>В счёте, не оплачено</span><span class="val" style="white-space:normal;text-align:right">${esc(K.aks_pipeline_text)}</span></div>`:''}
-      <div class="row"><span class="lbl">Отработано клиентам · признание</span><span class="val">${fmtM(K.rec_earned_ytd)} из ${fmtM(K.aks_cash_ytd)}</span></div></div>
+      ${K.aks_pipeline_text?`<div class="row" style="margin-top:14px"><span class="lbl" data-help="pipeline"><i class="st half acc"></i>В счёте, не оплачено</span><span class="val" style="white-space:normal;text-align:right">${esc(K.aks_pipeline_text)}</span></div>`:''}
+      <div class="row"><span class="lbl" data-help="rec_earned">Отработано клиентам · признание</span><span class="val">${fmtM(K.rec_earned_ytd)} из ${fmtM(K.aks_cash_ytd)}</span></div></div>
   </div>
 </section>
 
@@ -419,14 +433,14 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
   <div class="grid g-hero">
     <div class="plate"><span class="kick acc">${esc(K.ev_next_title)} · ${esc(K.ev_next_dates)} · ${fmtR(K.ev_next_days)} дней</span>
       <div class="grid g3" style="margin-top:14px">
-        <div><div class="mini">Цель</div><div class="big num">${fmtM(evT)}</div><div class="mini">${fmtR(K.ev_next_guests_target)} гостей · ${fmtR(K.ev_next_razbor_target)} разбора · ${fmtR(K.ev_next_org_target)} взносов</div></div>
-        <div><div class="mini">Собрано</div><div class="big num acc">${fmtM(evC)}</div><div class="mini">${fmtR(K.ev_next_people)} чел.</div></div>
-        <div><div class="mini">В счетах, не оплачено</div><div class="big num">${fmtM(evI)}</div><div class="mini">${fmtR(K.ev_next_invoices_n)} счетов · ${fmtR(K.ev_next_invoiced_people)} человек</div></div></div>
+        <div><div class="mini" data-help="ev_target">Цель</div><div class="big num">${fmtM(evT)}</div><div class="mini">${fmtR(K.ev_next_guests_target)} гостей · ${fmtR(K.ev_next_razbor_target)} разбора · ${fmtR(K.ev_next_org_target)} взносов</div></div>
+        <div><div class="mini" data-help="ev_collected">Собрано</div><div class="big num acc">${fmtM(evC)}</div><div class="mini">${fmtR(K.ev_next_people)} чел.${num(K.ev_next_repeat_people)!=null?` · <span data-help="ev_repeat">повторных ${fmtR(K.ev_next_repeat_people)}, новых ${fmtR(K.ev_next_new_people)}</span>`:''}</div></div>
+        <div><div class="mini" data-help="ev_invoiced">В счетах, не оплачено</div><div class="big num">${fmtM(evI)}</div><div class="mini">${fmtR(K.ev_next_invoices_n)} счетов · ${fmtR(K.ev_next_invoiced_people)} человек${num(K.ev_next_inv_repeat_people)!=null?` · повторных ${fmtR(K.ev_next_inv_repeat_people)}, новых ${fmtR(K.ev_next_inv_new_people)}`:''}</div></div></div>
       <div class="bar"><i style="width:${pct(evC,evT)}%"></i><b style="left:${pct(evC+evI,evT)}%"></b></div>
       <div class="legend"><span><i style="background:var(--bar-fact)"></i>собрано ${Math.round(pct(evC,evT))} %</span><span><i style="background:var(--accent)"></i>с учётом счетов ${Math.round(pct(evC+evI,evT))} %</span></div>
       <div style="margin-top:14px">${chans||'<div class="empty">Счетов по каналам пока нет</div>'}</div>
-      <div class="row"><span class="lbl">Прогноз вклада события при цели</span><span class="val">${fmtM(K.ev_next_contrib_plan)}</span></div></div>
-    <div class="card soft"><span class="kick">${esc(K.ev_last_title)} · итог</span>
+      <div class="row"><span class="lbl" data-help="ev_contrib">Прогноз вклада события при цели</span><span class="val">${fmtM(K.ev_next_contrib_plan)}</span></div></div>
+    <div class="card soft"><span class="kick" data-help="ev_last">${esc(K.ev_last_title)} · итог</span>
       <div class="big num">${fmtM(K.ev_last_contrib)}</div><div class="m2" style="margin-top:4px">маржинальный вклад · ${fmtPct(K.ev_last_margin)} от net</div>
       <div class="row" style="margin-top:10px"><span class="lbl">Выручка gross</span><span class="val">${fmtM(K.ev_last_gross)}</span></div>
       <div class="row"><span class="lbl">Участников</span><span class="val">${fmtR(K.ev_last_people)} · ${fmtR(K.ev_last_razbor)} разборов</span></div>
@@ -436,7 +450,7 @@ ${D.W.length&&!hasFlow?`<section class="screen" id="weekly"><h2><span class="kic
 </section>
 <footer class="foot"><span>Источник — финмодель фонда, лист WEB · ${esc(K.feed_version)}</span><span>Доступ — только команда фонда</span></footer>`;
   document.getElementById('loader').style.display='none'; app.style.display='';
-  theme(); chart(D); weekly(D); if(hasFlow) flow(D);
+  theme(); chart(D); weekly(D); if(hasFlow) flow(D); help();
 }
 
 function theme(){
@@ -524,12 +538,74 @@ function weekly(D){
   go(W.length-1);
 }
 
+// ---------- подсказки ----------
+// Словарь: заголовок · что это · как считается · откуда (лист / ключ фида). Тот же словарь — часть контракта данных для платформы.
+const HELP={
+ flow_week:['Неделя — деньги','Кассовый отчёт недели: что пришло на счета, что ушло, что осталось и кто из клиентов заплатил. Закрытая неделя — понедельник–воскресенье; «эта неделя» — с понедельника по дату фида, она ещё не закрыта.','Все движения по выписке банка, без внутренних переводов между счетами фонда.','лист «Недели», строки истории; фид W'],
+ flow_in:['Пришло на счета','Все поступления на счета фонда за неделю: оплаты клиентов, проценты по депозиту, возвраты от поставщиков.','Сумма зачислений по выписке за неделю.','Недели!L; фид W, колонка 14'],
+ flow_out:['Ушло со счетов','Все списания за неделю: зарплаты и подрядчики, трекеры, сервисы, налоги и НДС, возвраты клиентам.','Сумма списаний по выписке за неделю; отдельно показано, сколько из них — налоги и НДС.','Недели!M и N; фид W, колонки 15–16'],
+ flow_cash:['На счетах на конец недели','Деньги на всех счетах фонда на воскресенье (для текущей недели — на дату фида).','Было на начало + пришло − ушло. Расчётный остаток модели; сверка с банком — 1-го числа каждого месяца.','Недели!C; ДДС!30'],
+ flow_sales:['Продажи · оплаты клиентов','Деньги, которые заплатили клиенты за неделю, — часть «пришло». Три типа: акселерация новые (первый платёж по новому договору резидента), акселерация действующие (очередные платежи по действующим договорам — помесячные и квартальные), ММ (гости, разборы, орг. взносы событий).','Выставленные, но не оплаченные счета сюда не входят — они в разделе «Акселерация» и «События».','Недели!Q и S–U; фид W, колонки 19–22'],
+ flow_payers:['Кто заплатил','Поимённо: клиент и сумма, сгруппированы по типу оплаты.','Из выписки банка, названия приведены к клиентам фонда.','Недели!P; фид W, колонка 18'],
+ flow_table:['Последние недели','Те же четыре числа за последние пять закрытых недель и текущую. Продажи — сумма и число оплат в скобках.','','лист «Недели»'],
+ cash_now:['Деньги на счетах','Расчётный остаток на дату фида по всем счетам фонда.','Остаток на 1 июня (якорь, сверен с банком) + все поступления − все списания по выписке.','ДДС!30; ключ cash_calc'],
+ cash_free:['Свободно после обязательств','Сколько останется, если из денег на счетах вычесть ближайшие обязательные платежи: НДС, налог на прибыль, неисполненные заявки.','Деньги на счетах − сумма обязательств из списка выше.','ключ cash_free = cash_calc − oblig_total'],
+ div:['Дивидендный поток','Доход фонда от долей в портфельных компаниях (опционы). Пока ноль: первый опцион подписан, выплат ещё не было.','Фактические дивиденды за год.','ключи div_year, options_*'],
+ rec_deferred:['Оплачено, но не отработано','Отложенная выручка: клиенты заплатили вперёд, а услуга ещё не оказана. По сути — обязательство фонда перед клиентами.','Срез признания от бухгалтерии: поступило − признано по каждому клиенту. Обновляется раз в месяц.','лист «Признание»; ключ rec_deferred'],
+ streams:['Три потока выручки','Выручка фонда складывается из подписки акселерации, мастермайндов и дивидендов. Gross — с НДС, как пришло на счёт.','Факт — по кассе с начала года; план — модель 2026.','P&L, строки 8, 9, 16'],
+ fact_ytd:['Факт с начала года','Деньги, фактически пришедшие с 1 января по дату фида, включая текущий месяц.','Кассовый принцип: месяц оплаты, не месяц оказания услуги.','P&L, колонка D'],
+ fc:['Прогноз на 31.12','Ожидаемый итог года при выполнении плана оставшихся месяцев.','Факт закрытых месяцев + план открытых. Текущий месяц берётся планом целиком, чтобы не удваивать.','ключи fc_*'],
+ result:['Результат','Прибыль фонда с начала года: EBITDA и чистая прибыль после налога.','','P&L, строки 31 и 34'],
+ ebitda:['EBITDA','Операционная прибыль: выручка без НДС минус все расходы, до налога на прибыль.','Кассовый P&L с начала года. «К графику» — сравнение с планом на конец последнего закрытого месяца.','P&L!D31; ключ ebitda_fact'],
+ np:['Чистая прибыль','EBITDA минус налог на прибыль 25 % (ОСНО).','Налог считается от накопленной EBITDA; НДС прибыль не уменьшает.','P&L!D34; ключ np_fact'],
+ margin:['Рентабельность EBITDA','Какая доля выручки без НДС остаётся фонду после всех расходов.','EBITDA ÷ выручка net.','ключ ebitda_margin_fact'],
+ exp:['Расходы','Все расходы фонда с начала года без НДС и налога на прибыль: команда, подрядчики, трекеры, сервисы, прямые расходы событий.','Факт — по выписке, помесячно; план — бюджет 2026.','P&L, строки 22–29; лист «ФАКТ_Расходы»'],
+ tr_nosub:['Трекинг без подписки','Трекеры работают с компаниями, которые подписку уже не платят (сделка, опцион, валютный контур). Это инвестиция в портфель, а не расход акселерации.','Сумма ставок трекеров по таким компаниям в месяц.','лист «Трекеры», строка «без подписочной выручки»'],
+ cash_eoy:['Остаток на 31.12','Сколько денег будет на счетах в конце года, если план оставшихся месяцев исполнится.','Деньги сейчас + план поступлений − план выплат, включая налоги.','ДДС!M26; ключ cash_eoy'],
+ traj:['Траектория года','Нарастающим итогом: факт (сплошная), план (пунктир), прогноз до конца года. Точка А — где мы сейчас, точка Б — цель года.','Помесячные план и факт из P&L, суммируются с января.','фид M'],
+ wk_dyn:['Динамика по неделям','Рабочий блок для команды: касса, выручка и EBITDA по неделям, сдвиг на любую неделю назад.','Разность нарастающих итогов между соседними воскресеньями.','лист «Недели»; фид W'],
+ wk_chart:['График недель','Столбики — приращение за неделю; выбранная неделя — медная; контур — текущая, незакрытая.','','лист «Недели»'],
+ aks_active:['В акселерации','Компании, которые платят подписку сейчас, включая валютный контур (оплата на иностранное юрлицо). Компании на стадии сделки и опциона сюда не входят.','Счёт по списку портфеля со статусом «платит» или «валютный контур».','ключ aks_clients_active; лист «Контур»'],
+ aks_sub:['Подписка в месяц','Месячная выручка акселерации при текущем составе платящих: тарифы ÷ 12.','Сумма месячных тарифов платящих компаний, с НДС и без.','Контур!D102; ключ aks_sub_month_gross'],
+ aks_contrib:['Вклад после трекеров и ЦК','Что остаётся от подписки после оплаты трекеров и центра компетенций — до фикса команды.','Подписка без НДС − трекеры − ЦК. Ниже — фикс команды в месяц и результат.','лист «Контур»; ключи aks_contrib, aks_fixed, aks_result'],
+ aks_be:['Безубыточность без ММ','Сколько платящих компаний нужно, чтобы подписка покрывала всю команду без выручки от мастермайндов.','Фикс команды ÷ вклад одной компании, округлено вверх.','Контур!D119; ключ aks_be_clients'],
+ portfolio:['Портфель','Все компании фонда и их статус: ● платит, ◐ сделка / опцион / валютный контур, ○ вышел.','Ведётся вручную в финмодели.','фид CL'],
+ sched:['Платежи по графику','Ожидаемые оплаты подписки на три ближайших месяца по договорам. Уже оплаченное в текущем месяце здесь тоже показано — график, не дебиторка.','Из графика платежей по клиентам с флагом «в плане».','лист «Клиенты», график; фид PS'],
+ pipeline:['В счёте, не оплачено','Счета на акселерацию, выставленные, но не оплаченные. Денег ещё нет.','Ведётся вручную по своду отдела продаж.','ключ aks_pipeline_text'],
+ rec_earned:['Отработано · признание','Сколько из полученных денег фонд уже отработал (признал выручкой) по акту бухгалтерии — против всего, что пришло по акселерации за год.','Срез признания от бухгалтерии на последнюю отчётную дату.','лист «Признание»; ключи rec_earned_ytd, aks_cash_ytd'],
+ ev_target:['Цель события','Сколько должно собрать событие: гости × чек + разборы × чек + орг. взносы резидентов.','Параметры — в модели 2026.','ключи ev_next_target, ev_next_*_target'],
+ ev_collected:['Собрано','Деньги, уже пришедшие за событие: полные оплаты и предоплаты.','Сумма оплат по реестру ММ с признаком «дек».','реестр ММ; ключ ev_next_collected'],
+ ev_repeat:['Повторные и новые','Повторный — участник, который уже был на прошлом мастермайнде и оплатил этот; новый — на событии фонда впервые. Показатель силы сообщества и качества холодных продаж.','По реестру ММ: совпадение плательщика с оплаченными участниками прошлых событий.','реестр ММ, колонка «Повторно / новый»; ключи ev_next_repeat_*'],
+ ev_invoiced:['В счетах, не оплачено','Выставленные счета за событие без оплаты, включая остатки по предоплатам. Это ожидания, не деньги.','Сумма счетов − оплачено по реестру ММ.','ключ ev_next_invoiced'],
+ ev_contrib:['Вклад события при цели','Сколько событие принесёт фонду после прямых расходов, если цель будет выполнена.','Цель без НДС − смета прямых расходов.','лист «ЮЭ_ММ»; ключ ev_next_contrib_plan'],
+ ev_last:['Итог прошлого события','Фактический результат августовского мастермайнда: выручка, участники, прямые расходы, вклад.','По кассе и смете события.','лист «ЮЭ_ММ»; ключи ev_last_*'],
+};
+function help(){
+  const pop=document.createElement('div'); pop.id='pop'; pop.setAttribute('role','tooltip'); document.body.appendChild(pop);
+  let cur=null, pinned=false;
+  const show=(el)=>{const h=HELP[el.dataset.help]; if(!h) return; cur=el;
+    pop.innerHTML=`<div class="pt">${esc(h[0])}</div><div class="pw">${esc(h[1])}</div>${h[2]?`<div class="ph2"><b>Как считается.</b> ${esc(h[2])}</div>`:''}${h[3]?`<div class="ps"><b>Откуда.</b> <code>${esc(h[3])}</code></div>`:''}`;
+    pop.style.display='block'; const r=el.getBoundingClientRect(), pw=pop.offsetWidth, ph=pop.offsetHeight, vw=document.documentElement.clientWidth;
+    let x=r.left+window.scrollX, y=r.bottom+window.scrollY+8; if(x+pw>vw-12) x=Math.max(12,vw-12-pw); if(r.bottom+ph+8>window.innerHeight&&r.top>ph+8) y=r.top+window.scrollY-ph-8;
+    pop.style.left=x+'px'; pop.style.top=y+'px';};
+  const hide=()=>{if(pinned) return; pop.style.display='none'; cur=null;};
+  document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-help]'); if(t&&t!==cur&&!pinned) show(t);});
+  document.addEventListener('mouseout',e=>{const t=e.target.closest('[data-help]'); if(t&&!t.contains(e.relatedTarget)) hide();});
+  document.addEventListener('click',e=>{const t=e.target.closest('[data-help]');
+    if(t){ if(pinned&&cur===t){pinned=false;hide();} else {pinned=true;show(t);} e.preventDefault(); e.stopPropagation(); return; }
+    if(!pop.contains(e.target)){pinned=false;hide();}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'){pinned=false;hide();}});
+  window.addEventListener('scroll',()=>{if(cur&&!pinned) hide();},{passive:true});
+}
+
 // ---------- неделя — деньги ----------
 // Четыре числа по банку: пришло, ушло, на счетах на конец, продажи (оплаты клиентов). Было + пришло − ушло = стало.
 function flow(D){
   const W=D.W, hist=W.filter(w=>!w.cur&&w.inn!=null), cur=W.find(w=>w.cur&&w.inn!=null);
   if(!hist.length) return;
   const pl=(n,a,b,c)=>{n=Math.abs(n)%100; const d=n%10; return n>10&&n<20?c:d===1?a:d>=2&&d<=4?b:c;};
+  const hasTypes=w=>w.aksNew!=null||w.aksCur!=null||w.mm!=null;
+  const TYPES=[['новый','Акселерация · новые клиенты','aksNew'],['действующий','Акселерация · действующие','aksCur'],['ММ','Мастермайнд','mm']];
   const cards=document.getElementById('flowCards'), pay=document.getElementById('flowPayers'), tbl=document.getElementById('flowTable'), kick=document.getElementById('flowKick'), note=document.getElementById('flowNote');
   function show(mode){
     const w=mode==='cur'&&cur?cur:hist[hist.length-1];
@@ -537,14 +613,19 @@ function flow(D){
     const other=(w.inn||0)-(w.sales||0), tax=w.tax||0, delta=(w.inn||0)-(w.out||0);
     kick.textContent=w.cur?`Эта неделя · с ${fmtD(w.from)} по ${fmtD(w.to)} · неделя не закрыта`:`Закрытая неделя · ${fmtD(w.from)}–${fmtD(w.to)} · пн–вс`;
     cards.innerHTML=`
-      <div class="card acc"><span class="kick">Пришло на счета</span><div class="v num">+${fmtR(w.inn)}<small>₽</small></div><div class="dl">${w.sales?`оплаты клиентов <b>${fmtR(w.sales)}</b>`:'оплат клиентов не было'}${other>0.5?` · проценты и прочее <b>${fmtR(other)}</b>`:''}</div></div>
-      <div class="card"><span class="kick">Ушло со счетов</span><div class="v num">${w.out?'−'+fmtR(w.out):'0'}<small>₽</small></div><div class="dl">${tax>0?`в т.ч. налоги и НДС <b>${fmtR(tax)}</b>`:'налогов и НДС на неделе не было'}${w.out&&w.out-tax>0.5?` · остальное <b>${fmtR(w.out-tax)}</b>`:''}</div></div>
-      <div class="card"><span class="kick">На счетах · на ${fmtD(w.to)}</span><div class="v num">${fmtR(w.cash)}<small>₽</small></div><div class="dl">${was!=null?`было <b>${fmtR(was)}</b> → за неделю <b>${delta>=0?'+':'−'}${fmtR(Math.abs(delta))}</b>`:'первая неделя истории'}</div></div>
-      <div class="card"><span class="kick">Продажи · оплаты клиентов</span><div class="v num">${w.sales?fmtR(w.sales):'0'}<small>₽</small></div><div class="dl">${w.nsales?`<b>${fmtR(w.nsales)}</b> ${pl(w.nsales,'оплата','оплаты','оплат')}`:'без оплат'}${w.drev!=null&&w.sales!=null&&Math.abs(w.drev-w.sales)>0.5?` · в выручке <b>${fmtR(w.drev)}</b> (с учётом возвратов)`:''}</div></div>`;
+      <div class="card acc"><span class="kick" data-help="flow_in">Пришло на счета</span><div class="v num">+${fmtR(w.inn)}<small>₽</small></div><div class="dl">${w.sales?`оплаты клиентов <b>${fmtR(w.sales)}</b>`:'оплат клиентов не было'}${other>0.5?` · проценты и прочее <b>${fmtR(other)}</b>`:''}</div></div>
+      <div class="card"><span class="kick" data-help="flow_out">Ушло со счетов</span><div class="v num">${w.out?'−'+fmtR(w.out):'0'}<small>₽</small></div><div class="dl">${tax>0?`в т.ч. налоги и НДС <b>${fmtR(tax)}</b>`:'налогов и НДС на неделе не было'}${w.out&&w.out-tax>0.5?` · остальное <b>${fmtR(w.out-tax)}</b>`:''}</div></div>
+      <div class="card"><span class="kick" data-help="flow_cash">На счетах · на ${fmtD(w.to)}</span><div class="v num">${fmtR(w.cash)}<small>₽</small></div><div class="dl">${was!=null?`было <b>${fmtR(was)}</b> → за неделю <b>${delta>=0?'+':'−'}${fmtR(Math.abs(delta))}</b>`:'первая неделя истории'}</div></div>
+      <div class="card"><span class="kick" data-help="flow_sales">Продажи · оплаты клиентов</span><div class="v num">${w.sales?fmtR(w.sales):'0'}<small>₽</small></div><div class="dl">${w.nsales?`<b>${fmtR(w.nsales)}</b> ${pl(w.nsales,'оплата','оплаты','оплат')}`:'без оплат'}${hasTypes(w)?`<br>акселерация новые <b>${fmtR(w.aksNew||0)}</b> · действующие <b>${fmtR(w.aksCur||0)}</b> · ММ <b>${fmtR(w.mm||0)}</b>`:''}${w.drev!=null&&w.sales!=null&&Math.abs(w.drev-w.sales)>0.5?`<br>в выручке <b>${fmtR(w.drev)}</b> — с учётом возвратов`:''}</div></div>`;
     const parts=(w.payers||'').split(' · ').map(s=>s.trim()).filter(s=>s&&s!=='—');
-    pay.innerHTML=parts.length?parts.map(s=>{const m=s.match(/^(.+?)\s(\d[\d\s]*\d|\d)(\s*\(.*\))?$/); return m?`<div class="row"><span class="lbl">${esc(m[1])}${m[3]?' <span class="muted">'+esc(m[3].trim())+'</span>':''}</span><span class="val">${esc(m[2])}</span></div>`:`<div class="row"><span class="lbl">${esc(s)}</span></div>`;}).join(''):'<div class="empty" style="margin-top:8px">Оплат от клиентов на этой неделе не было</div>';
+    const items=parts.map(s=>{const tg=s.match(/\[(новый|действующий|ММ)\]/); const clean=s.replace(/\s*\[(новый|действующий|ММ)\]/,''); const m=clean.match(/^(.+?)\s(\d[\d\s]*\d|\d)(\s*\(.*\))?$/); return {type:tg?tg[1]:null,name:m?m[1]:clean,note:m&&m[3]?m[3].trim():'',amt:m?m[2]:''};});
+    const rowHtml=i=>`<div class="row"><span class="lbl">${esc(i.name)}${i.note?' <span class="muted">'+esc(i.note)+'</span>':''}</span><span class="val">${esc(i.amt)}</span></div>`;
+    const typed=items.some(i=>i.type);
+    pay.innerHTML=!items.length?'<div class="empty" style="margin-top:8px">Оплат от клиентов на этой неделе не было</div>':
+      typed?TYPES.map(([t,label,k])=>{const g=items.filter(i=>i.type===t); if(!g.length) return ''; return `<div class="grp"><span class="kick">${label}</span><span class="sum">${w[k]!=null?fmtR(w[k]):''}</span></div>${g.map(rowHtml).join('')}`;}).join('')+(items.some(i=>!i.type)?`<div class="grp"><span class="kick">Прочее</span></div>${items.filter(i=>!i.type).map(rowHtml).join('')}`:'')
+      :items.map(rowHtml).join('');
     const last=hist.slice(-5).concat(cur?[cur]:[]);
-    tbl.innerHTML=`<thead><tr><th>Неделя</th><th>Пришло</th><th>Ушло</th><th>На счетах</th><th>Продажи</th></tr></thead><tbody>${last.map(x=>`<tr class="${x===w?'sel':''}${x.cur?' cur':''}"><td>${fmtD(x.from)}–${fmtD(x.to)}${x.cur?' · эта':''}</td><td>+${fmtR(x.inn)}</td><td>${x.out?'−'+fmtR(x.out):'0'}</td><td>${fmtR(x.cash)}</td><td>${x.sales?fmtR(x.sales):'—'}${x.nsales?` <span class="muted">(${fmtR(x.nsales)})</span>`:''}</td></tr>`).join('')}</tbody>`;
+    tbl.innerHTML=`<thead><tr><th>Неделя</th><th><span data-help="flow_in">Пришло</span></th><th><span data-help="flow_out">Ушло</span></th><th><span data-help="flow_cash">На счетах</span></th><th><span data-help="flow_sales">Продажи</span></th></tr></thead><tbody>${last.map(x=>`<tr class="${x===w?'sel':''}${x.cur?' cur':''}"><td>${fmtD(x.from)}–${fmtD(x.to)}${x.cur?' · эта':''}</td><td>+${fmtR(x.inn)}</td><td>${x.out?'−'+fmtR(x.out):'0'}</td><td>${fmtR(x.cash)}</td><td>${x.sales?fmtR(x.sales):'—'}${x.nsales?` <span class="muted">(${fmtR(x.nsales)})</span>`:''}</td></tr>`).join('')}</tbody>`;
     note.textContent=`Все суммы — по выписке банка, без внутренних переводов между счетами; пришло включает проценты по депозиту, ушло — налоги и НДС. Касса на конец = было + пришло − ушло. ${cur?`Эта неделя — с понедельника по дату фида ${fmtD(cur.to)}.`:''}`;
     document.querySelectorAll('#flow .seg button[data-f]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.f===mode?'true':'false'));
   }
